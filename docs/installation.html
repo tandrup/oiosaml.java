@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>OIOSAML.java installation</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h2>OIOSAML.java installation</h2>
+
+<p>Installation of OIOSAML.java consists of adding jar files to a web application, editing web.xml, and configuring OIOSAML.java. 
+For configuration, see <a href="configuration.html">the configuration guide</a>.</p>
+
+<p>The distribution file contains both the necessary jar files and a demo application. The demo application is a simple web application with OIOSAML.java configured to protect 
+selected resources.</p>
+
+<p>NB: If you are using <b>Java 1.5.0</b> you have to endorse alternative JAXP 1.3 implementations. <a href="endorsement.html">further information here</a>.</p>  
+
+<h3>Demo installation</h3>
+<p>Before deploying the demo war file to a web container, web.xml must be edited to set <a href="configuration.html">oiosaml-j.home to point to a valid configuration dir</a>. If this is 
+not done, configuration will be placed in ${user.home}/.oiosaml. Edit the file by opening the war file (as a zip file) and editing WEB-INF/web.xml. 
+When this is done, simply deploy the war file to a servlet container such as 
+<a href="http://tomcat.apache.org">Tomcat</a>.</p> 
+
+<p>When the application is accessed using a browser, OIOSAML.java will see that the application has not yet been configured, 
+and there will be a link to the autoconfigure feature. Use this link to configure the system.</p>
+
+<h3>Real installation</h3>
+<p>To install OIOSAML.java in your own web application, do the following: </p>
+<ol>
+<li>Copy lib/* from the distribution file to your web application's WEB-INF/lib</li>
+<li>Edit your web.xml and add the following: 
+<pre>
+&lt;context-param&gt;
+	&lt;param-name&gt;oiosaml-j.home&lt;/param-name&gt;
+	&lt;param-value&gt;/path/to/oiosaml.home&lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;servlet&gt;
+	&lt;servlet-name&gt;SAMLDispatcherServlet&lt;/servlet-name&gt;
+	&lt;servlet-class&gt;dk.itst.oiosaml.sp.service.DispatcherServlet&lt;/servlet-class&gt;
+&lt;/servlet&gt;
+
+&lt;servlet-mapping&gt;
+	&lt;servlet-name&gt;SAMLDispatcherServlet&lt;/servlet-name&gt;
+	&lt;url-pattern&gt;/saml/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+
+&lt;filter&gt;
+	&lt;filter-name&gt;LoginFilter&lt;/filter-name&gt;
+	&lt;filter-class&gt;dk.itst.oiosaml.sp.service.SPFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+	&lt;filter-name&gt;LoginFilter&lt;/filter-name&gt;
+	&lt;url-pattern&gt;/protected/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</pre>
+</ol>
+
+<p>This defines a servlet which handles all SAML related requests, such as Single Logout, Login Responses, and so on. /saml/ is the recommended prefix for this servlet. 
+Furthermore, a protection filter is defined. This filter handles user authentication, and only allows access to the protected resources if the user is authenticated correctly. Make sure the filter
+does not cover the SAML servlet.</p> 
+
+<p>When OIOSAML.java is started, it will check if it is configured correctly. If not, autoconfig is enabled, and you can visit saml/configure to configure the system.</p>
+</body>
+</html>

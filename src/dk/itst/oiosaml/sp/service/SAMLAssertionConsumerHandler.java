@@ -1,0 +1,149 @@
+/*
+ * The contents of this file are subject to the Mozilla Public 
+ * License Version 1.1 (the "License"); you may not use this 
+ * file except in compliance with the License. You may obtain 
+ * a copy of the License at http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an 
+ * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express 
+ * or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ *
+ * The Original Code is OIOSAML Java Service Provider.
+ * 
+ * The Initial Developer of the Original Code is Trifork A/S. Portions 
+ * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
+ * and Telecom Agency (http://www.itst.dk). All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   Joakim Recht <jre@trifork.com>
+ *   Rolf Njor Jensen <rolf@trifork.com>
+ *
+ */
+package dk.itst.oiosaml.sp.service;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+import org.opensaml.saml2.core.Assertion;
+
+import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.PassiveUserAssertion;
+import dk.itst.oiosaml.sp.UserAssertionImpl;
+import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
+import dk.itst.oiosaml.sp.model.OIOResponse;
+import dk.itst.oiosaml.sp.model.RelayState;
+import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.util.ArtifactExtractor;
+import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.HTTPUtils;
+import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
+import dk.itst.oiosaml.sp.service.util.PostResponseExtractor;
+import dk.itst.oiosaml.sp.service.util.SOAPClient;
+import dk.itst.oiosaml.sp.util.BRSUtil;
+
+/**
+ * Servlet for receiving SAML asertions from the IdP.
+ * 
+ * <p>The servlet supports both POST and Artifact binding. POST reception is handled by
+ * {@link PostResponseExtractor} while Artifact is handled by {@link ArtifactExtractor}.</p>
+ * 
+ * <p>Upon reception, SAML responses are validated using {@link OIOResponse#validateResponse(String, java.security.cert.Certificate)},
+ * and the attached signature is also checked.</p>
+ * 
+ *  <p>If the SAML response can be validated, and is a known response, the received assertion
+ *  is set in the user's session using {@link LoggedInHandler#setAssertion(HttpSession, OIOAssertion)}. The
+ *  user is then redirected either to the home url, or to the url saved in the session attributes
+ *  {@link Constants#SESSION_REQUESTURI} and {@link Constants#SESSION_QUERYSTRING}.
+ * 
+ * @author Joakim Recht <jre@trifork.com>
+ * @author Rolf Njor Jensen <rolf@trifork.com>
+ */
+public class SAMLAssertionConsumerHandler implements SAMLHandler {
+
+	private static final long serialVersionUID = -8417816228519917989L;
+	public static final String VERSION = "$Id: SAMLAssertionConsumerHandler.java 2910 2008-05-21 13:07:31Z jre $";
+	private static final String NAME = SAMLAssertionConsumerHandler.class.getName().substring(SAMLAssertionConsumerHandler.class.getName().lastIndexOf('.') + 1);
+	
+	private static final Logger log = Logger.getLogger(SAMLAssertionConsumerHandler.class);
+	private SOAPClient client;
+
+	public SAMLAssertionConsumerHandler() {
+		setSoapClient(new HttpSOAPClient());
+	}
+	
+	public void setSoapClient(SOAPClient soapClient) {
+		client = soapClient;
+	}
+
+	public void handlePost(RequestContext ctx) throws IOException, ServletException {
+		PostResponseExtractor extractor = new PostResponseExtractor();
+		handleSAMLResponse(ctx, extractor.extract(ctx.getRequest()));
+	}
+
+
+	/**
+	 * Receive an artifact from the login site and make a back channel call &lt;ArtifactResolve&gt;
+	 * to the login site in order to obtain the associated {@link OIOAssertion}
+	 */
+	public void handleGet(RequestContext ctx) throws IOException, ServletException {
+		if (ctx.getRequest().getParameter(Constants.SAML_SAMLRESPONSE) != null) {
+			handlePost(ctx);
+		} else {
+			ArtifactExtractor extractor = new ArtifactExtractor(ctx.getIdpMetadata(), ctx.getSpMetadata().getEntityID(), 
+					client, ctx.getConfiguration().getString(Constants.PROP_RESOLVE_USERNAME), 
+					ctx.getConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD),
+					ctx.getConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false));
+			handleSAMLResponse(ctx, extractor.extract(ctx.getRequest(), ctx.getLogUtil()));
+		}
+	} 
+	
+	private void handleSAMLResponse(RequestContext ctx, OIOResponse response) throws IOException, ServletException {
+		HttpSession session = ctx.getSession();
+
+		if (log.isDebugEnabled()) {
+			log.debug("Calling URL.:" + ctx.getRequest().getRequestURI() + "?" + ctx.getRequest().getQueryString());
+			log.debug("SessionId..:" + session.getId());
+		}
+
+		RelayState relayState = RelayState.fromRequest(ctx.getRequest());
+		if (log.isDebugEnabled()) log.debug("Got relayState..:" + relayState);
+		relayState.finished(session);
+
+		String idpEntityId = response.getOriginatingIdpEntityId(LoggedInHandler.getInstance());
+		if (log.isDebugEnabled()) log.debug("Received SAML Response from " + idpEntityId + ": " + response.toXML());
+		
+		boolean allowPassive = ctx.getConfiguration().getBoolean(Constants.PROP_PASSIVE, false);
+		Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
+		response.decryptAssertion(ctx.getCredential(), !ctx.getConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, false));
+		response.validateResponse(ctx.getSpMetadata().getAssertionConsumerServiceLocation(0), metadata.getCertificate(), allowPassive);
+		if (allowPassive && response.isPassive()) {
+			log.debug("Received passive response, setting passive userassertion");
+			Assertion assertion = BRSUtil.buildXMLObject(Assertion.class);
+			assertion.setID("" + System.currentTimeMillis());
+			LoggedInHandler.getInstance().setAssertion(session, new OIOAssertion(assertion));
+			session.setAttribute(Constants.SESSION_USER_ASSERTION, new PassiveUserAssertion(ctx.getConfiguration().getString(Constants.PROP_PASSIVE_USER_ID)));
+		} else {
+			OIOAssertion assertion = response.getAssertion();
+	
+			// Validate the content of the assertion
+			assertion.validateAssertion(ctx.getSpMetadata().getEntityID(), ctx.getSpMetadata().getAssertionConsumerServiceLocation(0));
+			new LogUtil(getClass(), VERSION, NAME, assertion.getSubjectNameIDValue()).audit("Received assertion " + assertion.getID());
+	
+			// Store the assertion in the session store
+			LoggedInHandler.getInstance().setAssertion(session, assertion);
+			session.setAttribute(Constants.SESSION_USER_ASSERTION, new UserAssertionImpl(assertion));
+		}
+
+		String redirect = HTTPUtils.buildRedirectUrl(session, ctx.getConfiguration());
+		log.debug("redirectURI...:" + redirect);
+
+		ctx.getResponse().sendRedirect(redirect);
+	}
+
+}

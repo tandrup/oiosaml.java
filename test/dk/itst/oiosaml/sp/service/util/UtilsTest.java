@@ -1,0 +1,124 @@
+package dk.itst.oiosaml.sp.service.util;
+
+import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.Before;
+import org.junit.Test;
+import org.opensaml.Configuration;
+import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.core.RequestAbstractType;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallerFactory;
+import org.opensaml.xml.security.credential.Credential;
+import org.opensaml.xml.security.x509.BasicX509Credential;
+import org.opensaml.xml.util.Base64;
+import org.w3c.dom.Document;
+
+import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
+import dk.itst.oiosaml.sp.model.OIORequest;
+import dk.itst.oiosaml.sp.service.AbstractServiceTests;
+import dk.itst.oiosaml.sp.service.TestHelper;
+import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
+
+public class UtilsTest extends AbstractServiceTests {
+	RequestAbstractType request;
+	@Before
+	public void setUp() throws Exception {
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
+		Document doc = documentBuilderFactory.newDocumentBuilder().parse(OIORequest.class.getResourceAsStream("request.xml"));
+		Configuration.getBuilderFactory();
+		UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+		Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(doc.getDocumentElement());
+		request = (RequestAbstractType) unmarshaller.unmarshall(doc.getDocumentElement());
+		request.getIssuer().setValue("IssuerValue");
+	}
+
+	@Test
+	public void testGetCredential() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
+		
+		Credential cred = TestHelper.getCredential();
+		X509Certificate cert = TestHelper.getCertificate(cred);
+		
+		KeyStore store = KeyStore.getInstance("PKCS12", "BC");
+		store.load(null, null);
+		store.setKeyEntry("saml", cred.getPrivateKey(), "test".toCharArray(), new Certificate[] { cert });
+
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		store.store(bos, "test".toCharArray());
+		bos.close();
+		
+		BasicX509Credential newCredential = Utils.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
+		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
+		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
+		
+		store = KeyStore.getInstance("JKS");
+		store.load(null, null);
+		store.setKeyEntry("saml", cred.getPrivateKey(), "test".toCharArray(), new Certificate[] { cert });
+
+		bos = new ByteArrayOutputStream();
+		store.store(bos, "test".toCharArray());
+		bos.close();
+
+		newCredential = Utils.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
+		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
+		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
+	}
+
+	@Test
+	public void testMakeXML() {
+		String xml = "<test></test>";
+		assertEquals("&lt;test&gt;<br />&lt;/test&gt;", Utils.makeXML(xml));
+		
+		assertEquals("test", Utils.makeXML("test"));
+	}
+
+	@Test
+	public void testBeautifyXML() {
+		String xml = "<test><more></more></test>";
+		assertEquals("<test>\n  <more>\n  </more>\n</test>", Utils.beautifyXML(xml, "  ").trim());
+	}
+
+	@Test
+	public void testGenerateUUID() {
+		assertTrue(Utils.generateUUID().startsWith("_"));
+	}
+
+	@Test
+	public void testVerifySignature() throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchProviderException {
+		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, session, logUtil);
+		String url = request.getRedirectURL(credential, logUtil);
+		credential.getPublicKey().getEncoded();
+		String signature = getParameter("Signature", url);
+		
+       byte[] data = url.substring(url. indexOf(Constants.SAML_SAMLREQUEST), url.lastIndexOf("&")).getBytes();
+
+       final PublicKey key = credential.getPublicKey();
+       byte[] sig = Base64.decode(URLDecoder.decode(signature, "UTF-8"));
+		assertTrue(Utils.verifySignature(data, key, sig));
+		
+		assertFalse(Utils.verifySignature(new byte[] {}, key, sig));
+		assertFalse(Utils.verifySignature(data, key, new byte[] {}));
+	}
+}

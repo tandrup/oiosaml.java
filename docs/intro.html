@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>OIOSAML.java intro</title>
+        <style type="text/css">
+    	body {background-color: white; margin: 20px;}
+    	body, tr, td {font-family: Verdana, Helvetica, sans-serif; color: #456974;}
+    	div#pagecontainer {width: 80%;}
+    	h1, h2, h3, h4 {color: #76c2bc; border-bottom: 1px solid #76c2bc;}
+    	.monospace {font-family: monospace;}
+    	legend {font-weight: bold;}
+    	fieldset {margin-top: 10px; margin-bottom: 10px;}
+    	span.emphasis {font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<h2>OIOSAML.java Service Provider Introduction</h2>
+
+<p>The OIOSAML.java Service Provider package implements a Servlet-compliant SAML Service Provider for use in a SAML federation. The package implements all
+necessary functionality to work as a OIOSAML compliant Service Provider.</p>
+
+<p>The main component of the package is a servlet filter which handles user authentication. The filter checks if the user is already authenticated, and if not, the user is redirected
+to the SAML Identity Provider. When the user returns with a SAML assertion, the assertion is validated, and a new session is created for the user. The application can access the 
+received assertion and its attributes through a programming API.</p>
+
+<p>IdP and Service Provider configuration is handled through standard SAML metadata.</p>
+
+<h3>Contents</h3>
+<p>Contents of the OIOSAML.java distribution;</p>
+<ul>
+<li>doc: This documentation</li>
+<li>lib: Jar file dependencies for OIOSAML.java</li>
+<li>endorsed: Libraries which must be endorsed if using Java5. See <a href="endorsement.html">endorsement guide</a>.</li>
+<li>src: Source files for the project</li>
+<li>oiosaml.java-discovery-x.x.war: OIOSAML Discovery service. See <a href="discovery.html">discovery guide</a>.</li>
+<li>oiosaml.java-sp-x.jar; OIOSAML.java library. Use this together with lib/ when embedding OIOSAML.java in an existing project. See <a href="installation.html">installation guide</a>.</li>
+<li>oiosaml.java-sp-demo-x.war; Demonstration project as a web application. Deploy to a servlet container to see OIOSAML.java in action. See <a href="installation.html">installation guide</a>.</li>
+</ul>
+
+
+<h3>Requirements</h3>
+<p>There are only a few requirements for OIOSAML.java:</p>
+<ul>
+	<li>Java 5+. If Java 5 is used, the endorsed dirs mechanism must be used (<a href="endorsement.html">more details</a>). This is not necessary in Java 6.</li>
+	<li>A web container, for example <a href="http://tomcat.apache.org">Tomcat</a>.</li>
+	<li>A SAML 2.0 compliant IdP. Assertions must be signed, as must SLO requests and responses.</li>
+</ul>
+<p>OIOSAML.java has been tested with:
+<ul>
+<li>Java 1.6.0_03 and Tomcat 6.0.16</li>
+<li>Java 1.5.0_13 and Tomcat 6.0.16</li>
+<li>Java 1.5.0_13 and Tomcat 5.5.26</li>
+<li>Java 1.6.0_03 and Trifork P4</li>
+</ul></p>
+
+
+<h3>Dependencies</h3>
+<p>OIOSAML.java is built on the following technologies:</p>
+<ul>
+<li><a href="http://opensaml.org">OpenSAML 2.0</a></li>
+</ul>
+
+<h3>License</h3>
+<p>OIOSAML.java is distributed under the <a href="http://www.mozilla.org/MPL/MPL-1.1.html">Mozilla Public License 1.1</a>.</p>
+
+</body>
+</html>
