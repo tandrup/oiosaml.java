@@ -24,14 +24,17 @@
 package dk.itst.oiosaml.sp.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -67,8 +70,6 @@ import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallingException;
-import org.opensaml.xml.parse.BasicParserPool;
-import org.opensaml.xml.parse.XMLParserException;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.KeyName;
 import org.opensaml.xml.signature.Signature;
@@ -76,6 +77,7 @@ import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
@@ -328,15 +330,20 @@ public class BRSUtil {
 	 */
 	public static Element loadElement(String elementFile) {
 		try {
-			BasicParserPool parser = new BasicParserPool();
+            DocumentBuilderFactory newFactory = DocumentBuilderFactory.newInstance();
+            newFactory.setNamespaceAware(true);
+            
+            DocumentBuilder builder = newFactory.newDocumentBuilder();
 
-			parser.setNamespaceAware(true);
-
-			Document doc = parser.parse(BRSUtil.class.getResourceAsStream(elementFile));
+			Document doc = builder.parse(BRSUtil.class.getResourceAsStream(elementFile));
 			Element samlElement = doc.getDocumentElement();
 
 			return samlElement;
-		} catch (XMLParserException e) {
+		} catch (ParserConfigurationException e) {
+			lu.error("Unable to parse element file " + elementFile);
+		} catch (SAXException e) {
+			lu.error("Unable to parse element file " + elementFile);
+		} catch (IOException e) {
 			lu.error("Unable to parse element file " + elementFile);
 		}
 		return null;
@@ -376,15 +383,20 @@ public class BRSUtil {
 	 */
 	public static Element loadElementFromString(String elementString) {
 		try {
-			BasicParserPool parser = new BasicParserPool();
+            DocumentBuilderFactory newFactory = DocumentBuilderFactory.newInstance();
+            newFactory.setNamespaceAware(true);
+            
+            DocumentBuilder builder = newFactory.newDocumentBuilder();
 
-			parser.setNamespaceAware(true);
-
-			Document doc = parser.parse(new StringReader(elementString));
+			Document doc = builder.parse(new ByteArrayInputStream(elementString.getBytes()));
 			Element samlElement = doc.getDocumentElement();
 
 			return samlElement;
-		} catch (XMLParserException e) {
+		} catch (ParserConfigurationException e) {
+			lu.error("Unable to parse element string " + elementString);
+		} catch (SAXException e) {
+			lu.error("Unable to parse element string " + elementString);
+		} catch (IOException e) {
 			lu.error("Unable to parse element string " + elementString);
 		}
 		return null;
