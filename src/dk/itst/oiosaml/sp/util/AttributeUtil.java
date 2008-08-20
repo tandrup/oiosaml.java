@@ -30,11 +30,13 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeValue;
 import org.opensaml.saml2.core.impl.AttributeBuilder;
 import org.opensaml.xml.Namespace;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.parse.BasicParserPool;
 import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.util.XMLConstants;
+import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 
@@ -75,7 +77,7 @@ public class AttributeUtil implements BRSSAMLConstants {
 		return ep;
 	}
 
-	private static XSAny createAttributeValue(String value, String type) {
+	public static XSAny createAttributeValue(String value, String type) {
 		XSAny ep = createAttributeValue();
 		ep.setTextContent(String.valueOf(value));
 		ep.getUnknownAttributes().put(XSI_TYPE_ATTRIBUTE_NAME, type);
@@ -84,7 +86,7 @@ public class AttributeUtil implements BRSSAMLConstants {
 		return ep;
 	}
 
-	private static XSAny createAttributeValue(String value) {
+	public static XSAny createAttributeValue(String value) {
 		return createAttributeValue(value, XS_STRING);
 	}
 
@@ -276,31 +278,29 @@ public class AttributeUtil implements BRSSAMLConstants {
 	 * @return The text value of the attributeValue
 	 */
 	public static String extractAttributeValueValue(Attribute attribute) {
-		String attributeValue = null;
 		for (int i = 0; i < attribute.getAttributeValues().size(); i++) {
 			if (attribute.getAttributeValues().get(i) instanceof XSString) {
-				XSString str = (XSString) attribute
-						.getAttributeValues().get(i);
-				if (AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME.equals(str
-						.getElementQName().getLocalPart())
-						&& SAMLConstants.SAML20_NS.equals(str.getElementQName()
-								.getNamespaceURI())) {
-					attributeValue = str.getValue();
-					break;
+				XSString str = (XSString) attribute.getAttributeValues().get(i);
+				if (AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME.equals(str.getElementQName().getLocalPart())
+						&& SAMLConstants.SAML20_NS.equals(str.getElementQName().getNamespaceURI())) {
+					return str.getValue();
 				}
 			} else {
-				XSAny ep = (XSAny) attribute.getAttributeValues()
-						.get(i);
-				if (AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME.equals(ep
-						.getElementQName().getLocalPart())
-						&& SAMLConstants.SAML20_NS.equals(ep.getElementQName()
-								.getNamespaceURI())) {
-					attributeValue = ep.getTextContent();
-					break;
+				XSAny ep = (XSAny) attribute.getAttributeValues().get(i);
+				if (AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME.equals(ep.getElementQName().getLocalPart())
+						&& SAMLConstants.SAML20_NS.equals(ep.getElementQName().getNamespaceURI())) {
+					if (ep.getUnknownXMLObjects().size() > 0) {
+						StringBuilder res = new StringBuilder();
+						for (XMLObject obj : ep.getUnknownXMLObjects()) {
+							res.append(XMLHelper.nodeToString(BRSUtil.marshallObject(obj)));
+						}
+						return res.toString();
+					}
+					return ep.getTextContent();
 				}
 			}
 		}
-		return attributeValue;
+		return null;
 	}
 
 }
