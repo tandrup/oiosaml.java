@@ -121,11 +121,11 @@ target ( test : 'Run tests' ) {
 		formatter (type: 'plain')
 		formatter (type: 'xml')
 		classpath {
-			path (refid: 'classpath')
 			pathelement(location: instrumentDir)
+			path (refid: 'classpath')
 			pathelement(location: testBuildDir)
 		}
-		batchtest(todir: testReports) {
+		batchtest(todir: testReports, fork: true) {
 			fileset (dir: testBuildDir, includes: '**/*Test.class')
 		}
 	}
