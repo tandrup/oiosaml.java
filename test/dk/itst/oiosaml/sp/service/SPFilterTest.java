@@ -73,6 +73,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			allowing(req).getPathInfo(); will(returnValue("/test"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer("http://test")));
 			allowing(req).getQueryString();
+			allowing(req).getServletPath(); will(returnValue("/servlet"));
 		}});
 		
 		filter = new SPFilter();
@@ -153,5 +154,15 @@ public class SPFilterTest extends AbstractServiceTests {
 			filter.doFilter(req, res, chain);
 			fail("assurance level should be too low");
 		} catch (RuntimeException e) {}
+	}
+	
+	@Test
+	public void doFilterWhenRequestAgainstSAMLServlet() throws Exception {
+		conf.put(Constants.PROP_SAML_SERVLET, "/servlet");
+		context.checking(new Expectations() {{
+			one(chain).doFilter(req, res);
+		}});
+		
+		filter.doFilter(req, res, chain);
 	}
 }

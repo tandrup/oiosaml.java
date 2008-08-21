@@ -130,6 +130,13 @@ public class SPFilter implements Filter {
 			}
 		}
 		HttpServletRequest servletRequest = ((HttpServletRequest) request);
+		
+		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
+			log.debug("Request to SAML servlet, access granted");
+			chain.doFilter(request, response);
+			return;
+		}
+		
 		final HttpSession session = servletRequest.getSession();
 		if (log.isDebugEnabled())
 			log.debug("sessionId....:" + session.getId());
