@@ -111,7 +111,7 @@ target ( test : 'Run tests' ) {
 		sysproperty(key: 'javax.xml.transform.TransformerFactory', value: 'org.apache.xalan.processor.TransformerFactoryImpl')
 		sysproperty(key: 'javax.xml.validation.SchemaFactory', value: 'org.apache.xerces.jaxp.validation.XMLSchemaFactory')
 		sysproperty(key: 'net.sourceforge.cobertura.datafile', value: 'target/cobertura.ser')
-		
+		sysproperty(key: 'java.endorsed.dirs', value: 'lib/endorsed')
 		formatter (type: 'plain')
 		formatter (type: 'xml')
 		classpath {
