@@ -126,7 +126,6 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectLocation())));
 			allowing(req).getQueryString(); will(returnValue(requestURL.substring(requestURL.indexOf('?') + 1)));
-			one(res).sendRedirect(with(urlExtractor));
 		}});
 		
 		logoutServiceHttpRedirectHandler.handleGet(ctx);
@@ -145,7 +144,6 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectLocation())));
 			allowing(req).getQueryString(); will(returnValue(requestURL.substring(requestURL.indexOf('?') + 1)));
-			one(res).sendRedirect(with(urlExtractor));
 		}});
 		
 		logoutServiceHttpRedirectHandler.handleGet(ctx);

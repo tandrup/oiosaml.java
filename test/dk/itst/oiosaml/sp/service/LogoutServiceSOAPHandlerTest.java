@@ -71,10 +71,6 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getParameter("wsdl"); will(returnValue(null));
 			one(req).getInputStream(); will(returnValue(new ByteInputStream(new ByteArrayInputStream("testing".getBytes()))));
-			one(res).setContentLength(with(any(Integer.class)));
-			one(res).setCharacterEncoding("UTF-8");
-			one(res).setContentType("text/xml");
-			one(res).setStatus(HttpServletResponse.SC_OK);
 		}});
 		servlet.handlePost(ctx);
 	}

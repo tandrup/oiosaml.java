@@ -231,7 +231,7 @@ public class BRSUtilTest {
 		Artifact a = BRSUtil.createArtifact("a");
 		String pretty = BRSUtil.getSAMLObjectAsPrettyPrintXML(a);
 		assertNotNull(pretty);
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><samlp:Artifact xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\">a</samlp:Artifact>", pretty.trim());
+		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><samlp:Artifact xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\">a</samlp:Artifact>", pretty.trim().replaceAll("\n", ""));
 		
 		try {
 			BRSUtil.getSAMLObjectAsPrettyPrintXML(null);

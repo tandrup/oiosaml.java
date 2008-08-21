@@ -1,0 +1,199 @@
+system = 'oiosaml.java'
+buildDirectory = 'target/build'
+testBuildDir = 'target/test'
+instrumentDir = 'target/instrumented'
+distDir = 'target/dist'
+sourceDirectory = 'src'
+testSrcDir = 'test'
+javadocsDir = 'target/docs'
+testReports = 'target/reports'
+webDir = 'webapp'
+version = 'unknown'
+
+includeTargets << gant.targets.Clean
+
+cleanDirectory << ['target', 'lib/build', 'lib/test', 'lib/dist']
+cleanPattern << [ '**/*~' , '**/*.bak' ]
+
+includeTool << gant.tools.Ivy
+includeTool << gant.tools.Execute
+
+ant.path(id: 'classpath') {
+	fileset (dir: 'lib') {
+		include (name: '**/*.jar')
+	}
+	pathelement(location: buildDirectory)
+}
+
+doCompile = { srcdir, destdir ->
+	ant.javac (srcdir: srcdir, destdir: destdir, debug: true, source: '1.5', target: '1.5', classpathref: 'classpath')
+	ant.copy (todir: destdir) {
+		fileset (dir: srcdir, excludes: '**/*.java')
+	}
+}
+
+doResolve = { conf -> 
+	ivy.retrieve(pattern: "lib/${conf}/[organisation]-[artifact].[ext]", conf: conf)
+}
+
+target (init : 'Initialize build') {
+	[buildDirectory, testBuildDir, distDir, javadocsDir, testReports, "${testReports}/html"].each { dir -> 
+		ant.mkdir (dir: dir)
+	}
+	
+	execute.shell ( 'svn info', outProcessing: { l -> 
+		m = l =~ /Last Changed Rev: (.*)/
+		if (m.matches())
+			version = m.group(1) 
+	})
+	println "Building ${system} version ${version}"
+}
+
+target (compile: 'Compile') {
+	depends(init, resolve)
+	doCompile(sourceDirectory, buildDirectory)
+}
+
+target (resolve : 'Resolve dependencies') {
+	depends(init)
+	doResolve('build')
+}
+
+target (resolve_test : 'Resolve dependencies') {
+	depends(init)
+	doResolve('test')
+}
+
+target (resolve_dist : 'Resolve dependencies') {
+	depends(init)
+	doResolve('dist')
+}
+
+
+target (publish: 'Publish build') {
+	depends(resolve)
+	depends(jar)
+	delete (file: "${distDir}/ivy.xml")
+	
+	def ivyxml = new XmlParser().parseText(new File('ivy.xml').getText())
+	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
+		copy (file: "lib/${a.'@name'}.jar", todir: distDir)
+	}
+	
+	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
+}
+
+target (jar: 'Build jar file') {
+	depends(compile)
+	jar (destfile: "${distDir}/${system}-${version}.jar", basedir: buildDirectory) {
+		metainf (dir: '.', includes: 'LICENSE.txt')
+		manifest {
+			attribute (name: 'Implementation-Title', value: system)
+			attribute (name: 'Implementation-Vendor', value: 'Trifork A/S')
+			attribute (name: 'Implementation-Version', value: version)
+			attribute (name: 'Built-By', value: System.getProperty('user.name'))
+		}
+	}
+}
+
+target (compile_test: 'Compile test cases') {
+	depends(compile)
+	doCompile(testSrcDir, testBuildDir)
+	doCompile('integration', testBuildDir)
+}
+
+target ( test : 'Run tests' ) {
+	depends(resolve_test, compile_test, instrument)
+	taskdef (classpathref: 'classpath', resource: 'tasks.properties')
+	
+	junit (forkmode: 'once', fork: true, failureproperty: 'tests.failed', printsummary: true) {
+		sysproperty(key: 'javax.xml.parsers.DocumentBuilderFactory', value: 'org.apache.xerces.jaxp.DocumentBuilderFactoryImpl')
+		sysproperty(key: 'javax.xml.transform.TransformerFactory', value: 'org.apache.xalan.processor.TransformerFactoryImpl')
+		sysproperty(key: 'javax.xml.validation.SchemaFactory', value: 'org.apache.xerces.jaxp.validation.XMLSchemaFactory')
+		sysproperty(key: 'net.sourceforge.cobertura.datafile', value: 'target/cobertura.ser')
+		
+		formatter (type: 'plain')
+		formatter (type: 'xml')
+		classpath {
+			path (refid: 'classpath')
+			pathelement(location: instrumentDir)
+			pathelement(location: testBuildDir)
+		}
+		batchtest(todir: testReports) {
+			fileset (dir: testBuildDir, includes: '**/*Test.class')
+		}
+	}
+	ant.junitreport (todir: "${testReports}/html") {
+		fileset (dir: testReports, includes: 'TEST-*.xml')
+		report (format: 'frames', todir: "${testReports}/html")
+	}
+	fail(if: 'tests.failed', message: 'There were test failures')
+	
+	ant.'cobertura-report' (format: 'html', destdir: 'target/coverage', datafile: 'target/cobertura.ser') {
+		fileset (dir: sourceDirectory, includes: '**/*.java', excludes: '**/*Stub.java')
+	}
+	ant.'cobertura-report' (format: 'xml', destdir: 'target/coverage', datafile: 'target/cobertura.ser') {
+		fileset (dir: sourceDirectory, includes: '**/*.java', excludes: '**/*Stub.java')
+	}
+}
+
+target (instrument: 'Instrument test code') {
+	taskdef (classpathref: 'classpath', resource: 'tasks.properties')
+	delete (file: 'target/cobertura.ser')
+	delete (dir: instrumentDir)
+	ant.'cobertura-instrument'(todir: instrumentDir, datafile: 'target/cobertura.ser') {
+		ignore (regex: 'org.apache.log4j.*')
+		fileset (dir: buildDirectory) {
+			include(name: '**/*.class')
+			exclude(name: '**/*Test.class')
+		}
+	}
+}
+
+target (javadoc: 'Generate javadocs') {
+	depends(compile)
+	ant.javadoc (packagenames: "dk.*", sourcepath: sourceDirectory, defaultexcludes: true, destdir: javadocsDir, 
+		author: true, version: true, use: true, windowtitle: "OIOSAML-J", classpathref: 'classpath', charset: "UTF-8", 
+		doctitle: '<h1>OIOSAML.java. Service Provider. </h1>', 
+		bottom: '<i><p><small>The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/<br />Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governingrights and limitations under the License.<br />The Original Code is OIOSAML.java Service Provider.<br />The Initial Developer of the Original Code is <a href="http://trifork.com">Trifork A/S</a>. Portions created by <a href="http://trifork.com">Trifork A/S</a> are Copyright (C) 2008 <a href="http://itst.dk">Danish National IT and Telecom Agency (http://www.itst.dk)</a>. All Rights Reserved.</small></p></i>'
+	)	
+}
+
+target (war: 'Build war file') {
+	depends(jar, resolve_dist)
+	war (destfile: "${distDir}/${system}-demo-${version}.war", webxml: "${webDir}/WEB-INF/web.xml") {
+		fileset (dir: webDir)
+		zipfileset (dir: 'docs', prefix: 'docs')
+		lib (dir: 'lib/dist', includes: '*.jar')
+		lib (dir: 'lib', includes: '*.jar')
+		lib (dir: distDir, includes: "${system}-${version}.jar")
+	}
+}
+
+target (zipdist: 'Build distributable zip file') {
+	depends(resolve_dist, jar, war, javadoc)
+	exportDir = 'target/export'
+	
+	delete (dir: exportDir)
+	execute.shell ("svn export . ${exportDir}", outProcessing: {})
+
+	zip (destfile: "${distDir}/${system}-${version}.zip") {
+		zipfileset (dir: 'lib', includes: '*.jar', prefix: 'lib')
+		zipfileset (dir: 'lib/dist', includes: '*.jar', prefix: 'lib')
+		zipfileset (dir: exportDir, prefix: 'src')
+		zipfileset (dir: 'docs', prefix: 'doc')
+		zipfileset (dir: javadocsDir, prefix: 'doc/javadoc')
+		zipfileset (dir: 'lib/endorsed', prefix: 'endorsed')
+		fileset (dir: distDir, includes: "${system}-*${version}.*")
+		fileset (dir: '.', includes: 'LICENSE.txt')
+		fileset (dir: '.', includes: 'oiosaml.java-discovery-1.0.war')
+	}
+	
+	delete (dir: exportDir)	
+}
+
+target (build_everything: 'Build everything') {
+	depends(clean, compile, javadoc, test, war, zipdist)
+}
+
+setDefaultTarget ( jar )

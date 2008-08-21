@@ -66,8 +66,11 @@ the property POSTDispatchPath.</p>
 
 
 <h2>Source code structure</h2>
-<p>The source code consists of an Eclipse project with Java source code, unit tests, documentation, jar file dependencies, the demo files, and build files. Ant
-is used for building the project, and the target 'build-all' will perform a full build.</p>
+<p>The source code consists of an Eclipse project with Java source code, unit tests, documentation, jar file dependencies, the demo files, and build files. <a href="http://gant.codehaus.org/">Gant</a>
+is used for building the project, and the target 'build_everything' will perform a full build. Gant will need to be installed in order to build the project</p>
+
+<p>Dependencies are managed through <a href="http://ant.apache.org/ivy/">Ivy</a>. This means that dependencies are described in ivy.xml and downloaded automatically when the project is
+built.</p>
 
 <p>No code generation is used, so the Eclipse project can be imported to Eclipse without any changes, and should be able to compile and run.</p>
 
