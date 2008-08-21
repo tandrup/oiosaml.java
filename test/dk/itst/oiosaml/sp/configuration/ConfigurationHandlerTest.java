@@ -126,6 +126,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(url)));
 			allowing(req).getServletPath(); will(returnValue("/saml"));
 			allowing(req).getServerName(); will(returnValue("localhost"));
+			allowing(req).getScheme(); will(returnValue("http"));
 		}});
 		handler.handleGet(new RequestContext(req, res, null, null, null, null, null));
 		String output = sw.toString();

@@ -457,7 +457,7 @@ public class ConfigurationHandler implements SAMLHandler {
 	}
 	
 	private String getEntityId(HttpServletRequest request) {
-		return "saml." + request.getServerName();
+		return request.getScheme() + "://saml." + request.getServerName();
 	}
 	
 	private boolean checkNotNull(Object ... objs) {
