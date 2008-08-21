@@ -79,8 +79,14 @@ target (publish: 'Publish build') {
 	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
 		copy (file: "lib/${a.'@name'}.jar", todir: distDir)
 	}
+	copy (file: "${distDir}/${system}-${version}.jar", tofile: "${distDir}/${system}.jar", overwrite: true)
 	
 	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
+	
+	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
+		delete (file: "${distDir}/${a.'@name'}.jar")
+	}
+	delete (file: "${distDir}/${system}.jar")
 }
 
 target (jar: 'Build jar file') {
