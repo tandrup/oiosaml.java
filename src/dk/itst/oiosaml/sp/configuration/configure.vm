@@ -74,6 +74,17 @@ only once. If possible, the configuration files will be written automatically to
 		<td><label for="enableSoap">Enable SOAP Single Logout?</label></td>
 		<td><input type="checkbox" name="enableSoap" id="enableSoap" value="true" /></td>
 	</tr>
+	<tr>
+		<td><label for="supportOCESAttributeProfile">Support OCES Attribute Profile?</label></td>
+		<td><input type="checkbox" name="supportOCESAttributeProfile" id="supportOCESAttributeProfile" value="true" /></td>
+	</tr>
+	<tr>
+		<td colspan="2">
+		 Even if this is not checked, any attributes will be accepted, but
+		no AttributeConsumer will be added to the SP metadata.
+		</td>
+	</tr>
+	
 </table>	
 	
 	

@@ -59,6 +59,7 @@ import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.metadata.AttributeConsumingService;
 import org.opensaml.saml2.metadata.ContactPerson;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.KeyDescriptor;
@@ -72,6 +73,7 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 import dk.itst.oiosaml.sp.service.DispatcherServlet;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.SAMLHandler;
@@ -207,7 +209,9 @@ public class ConfigurationHandler implements SAMLHandler {
 		}
 		
 		EntityDescriptor descriptor = generateSPDescriptor(getBaseUrl(request), entityId, credential, orgName, orgUrl, email, 
-				Boolean.valueOf(extractParameter("enableArtifact", parameters)), Boolean.valueOf(extractParameter("enablePost", parameters)), Boolean.valueOf(extractParameter("enableSoap", parameters)));
+				Boolean.valueOf(extractParameter("enableArtifact", parameters)), Boolean.valueOf(extractParameter("enablePost", parameters)), 
+				Boolean.valueOf(extractParameter("enableSoap", parameters)),
+				Boolean.valueOf(extractParameter("supportOCESAttributeProfile", parameters)));
 		File zipFile = generateZipFile(request.getContextPath(), password, metadata, keystore, descriptor);
 		
 		byte[] configurationContents = saveConfigurationInSession(request, zipFile);
@@ -284,7 +288,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		return zipFile;
 	}
 
-	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap) {
+	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean supportOCESAttributes) {
 		EntityDescriptor descriptor = BRSUtil.buildXMLObject(EntityDescriptor.class);
 		descriptor.setEntityID(entityId);
 		
@@ -294,8 +298,10 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		ContactPerson contact = BRSUtil.buildXMLObject(ContactPerson.class);
 		contact.getEmailAddresses().add(BRSUtil.createEmail(email));
-		spDescriptor.getContactPersons().add(contact);
-		spDescriptor.setOrganization(BRSUtil.createOrganization(orgName, orgName, orgUrl));
+		contact.setCompany(BRSUtil.createCompany(orgName));
+		
+		descriptor.getContactPersons().add(contact);
+		descriptor.setOrganization(BRSUtil.createOrganization(orgName, orgName, orgUrl));
 		
 		KeyDescriptor signingDescriptor = BRSUtil.buildXMLObject(KeyDescriptor.class);
 		signingDescriptor.setUse(UsageType.SIGNING);
@@ -331,8 +337,49 @@ public class ConfigurationHandler implements SAMLHandler {
 			spDescriptor.getArtifactResolutionServices().add(BRSUtil.createArtifactResolutionService(baseUrl + DispatcherServlet.SAMLAssertionConsumer));
 		}
 		
+		if (supportOCESAttributes) {
+			addAttributeConsumerService(spDescriptor, entityId);
+		}
+		
 		descriptor.getRoleDescriptors().add(spDescriptor);
 		return descriptor;
+	}
+
+	private void addAttributeConsumerService(SPSSODescriptor spDescriptor, String serviceName) {
+		AttributeConsumingService service = BRSUtil.createAttributeConsumingService(serviceName);
+
+		String[] required = {
+				BRSSAMLConstants.ATTRIBUTE_SURNAME_NAME,
+				BRSSAMLConstants.ATTRIBUTE_COMMON_NAME_NAME,
+				BRSSAMLConstants.ATTRIBUTE_UID_NAME,
+				BRSSAMLConstants.ATTRIBUTE_MAIL_NAME,
+				BRSSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME,
+				BRSSAMLConstants.ATTRIBUTE_SPECVER_NAME,
+				BRSSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME,
+				BRSSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME,
+		};
+		
+		String[] optional = {
+				BRSSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME,
+				BRSSAMLConstants.ATTRIBUTE_CVR_NUMBER_IDENTIFIER_NAME,
+				BRSSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME,
+				BRSSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME,
+				BRSSAMLConstants.ATTRIBUTE_TITLE_NAME,
+				BRSSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME,
+				BRSSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME,
+				BRSSAMLConstants.ATTRIBUTE_USER_CERTIFICATE_NAME,
+				BRSSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME,
+				BRSSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME,
+				BRSSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME,
+		};
+		for (String attr : required) {
+			service.getRequestAttributes().add(BRSUtil.createRequestedAttribute(attr, BRSSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, true));
+		}
+		for (String attr : optional) {
+			service.getRequestAttributes().add(BRSUtil.createRequestedAttribute(attr, BRSSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, false));
+		}
+		
+		spDescriptor.getAttributeConsumingServices().add(service);
 	}
 
 	private List<?> extractParameterList(final HttpServletRequest request) {

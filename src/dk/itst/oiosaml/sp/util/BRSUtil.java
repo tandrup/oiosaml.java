@@ -57,12 +57,16 @@ import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml2.metadata.ArtifactResolutionService;
 import org.opensaml.saml2.metadata.AssertionConsumerService;
+import org.opensaml.saml2.metadata.AttributeConsumingService;
+import org.opensaml.saml2.metadata.Company;
 import org.opensaml.saml2.metadata.EmailAddress;
 import org.opensaml.saml2.metadata.LocalizedString;
 import org.opensaml.saml2.metadata.Organization;
 import org.opensaml.saml2.metadata.OrganizationDisplayName;
 import org.opensaml.saml2.metadata.OrganizationName;
 import org.opensaml.saml2.metadata.OrganizationURL;
+import org.opensaml.saml2.metadata.RequestedAttribute;
+import org.opensaml.saml2.metadata.ServiceName;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -525,6 +529,27 @@ public class BRSUtil {
 		return ars;
 	}
 	
+	public static RequestedAttribute createRequestedAttribute(String attribute, String format, boolean required) {
+		RequestedAttribute attr = buildXMLObject(RequestedAttribute.class);
+		attr.setIsRequired(required);
+		attr.setName(attribute);
+		attr.setNameFormat(format);
+		
+		return attr;
+	}
+	
+	public static AttributeConsumingService createAttributeConsumingService(String serviceName) {
+		AttributeConsumingService service = BRSUtil.buildXMLObject(AttributeConsumingService.class);
+		ServiceName name = BRSUtil.buildXMLObject(ServiceName.class);
+		name.setName(new LocalizedString(serviceName, null));
+		service.getNames().add(name);
+		
+		service.setIndex(0);
+		service.setIsDefault(true);
+
+		return service;
+	}
+	
 	/**
 	 * Decode the value of a _saml_idp discovery value.
 	 * 
@@ -540,5 +565,11 @@ public class BRSUtil {
 			ids[i] = new String(Base64.decode(ids[i]));
 		}
 		return ids;
+	}
+
+	public static Company createCompany(String orgName) {
+		Company c = buildXMLObject(Company.class);
+		c.setName(orgName);
+		return c;
 	}
 }

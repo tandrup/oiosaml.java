@@ -3,6 +3,13 @@
 <jar name="saml.war">
     <dir path="" from="webapp"/>
     <dir path="WEB-INF/classes" from="bin"/>
-    <dir path="WEB-INF/lib" from="lib"/>
+    <dir path="WEB-INF/lib" from="lib/dist"/>
+    <file path="WEB-INF/lib/not-yet-commons-ssl-0.3.9.jar" from="lib/not-yet-commons-ssl-0.3.9.jar" />
+    <file path="WEB-INF/lib/openliberty-r221.jar" from="lib/openliberty-r221.jar" />
+    <file path="WEB-INF/lib/opensaml-2.0.0-jdk-1.5.jar" from="lib/opensaml-2.0.0-jdk-1.5.jar" />
+    <file path="WEB-INF/lib/openws-1.0.0-jdk-1.5.jar" from="lib/openws-1.0.0-jdk-1.5.jar" />
+    <file path="WEB-INF/lib/xmlsec-1.4.1.jar" from="lib/xmlsec-1.4.1.jar" />
+    <file path="WEB-INF/lib/xmltooling-1.0.0-jdk-1.5.jar" from="lib/xmltooling-1.0.0-jdk-1.5.jar" />
+
     <dir path="docs" from="docs" />
 </jar>

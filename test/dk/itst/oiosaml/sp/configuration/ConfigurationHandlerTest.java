@@ -3,7 +3,6 @@ package dk.itst.oiosaml.sp.configuration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -24,6 +23,7 @@ import org.jmock.Expectations;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
@@ -139,11 +139,21 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 
 	@Test
 	public void testGenerateSPDescriptor() {
-		EntityDescriptor d = handler.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true);
+		EntityDescriptor d = handler.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, false);
 		assertEquals("entityId", d.getEntityID());
-		assertEquals(0, d.getContactPersons().size());
-		assertNull(d.getOrganization());
+		assertEquals(1, d.getContactPersons().size());
+		assertNotNull(d.getOrganization());
+		assertNotNull(d.getSPSSODescriptor(SAMLConstants.SAML20P_NS));
+		assertEquals(0, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().size());
 	}
+	
+	@Test
+	public void testGenerateSPDescriptorWithAttributes() {
+		EntityDescriptor d = handler.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, true);
+		assertEquals(1, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().size());
+		assertEquals(19, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().get(0).getRequestAttributes().size());
+	}
+	
 	
 	@Test
 	public void testWriteConfiguration() throws Exception {
@@ -165,7 +175,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	
 	@Test
 	public void testGenerateZipFile() throws Exception {
-		EntityDescriptor descriptor = handler.generateSPDescriptor("base", "entity", credential, "orgName", "orgUrl", "email", true, true, true);
+		EntityDescriptor descriptor = handler.generateSPDescriptor("base", "entity", credential, "orgName", "orgUrl", "email", true, true, true, false);
 		File zipFile = handler.generateZipFile("/saml", "password", "idpMetadata".getBytes(), "keystore".getBytes(), descriptor);
 		assertNotNull(zipFile);
 		
