@@ -102,11 +102,11 @@ public interface BRSSAMLConstants {
 
 	public static final String ATTRIBUTE_SERIAL_NUMBER_FRIENDLY_NAME = "serialNumber";
 
-	public static final String ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME = "dk:gov:fobs:saml:attribute:PidNumberIdentifier";
+	public static final String ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME = "dk:gov:saml:attribute:PidNumberIdentifier";
 
 	public static final String ATTRIBUTE_PID_NUMBER_IDENTIFIER_FRIENDLY_NAME = "PidNumberIdentifier";
 
-	public static final String ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME = "dk:gov:fobs:saml:attribute:RidNumberIdentifier";
+	public static final String ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME = "dk:gov:saml:attribute:RidNumberIdentifier";
 
 	public static final String ATTRIBUTE_RID_NUMBER_IDENTIFIER_FRIENDLY_NAME = "RidNumberIdentifier";
 
