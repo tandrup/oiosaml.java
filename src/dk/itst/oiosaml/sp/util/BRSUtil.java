@@ -85,7 +85,6 @@ import org.xml.sax.SAXException;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 
 /**
@@ -100,7 +99,6 @@ public class BRSUtil {
 	public static final String VERSION = "$Id: BRSUtil.java 2910 2008-05-21 13:07:31Z jre $";
 	private static final Logger log = Logger.getLogger(BRSUtil.class);
 	public static final String OIOSAML_HOME = "oiosaml.home";
-	private static LogUtil lu = new LogUtil(BRSUtil.class, VERSION);
 
 	/**
 	 * Build a new empty object of the requested type.
@@ -313,13 +311,13 @@ public class BRSUtil {
 
 			Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(samlElement);
 			if (unmarshaller == null) {
-				lu.error("Unable to retrieve unmarshaller by DOM Element");
+				log.error("Unable to retrieve unmarshaller by DOM Element");
 				throw new IllegalArgumentException("No unmarshaller for " + elementFile);
 			}
 
 			return unmarshaller.unmarshall(samlElement);
 		} catch (UnmarshallingException e) {
-			lu.error(e,"Unmarshalling failed when parsing element file " + elementFile);
+			log.error("Unmarshalling failed when parsing element file " + elementFile, e);
 		}
 
 		return null;
@@ -344,11 +342,11 @@ public class BRSUtil {
 
 			return samlElement;
 		} catch (ParserConfigurationException e) {
-			lu.error("Unable to parse element file " + elementFile);
+			log.error("Unable to parse element file " + elementFile, e);
 		} catch (SAXException e) {
-			lu.error("Unable to parse element file " + elementFile);
+			log.error("Unable to parse element file " + elementFile, e);
 		} catch (IOException e) {
-			lu.error("Unable to parse element file " + elementFile);
+			log.error("Unable to parse element file " + elementFile, e);
 		}
 		return null;
 	}
@@ -366,16 +364,15 @@ public class BRSUtil {
 
 			Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(samlElement);
 			if (unmarshaller == null) {
-				lu.error("Unable to retrieve unmarshaller by DOM Element");
+				log.error("Unable to retrieve unmarshaller by DOM Element");
 				throw new IllegalArgumentException("No unmarshaller for " + elementString);
 			}
 
 			return unmarshaller.unmarshall(samlElement);
 		} catch (UnmarshallingException e) {
-			lu.error(e,"Unmarshalling failed when parsing element string " + elementString);
+			log.error("Unmarshalling failed when parsing element string " + elementString, e);
+			throw new WrappedException(Layer.DATAACCESS, e);
 		}
-
-		return null;
 	}
 
 	/**
@@ -397,13 +394,15 @@ public class BRSUtil {
 
 			return samlElement;
 		} catch (ParserConfigurationException e) {
-			lu.error("Unable to parse element string " + elementString);
+			log.error("Unable to parse element string " + elementString, e);
+			throw new WrappedException(Layer.DATAACCESS, e);
 		} catch (SAXException e) {
-			lu.error("Unable to parse element string " + elementString);
+			log.error("Ue, nable to parse element string " + elementString, e);
+			throw new WrappedException(Layer.DATAACCESS, e);
 		} catch (IOException e) {
-			lu.error("Unable to parse element string " + elementString);
+			log.error("Unable to parse element string " + elementString, e);
+			throw new WrappedException(Layer.DATAACCESS, e);
 		}
-		return null;
 	}
 
 	/**
@@ -417,8 +416,8 @@ public class BRSUtil {
 	public static XMLObject unmarshallElementFromFile(String fileName) {
 		File file = new File(fileName);
 		if (!file.isFile() || !file.canRead()) {
-			lu.error("Can't find or read file " + fileName);
-			return null;
+			log.error("Can't find or read file " + fileName);
+			throw new RuntimeException("Cannot find file " + fileName);
 		}
 
 		try {
@@ -427,16 +426,14 @@ public class BRSUtil {
 			Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory()
 					.getUnmarshaller(samlElement);
 			if (unmarshaller == null) {
-				lu.error("Unable to retrieve unmarshaller by DOM Element");
+				log.error("Unable to retrieve unmarshaller by DOM Element");
 				throw new IllegalArgumentException("No unmarshaller for " + fileName);
 			}
 
 			return unmarshaller.unmarshall(samlElement);
 		} catch (UnmarshallingException e) {
-			lu.error(e, "Unmarshalling failed when parsing element file " + fileName);
+			throw new WrappedException(Layer.DATAACCESS, e);
 		}
-
-		return null;
 	}
 
 	/**
