@@ -24,7 +24,7 @@ public class OIORequestTest extends AbstractTests{
 	
 	@Before
 	public void setUp() throws Exception {
-		ar = (AuthnRequest) SAMLUtil.unmarshallElement("../sp/model/request.xml");
+		ar = (AuthnRequest) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("request.xml"));
 		ar.getIssuer().setValue("issuerValue");
 		
 		this.request = new OIOAuthnRequest(ar);

@@ -95,7 +95,7 @@ public abstract class IntegrationTests {
 		IOUtils.write(XMLHelper.nodeToString(SAMLUtil.marshallObject(idpDescriptor)).getBytes(), fos);
 		fos.close();
 		
-		EntityDescriptor spDescriptor = (EntityDescriptor) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/SPMetadata.xml");
+		EntityDescriptor spDescriptor = (EntityDescriptor) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/dk/itst/oiosaml/sp/SPMetadata.xml"));
 		fos = new FileOutputStream(new File(tmpdir, "metadata/SP/SPMetadata.xml"));
 		IOUtils.write(XMLHelper.nodeToString(SAMLUtil.marshallObject(spDescriptor)).getBytes(), fos);
 		fos.close();

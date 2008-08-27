@@ -50,7 +50,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 			allowing(req).getSession(); will(returnValue(session));
 			allowing(session).getAttribute(Constants.SESSION_ID_LIST); will(returnValue(ids));
 		}});
-		assertion = (Assertion) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/model/assertion.xml");
+		assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/dk/itst/oiosaml/sp/model/assertion.xml"));
 
 		handler = LoggedInHandler.getInstance();
 		handler.resetReplayProtection(10);

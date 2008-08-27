@@ -42,7 +42,7 @@ public class OIOResponseTest extends AbstractTests {
 	
 	@Before
 	public void setUp() throws Exception {
-		srt = (Response) ((ArtifactResponse)SAMLUtil.unmarshallElement("../sp/model/response.xml")).getMessage();
+		srt = (Response) ((ArtifactResponse)SAMLUtil.unmarshallElement(getClass().getResourceAsStream("response.xml"))).getMessage();
 		srt.setDestination(destination);
 		srt.getIssuer().setValue(issuerValue);
 		

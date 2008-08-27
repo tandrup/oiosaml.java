@@ -47,7 +47,9 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	
 	@After
 	public void tearDown() throws Exception{
-		FileUtils.forceDelete(homeDir);
+		if (homeDir != null) {
+			FileUtils.forceDelete(homeDir);
+		}
 	}
 
 	@Test

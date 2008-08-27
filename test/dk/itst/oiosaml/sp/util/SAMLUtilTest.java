@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -193,11 +194,11 @@ public class SAMLUtilTest {
 
 	@Test
 	public void testUnmarshallElement() throws IOException {
-		XMLObject xo = SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
+		XMLObject xo = SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/dk/itst/oiosaml/sp/model/assertion.xml"));
 		assertTrue(xo instanceof Assertion);
 		
 		try {
-			SAMLUtil.unmarshallElement("test");
+			SAMLUtil.unmarshallElement(new ByteArrayInputStream("test".getBytes()));
 			fail("file should not be found");
 		} catch (IllegalArgumentException e) {}
 	}

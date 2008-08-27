@@ -58,7 +58,7 @@ public class OIOAssertionTest extends AbstractTests {
 
 	@Before
 	public void setUp() throws SAXException, IOException, ParserConfigurationException, UnmarshallingException {
-		Assertion assertion = (Assertion) SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
+		Assertion assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
 
 		assertion.getAuthnStatements().get(0).setSessionNotOnOrAfter(new DateTime().plus(60000));
 		assertion.getConditions().setNotOnOrAfter(new DateTime().plus(60000));

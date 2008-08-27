@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
 
@@ -300,23 +301,21 @@ public class SAMLUtil {
 	/**
 	 * Unmarshall a resource file containing a SAML2.0 document in XML to an XMLObject.
 	 * 
-	 * @param elementFile
-	 *            The file name used in {@link Class#getResourceAsStream(String)}.
 	 * @return The corresponding {@link XMLObject}
 	 */
-	public static XMLObject unmarshallElement(String elementFile) {
+	public static XMLObject unmarshallElement(InputStream input) {
 		try {
-			Element samlElement = loadElement(elementFile);
+			Element samlElement = loadElement(input);
 
 			Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(samlElement);
 			if (unmarshaller == null) {
 				log.error("Unable to retrieve unmarshaller by DOM Element");
-				throw new IllegalArgumentException("No unmarshaller for " + elementFile);
+				throw new IllegalArgumentException("No unmarshaller for " + samlElement);
 			}
 
 			return unmarshaller.unmarshall(samlElement);
 		} catch (UnmarshallingException e) {
-			log.error("Unmarshalling failed when parsing element file " + elementFile, e);
+			log.error("Unmarshalling failed when parsing element file " + input, e);
 		}
 
 		return null;
@@ -325,27 +324,27 @@ public class SAMLUtil {
 	/**
 	 * Read the content of a given XML resource file.
 	 * 
-	 * @param elementFile
-	 *            The file name including the path. Used in {@link Class#getResourceAsStream(String)}.
+	 * @param input
+	 *            The stream to read from. The stream is not closed.
 	 * @return The corresponding {@link Element}
 	 */
-	public static Element loadElement(String elementFile) {
+	public static Element loadElement(InputStream input) {
 		try {
             DocumentBuilderFactory newFactory = DocumentBuilderFactory.newInstance();
             newFactory.setNamespaceAware(true);
             
             DocumentBuilder builder = newFactory.newDocumentBuilder();
 
-			Document doc = builder.parse(SAMLUtil.class.getResourceAsStream(elementFile));
+			Document doc = builder.parse(input);
 			Element samlElement = doc.getDocumentElement();
 
 			return samlElement;
 		} catch (ParserConfigurationException e) {
-			log.error("Unable to parse element file " + elementFile, e);
+			log.error("Unable to parse element file " + input, e);
 		} catch (SAXException e) {
-			log.error("Unable to parse element file " + elementFile, e);
+			log.error("Unable to parse element file " + input, e);
 		} catch (IOException e) {
-			log.error("Unable to parse element file " + elementFile, e);
+			log.error("Unable to parse element file " + input, e);
 		}
 		return null;
 	}

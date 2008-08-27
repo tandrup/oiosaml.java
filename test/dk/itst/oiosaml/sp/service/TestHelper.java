@@ -174,12 +174,12 @@ public class TestHelper {
 	}
 
 	public static SPMetadata buildSPMetadata() {
-		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/service/SPMetadata.xml");
+		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement(TestHelper.class.getResourceAsStream("SPMetadata.xml"));
 		return new SPMetadata(data);
 	}
 
 	public static EntityDescriptor buildEntityDescriptor(Credential cred) {
-		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/service/IdPMetadata.xml");
+		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement(TestHelper.class.getResourceAsStream("IdPMetadata.xml"));
         IDPSSODescriptor idpSSODescriptor = data.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
         
         org.opensaml.xml.signature.X509Certificate cert = SAMLUtil.buildXMLObject(org.opensaml.xml.signature.X509Certificate.class);

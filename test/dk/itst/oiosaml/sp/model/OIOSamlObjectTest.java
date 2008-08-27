@@ -28,7 +28,7 @@ public class OIOSamlObjectTest extends AbstractTests{
 	private Assertion assertion;
 	@Before
 	public void setUp() throws Exception {
-		assertion = (Assertion) SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
+		assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("assertion.xml"));
 		obj = new OIOSamlObject(assertion);
 	}
 
@@ -43,7 +43,7 @@ public class OIOSamlObjectTest extends AbstractTests{
 
 	@Test
 	public void testToXML() {
-		Element orig = SAMLUtil.loadElement("../model/assertion.xml");
+		Element orig = SAMLUtil.loadElement(getClass().getResourceAsStream("assertion.xml"));
 		Element created = SAMLUtil.loadElementFromString(obj.toXML());
 		assertTrue(orig.isEqualNode(created));
 	}
