@@ -38,6 +38,7 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml2.core.SubjectConfirmationData;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 
@@ -91,7 +92,7 @@ public class OIOAssertion extends OIOSamlObject {
 		
 		
 		for (SubjectConfirmation subjectConfirmation : assertion.getSubject().getSubjectConfirmations()) {
-			if (!BRSSAMLConstants.METHOD_BEARER.equals(subjectConfirmation.getMethod())) continue;
+			if (!OIOSAMLConstants.METHOD_BEARER.equals(subjectConfirmation.getMethod())) continue;
 
 			SubjectConfirmationData subjectConfirmationData = subjectConfirmation.getSubjectConfirmationData();
 			if (subjectConfirmationData == null) continue;
@@ -285,10 +286,10 @@ public class OIOAssertion extends OIOSamlObject {
     		}
     	}
     	if (assuranceLevel == AssuranceLevel.PASSWORD_ASSURANCE_LEVEL && 
-    		!BRSSAMLConstants.PASSWORD_AUTHN_CONTEXT_CLASS_REF.equals(authnContextClassRefValue)) {
+    		!OIOSAMLConstants.PASSWORD_AUTHN_CONTEXT_CLASS_REF.equals(authnContextClassRefValue)) {
     		log.warn("The assuranceLevel attribute " + assuranceLevel + "  in the assertion does not correspond with the value of AuthnStatement/AuthnContext/AuthnContextClassRef: " + authnContextClassRefValue);
     	} else if (assuranceLevel == AssuranceLevel.CERTIFICATE_ASSURANCE_LEVEL && 
-    		!BRSSAMLConstants.X509_AUTHN_CONTEXT_CLASS_REF.equals(authnContextClassRefValue)) {
+    		!OIOSAMLConstants.X509_AUTHN_CONTEXT_CLASS_REF.equals(authnContextClassRefValue)) {
     		log.warn("The assuranceLevel attribute " + assuranceLevel + "  in the assertion does not correspond with the value of AuthnStatement/AuthnContext/AuthnContextClassRef: " + authnContextClassRefValue);
        	}
     	
@@ -318,7 +319,7 @@ public class OIOAssertion extends OIOSamlObject {
     public int getAssuranceLevel() {
     	for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
     		for (Attribute attribute : attributeStatement.getAttributes()) {
-				if (BRSSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME.equals(attribute.getName())) {
+				if (OIOSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME.equals(attribute.getName())) {
 					String value = AttributeUtil.extractAttributeValueValue(attribute);
 					return new AssuranceLevel(value).getValue();
 				}

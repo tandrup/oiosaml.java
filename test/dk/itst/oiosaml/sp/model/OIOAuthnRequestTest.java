@@ -50,10 +50,10 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 
 public class OIOAuthnRequestTest extends AbstractServiceTests {
@@ -83,8 +83,8 @@ public class OIOAuthnRequestTest extends AbstractServiceTests {
 
 	@Test
 	public void testSetNameIDPolicy() throws Exception {
-		AuthnRequest ar = BRSUtil.buildXMLObject(AuthnRequest.class);
-		ar.setIssuer(BRSUtil.createIssuer("issuer"));
+		AuthnRequest ar = SAMLUtil.buildXMLObject(AuthnRequest.class);
+		ar.setIssuer(SAMLUtil.createIssuer("issuer"));
 		
 		OIOAuthnRequest r = new OIOAuthnRequest(ar);
 		r.setNameIDPolicy(null, true);

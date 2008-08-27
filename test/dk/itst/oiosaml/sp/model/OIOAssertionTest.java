@@ -34,6 +34,7 @@ import org.opensaml.saml2.core.SubjectConfirmationData;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.xml.sax.SAXException;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -43,7 +44,6 @@ import dk.itst.oiosaml.sp.util.AudienceStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnContextClassRefStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnContextStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnStatementStubImpl;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 import dk.itst.oiosaml.sp.util.ConditionsStubImpl;
 import dk.itst.oiosaml.sp.util.NameIDStubImpl;
 import dk.itst.oiosaml.sp.util.SubjectConfirmationDataStubImpl;
@@ -58,7 +58,7 @@ public class OIOAssertionTest extends AbstractTests {
 
 	@Before
 	public void setUp() throws SAXException, IOException, ParserConfigurationException, UnmarshallingException {
-		Assertion assertion = (Assertion) BRSUtil.unmarshallElement("../model/assertion.xml");
+		Assertion assertion = (Assertion) SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
 
 		assertion.getAuthnStatements().get(0).setSessionNotOnOrAfter(new DateTime().plus(60000));
 		assertion.getConditions().setNotOnOrAfter(new DateTime().plus(60000));

@@ -17,10 +17,10 @@ import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.util.Base64;
 import org.w3c.dom.Element;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIOSamlObjectTest extends AbstractTests{
 
@@ -28,7 +28,7 @@ public class OIOSamlObjectTest extends AbstractTests{
 	private Assertion assertion;
 	@Before
 	public void setUp() throws Exception {
-		assertion = (Assertion) BRSUtil.unmarshallElement("../model/assertion.xml");
+		assertion = (Assertion) SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
 		obj = new OIOSamlObject(assertion);
 	}
 
@@ -43,8 +43,8 @@ public class OIOSamlObjectTest extends AbstractTests{
 
 	@Test
 	public void testToXML() {
-		Element orig = BRSUtil.loadElement("../model/assertion.xml");
-		Element created = BRSUtil.loadElementFromString(obj.toXML());
+		Element orig = SAMLUtil.loadElement("../model/assertion.xml");
+		Element created = SAMLUtil.loadElementFromString(obj.toXML());
 		assertTrue(orig.isEqualNode(created));
 	}
 
@@ -65,7 +65,7 @@ public class OIOSamlObjectTest extends AbstractTests{
 
 	@Test
 	public void testHasSignature() {
-		assertion.setSignature(BRSUtil.createSignature("tes"));
+		assertion.setSignature(SAMLUtil.createSignature("tes"));
 		assertTrue(obj.hasSignature());
 		assertion.setSignature(null);
 		assertFalse(obj.hasSignature());
@@ -73,13 +73,13 @@ public class OIOSamlObjectTest extends AbstractTests{
 
 	@Test
 	public void testVerifySignature() throws Exception {
-		Assertion a = (Assertion) BRSUtil.unmarshallElementFromString("<saml:Assertion Version=\"2.0\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"></saml:Assertion>");
+		Assertion a = (Assertion) SAMLUtil.unmarshallElementFromString("<saml:Assertion Version=\"2.0\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"></saml:Assertion>");
 		
 		Credential cred = TestHelper.getCredential();
 		
 		assertFalse(new OIOSamlObject(a).verifySignature(cred.getPublicKey()));
 		
-		Signature signature = BRSUtil.createSignature("test");
+		Signature signature = SAMLUtil.createSignature("test");
 		signature.setSigningCredential(cred);
 		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
 		signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
@@ -94,7 +94,7 @@ public class OIOSamlObjectTest extends AbstractTests{
 		assertFalse(new OIOSamlObject(a).verifySignature(cred2.getPublicKey()));
 		
 		
-		a.setSubject(BRSUtil.createSubject("test", "test", new DateTime()));
+		a.setSubject(SAMLUtil.createSubject("test", "test", new DateTime()));
 		Configuration.getMarshallerFactory().getMarshaller(a).marshall(a);
 
 		assertFalse(new OIOSamlObject(a).verifySignature(cred.getPublicKey()));

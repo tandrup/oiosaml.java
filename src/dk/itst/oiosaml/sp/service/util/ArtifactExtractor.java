@@ -38,14 +38,14 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.validation.ValidationException;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.util.BRSArtifact;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class ArtifactExtractor  {
 	private static final Logger log = Logger.getLogger(ArtifactExtractor.class);
@@ -126,12 +126,12 @@ public class ArtifactExtractor  {
 		if (log.isDebugEnabled())
 			log.debug("buildArtifactResolve...");
 		// Build an ArtifactResolve
-		ArtifactResolve artifactResolve = BRSUtil.buildXMLObject(ArtifactResolve.class);
-		artifactResolve.addNamespace(BRSSAMLConstants.SAML20_NAMESPACE);
-		artifactResolve.setIssuer(BRSUtil.createIssuer(spEntityID));
+		ArtifactResolve artifactResolve = SAMLUtil.buildXMLObject(ArtifactResolve.class);
+		artifactResolve.addNamespace(OIOSAMLConstants.SAML20_NAMESPACE);
+		artifactResolve.setIssuer(SAMLUtil.createIssuer(spEntityID));
 		artifactResolve.setID(id);
 		artifactResolve.setIssueInstant(new DateTime(DateTimeZone.UTC));
-		artifactResolve.setArtifact(BRSUtil.createArtifact(artifactValue));
+		artifactResolve.setArtifact(SAMLUtil.createArtifact(artifactValue));
 		artifactResolve.setDestination(artifactResolutionLocation);
 
 		// Validate the built SAML object

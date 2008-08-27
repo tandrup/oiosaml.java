@@ -12,10 +12,10 @@ import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.util.PostResponseExtractor;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class PostResponseExtractorTest extends AbstractServiceTests {
 	
@@ -28,9 +28,9 @@ public class PostResponseExtractorTest extends AbstractServiceTests {
 
 	@Test
 	public void testExtract() throws Exception {
-		Response response = BRSUtil.buildXMLObject(Response.class);
+		Response response = SAMLUtil.buildXMLObject(Response.class);
 		response.setConsent("consent");
-		final String xml = BRSUtil.getSAMLObjectAsPrettyPrintXML(response);
+		final String xml = SAMLUtil.getSAMLObjectAsPrettyPrintXML(response);
 		final String encodedMessage = Base64.encodeBytes(xml.getBytes(), Base64.DONT_BREAK_LINES);
 
 		context.checking(new Expectations() {{

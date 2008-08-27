@@ -34,13 +34,13 @@ import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.validation.ValidationException;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIOAuthnRequest extends OIORequest {
 	private static final Logger log = Logger.getLogger(OIOAuthnRequest.class);
@@ -54,9 +54,9 @@ public class OIOAuthnRequest extends OIORequest {
 	
 	
 	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, HttpSession session, LogUtil logUtil) {
-		AuthnRequest authnRequest = BRSUtil.buildXMLObject(AuthnRequest.class);
+		AuthnRequest authnRequest = SAMLUtil.buildXMLObject(AuthnRequest.class);
 
-		authnRequest.setIssuer(BRSUtil.createIssuer(spEntityId));
+		authnRequest.setIssuer(SAMLUtil.createIssuer(spEntityId));
 		authnRequest.setID(LoggedInHandler.getInstance().getID(session, logUtil));
 		authnRequest.setForceAuthn(Boolean.FALSE);
 		authnRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
@@ -97,7 +97,7 @@ public class OIOAuthnRequest extends OIORequest {
 		if (format == null || format.trim().equals("")) return;
 
 		NameIDFormat idFormat = NameIDFormat.valueOf(format.toUpperCase());
-		NameIDPolicy policy = BRSUtil.buildXMLObject(NameIDPolicy.class);
+		NameIDPolicy policy = SAMLUtil.buildXMLObject(NameIDPolicy.class);
 		policy.setAllowCreate(allowCreate);
 		policy.setFormat(idFormat.getFormat());
 		policy.setSPNameQualifier(request.getIssuer().getValue());

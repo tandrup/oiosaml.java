@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
@@ -52,7 +53,6 @@ import dk.itst.oiosaml.sp.metadata.CRLChecker;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Servlet filter for checking if the user is authenticated.
@@ -181,7 +181,7 @@ public class SPFilter implements Filter {
 		String homeParam = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_HOME);
 		log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
 		if (homeParam == null) {
-			homeParam = System.getProperty(BRSUtil.OIOSAML_HOME);
+			homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
 		}
 		log.info("Trying to retrieve configuration from " + homeParam);
 		if (BRSConfiguration.setHomeProperty(homeParam)) {

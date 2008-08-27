@@ -31,10 +31,10 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationFactory;
 import org.apache.log4j.Logger;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.SPFilter;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Utility class to obtain a handle to all property values within the current project.
@@ -52,13 +52,13 @@ public class BRSConfiguration {
 	
 	/**
 	 * Get the current system configuration. 
-	 * The configuration is stored in {@link BRSUtil#OIOSAML_HOME}. The property is normally set in {@link SPFilter}.
+	 * The configuration is stored in {@link SAMLUtil#OIOSAML_HOME}. The property is normally set in {@link SPFilter}.
 	 * @throws IllegalStateException When the system has not been configured properly yet.
 	 */
 	public static Configuration getSystemConfiguration() throws IllegalStateException {
 		if (systemConfiguration != null) return systemConfiguration;
 
-		if (System.getProperty(BRSUtil.OIOSAML_HOME) == null || !isConfigured(System.getProperty(BRSUtil.OIOSAML_HOME))) {
+		if (System.getProperty(SAMLUtil.OIOSAML_HOME) == null || !isConfigured(System.getProperty(SAMLUtil.OIOSAML_HOME))) {
 			throw new IllegalStateException("System not configured");
 		}
 		ConfigurationFactory factory = new ConfigurationFactory();
@@ -74,16 +74,16 @@ public class BRSConfiguration {
 	}
 	
 	public static String getStringPrefixedWithBRSHome(Configuration conf, String key) {
-		return conf.getString(BRSUtil.OIOSAML_HOME)+"/"+conf.getString(key);
+		return conf.getString(SAMLUtil.OIOSAML_HOME)+"/"+conf.getString(key);
 	}
 
 	public static boolean setHomeProperty(String home) {
 		if (home != null) {
-			System.setProperty(BRSUtil.OIOSAML_HOME, home);
+			System.setProperty(SAMLUtil.OIOSAML_HOME, home);
 			return true;
 		} else {
 			home = System.getProperty("user.home") + "/.oiosaml";
-			System.setProperty(BRSUtil.OIOSAML_HOME, home);
+			System.setProperty(SAMLUtil.OIOSAML_HOME, home);
 			File h = new File(home);
 			if (h.exists() && !h.isDirectory()) {
 				throw new IllegalStateException(home + " is not a directory");

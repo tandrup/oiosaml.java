@@ -36,15 +36,15 @@ import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.util.Base64;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 
@@ -198,31 +198,31 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 	}
 		
 	private ArtifactResponse buildResponse(String id, boolean sign, boolean passive, String reqId) throws Exception {
-		ArtifactResponse res = BRSUtil.buildXMLObject(ArtifactResponse.class);
+		ArtifactResponse res = SAMLUtil.buildXMLObject(ArtifactResponse.class);
 		res.setDestination(spMetadata.getEntityID());
-		res.setIssuer(BRSUtil.createIssuer(idpEntityId));
+		res.setIssuer(SAMLUtil.createIssuer(idpEntityId));
 		
 		res.setInResponseTo(id);
-		res.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		res.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		
-		Response samlResponse = BRSUtil.buildXMLObject(Response.class);
+		Response samlResponse = SAMLUtil.buildXMLObject(Response.class);
 		samlResponse.setInResponseTo(reqId);
 		
 		if (!passive) {
-			samlResponse.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+			samlResponse.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 			Assertion assertion = buildAssertion(spMetadata.getAssertionConsumerServiceLocation(0), spMetadata.getEntityID());
 	
 			samlResponse.getAssertions().add(assertion);
 		} else {
-			samlResponse.setStatus(BRSUtil.createStatus(StatusCode.RESPONDER_URI));
-			StatusCode status = BRSUtil.buildXMLObject(StatusCode.class);
+			samlResponse.setStatus(SAMLUtil.createStatus(StatusCode.RESPONDER_URI));
+			StatusCode status = SAMLUtil.buildXMLObject(StatusCode.class);
 			status.setValue(StatusCode.NO_PASSIVE_URI);
 			samlResponse.getStatus().getStatusCode().setStatusCode(status);
 		}
 		res.setMessage(samlResponse);
 		
 		if (sign) {
-			Signature signature = BRSUtil.createSignature("test");
+			Signature signature = SAMLUtil.createSignature("test");
 			signature.setSigningCredential(credential);
 			signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
 			signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
@@ -241,7 +241,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		bos.write(SAML2ArtifactType0004.TYPE_CODE);
 		bos.write(0);
 		bos.write(0);
-		MessageDigest md = MessageDigest.getInstance(BRSSAMLConstants.SHA_HASH_ALGORHTM);
+		MessageDigest md = MessageDigest.getInstance(OIOSAMLConstants.SHA_HASH_ALGORHTM);
 		bos.write(md.digest("idp1.test.oio.dk".getBytes("UTF-8")));
 		bos.write("12345678901234567890".getBytes());
 		return bos;

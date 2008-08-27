@@ -29,6 +29,8 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+
 /**
  * Class containing the assurance level associated with the login.
  * The currently known assurance levels are:
@@ -43,7 +45,7 @@ public class AssuranceLevel implements BRSSAMLExtensionObject {
     public static final String DEFAULT_ELEMENT_LOCAL_NAME = "AssuranceLevel";
 
     /** Default element name. */
-    public static final QName DEFAULT_ELEMENT_NAME = new QName(BRSSAMLConstants.BRS_NS, DEFAULT_ELEMENT_LOCAL_NAME, BRSSAMLConstants.BRS_PREFIX);
+    public static final QName DEFAULT_ELEMENT_NAME = new QName(OIOSAMLConstants.BRS_NS, DEFAULT_ELEMENT_LOCAL_NAME, OIOSAMLConstants.BRS_PREFIX);
 
     public static final int PASSWORD_ASSURANCE_LEVEL = 2;
     public static final int CERTIFICATE_ASSURANCE_LEVEL = 3;
@@ -83,7 +85,7 @@ public class AssuranceLevel implements BRSSAMLExtensionObject {
 	 */
 	public XMLObject getXMLObject() {
 		XSAnyBuilder builder = new XSAnyBuilder();
-		XSAny ep = builder.buildObject(BRSSAMLConstants.BRS_NS, DEFAULT_ELEMENT_LOCAL_NAME, BRSSAMLConstants.BRS_PREFIX);
+		XSAny ep = builder.buildObject(OIOSAMLConstants.BRS_NS, DEFAULT_ELEMENT_LOCAL_NAME, OIOSAMLConstants.BRS_PREFIX);
 		ep.setTextContent(String.valueOf(value));
 		return ep;
 	}

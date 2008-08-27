@@ -19,10 +19,10 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.credential.Credential;
 import org.w3c.dom.Document;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIOLogoutResponseTest extends AbstractServiceTests {
 	
@@ -44,7 +44,7 @@ public class OIOLogoutResponseTest extends AbstractServiceTests {
 	@Test
 	public void testToSoapEnvelope() {
 		String xml = response.toSoapEnvelope();
-		Envelope e = (Envelope) BRSUtil.unmarshallElementFromString(xml);
+		Envelope e = (Envelope) SAMLUtil.unmarshallElementFromString(xml);
 		Body body = e.getBody();
 		assertNotNull(body);
 		

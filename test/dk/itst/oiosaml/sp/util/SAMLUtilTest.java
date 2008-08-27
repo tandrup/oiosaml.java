@@ -35,10 +35,10 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.Signature;
 
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 
-public class BRSUtilTest {
+public class SAMLUtilTest {
 
 	static {
 		try {
@@ -50,12 +50,12 @@ public class BRSUtilTest {
 	
 	@Test
 	public void testBuildXMLObject() {
-		XMLObject o = BRSUtil.buildXMLObject(Assertion.class);
+		XMLObject o = SAMLUtil.buildXMLObject(Assertion.class);
 		assertNotNull(o);
 		assertTrue(o instanceof Assertion);
 		assertEquals(Assertion.DEFAULT_ELEMENT_NAME, o.getElementQName());
 		try {
-			BRSUtil.buildXMLObject(TestObject.class);
+			SAMLUtil.buildXMLObject(TestObject.class);
 			fail("test should be unknown");
 		} catch (InvalidParameterException e) {}
 	}
@@ -73,40 +73,40 @@ public class BRSUtilTest {
 
 	@Test
 	public void testCreateIssuer() {
-		Issuer issuer = BRSUtil.createIssuer("val");
+		Issuer issuer = SAMLUtil.createIssuer("val");
 		assertNotNull(issuer);
 		assertEquals("val", issuer.getValue());
 		
-		issuer = BRSUtil.createIssuer(null);
+		issuer = SAMLUtil.createIssuer(null);
 		assertNull(issuer);
 	}
 
 	@Test
 	public void testCreateNameID() {
-		NameID name = BRSUtil.createNameID("name");
+		NameID name = SAMLUtil.createNameID("name");
 		assertNotNull(name);
 		assertEquals("name", name.getValue());
-		assertEquals(BRSSAMLConstants.PERSISTENT, name.getFormat());
+		assertEquals(OIOSAMLConstants.PERSISTENT, name.getFormat());
 	}
 
 	@Test
 	public void testCreateSessionIndex() {
-		SessionIndex idx = BRSUtil.createSessionIndex("idx");
+		SessionIndex idx = SAMLUtil.createSessionIndex("idx");
 		assertNotNull(idx);
 		assertEquals("idx", idx.getSessionIndex());
 		
-		idx = BRSUtil.createSessionIndex(null);
+		idx = SAMLUtil.createSessionIndex(null);
 		assertNull(idx.getSessionIndex());
 	}
 
 	@Test
 	public void testCreateSubject() {
 		DateTime dateTime = new DateTime();
-		Subject sub = BRSUtil.createSubject("name", "url", dateTime);
+		Subject sub = SAMLUtil.createSubject("name", "url", dateTime);
 		assertNotNull(sub);
 		assertEquals("name", sub.getNameID().getValue());
 		assertEquals(1, sub.getSubjectConfirmations().size());
-		assertEquals(BRSSAMLConstants.METHOD_BEARER, sub.getSubjectConfirmations().get(0).getMethod());
+		assertEquals(OIOSAMLConstants.METHOD_BEARER, sub.getSubjectConfirmations().get(0).getMethod());
 		assertEquals("url", sub.getSubjectConfirmations().get(0).getSubjectConfirmationData().getRecipient());
 		assertEquals(dateTime.toDate().getTime(), sub.getSubjectConfirmations().get(0).getSubjectConfirmationData().getNotOnOrAfter().toDate().getTime());
 		assertNull(sub.getSubjectConfirmations().get(0).getSubjectConfirmationData().getNotBefore());
@@ -116,7 +116,7 @@ public class BRSUtilTest {
 
 	@Test
 	public void testCreateAuthnContext() {
-		AuthnContext ac = BRSUtil.createAuthnContext("ref");
+		AuthnContext ac = SAMLUtil.createAuthnContext("ref");
 		assertNotNull(ac);
 		assertNull(ac.getAuthContextDecl());
 		assertTrue(ac.getAuthenticatingAuthorities().isEmpty());
@@ -129,7 +129,7 @@ public class BRSUtilTest {
 
 	@Test
 	public void testCreateAudienceCondition() {
-		Conditions ac = BRSUtil.createAudienceCondition("uri");
+		Conditions ac = SAMLUtil.createAudienceCondition("uri");
 		assertNotNull(ac);
 		assertEquals(1, ac.getConditions().size());
 		assertNull(ac.getNotBefore());
@@ -145,17 +145,17 @@ public class BRSUtilTest {
 
 	@Test
 	public void testCreateArtifact() {
-		Artifact a = BRSUtil.createArtifact("value");
+		Artifact a = SAMLUtil.createArtifact("value");
 		assertNotNull(a);
 		assertEquals("value", a.getArtifact());
 		
-		a = BRSUtil.createArtifact(null);
+		a = SAMLUtil.createArtifact(null);
 		assertNull(a.getArtifact());
 	}
 
 	@Test
 	public void testCreateStatus() {
-		Status s = BRSUtil.createStatus("status");
+		Status s = SAMLUtil.createStatus("status");
 		assertNotNull(s);
 		assertNull(s.getStatusDetail());
 		assertNull(s.getStatusMessage());
@@ -166,7 +166,7 @@ public class BRSUtilTest {
 
 	@Test
 	public void testCreateSignature() {
-		Signature s = BRSUtil.createSignature("key");
+		Signature s = SAMLUtil.createSignature("key");
 		assertNotNull(s);
 		assertNull(s.getCanonicalizationAlgorithm());
 		assertTrue(s.getContentReferences().isEmpty());
@@ -193,48 +193,45 @@ public class BRSUtilTest {
 
 	@Test
 	public void testUnmarshallElement() throws IOException {
-		XMLObject xo = BRSUtil.unmarshallElement("../model/assertion.xml");
+		XMLObject xo = SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
 		assertTrue(xo instanceof Assertion);
 		
 		try {
-			BRSUtil.unmarshallElement("test");
+			SAMLUtil.unmarshallElement("test");
 			fail("file should not be found");
 		} catch (IllegalArgumentException e) {}
 	}
 
-	@Test
+	@Test(expected=RuntimeException.class)
 	public void testUnmarshallElementFromString() {
-		XMLObject xo = BRSUtil.unmarshallElementFromString("<saml:Assertion Version=\"2.0\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"></saml:Assertion>");
+		XMLObject xo = SAMLUtil.unmarshallElementFromString("<saml:Assertion Version=\"2.0\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"></saml:Assertion>");
 		assertTrue(xo instanceof Assertion);
 		
-		try {
-			BRSUtil.unmarshallElementFromString("<invalid>");
-			fail("no unmarshaller should be available");
-		} catch (IllegalArgumentException e) {}
+		SAMLUtil.unmarshallElementFromString("<invalid>");
 	}
-
-	@Test
+	
+	@Test(expected=RuntimeException.class)
 	public void testUnmarshallElementFromFile() throws IOException {
 		File file = File.createTempFile("test", ".xml");
 		FileOutputStream os = new FileOutputStream(file);
 		os.write("<saml:Assertion Version=\"2.0\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"></saml:Assertion>".getBytes());
 		os.close();
 		
-		XMLObject xo = BRSUtil.unmarshallElementFromFile(file.getAbsolutePath());
+		XMLObject xo = SAMLUtil.unmarshallElementFromFile(file.getAbsolutePath());
 		assertTrue(xo instanceof Assertion);
 		
-		assertNull(BRSUtil.unmarshallElementFromFile("/test/temp"));
+		SAMLUtil.unmarshallElementFromFile("/test/temp");
 	}
 
 	@Test
 	public void testGetSAMLObjectAsPrettyPrintXML() {
-		Artifact a = BRSUtil.createArtifact("a");
-		String pretty = BRSUtil.getSAMLObjectAsPrettyPrintXML(a);
+		Artifact a = SAMLUtil.createArtifact("a");
+		String pretty = SAMLUtil.getSAMLObjectAsPrettyPrintXML(a);
 		assertNotNull(pretty);
 		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><samlp:Artifact xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\">a</samlp:Artifact>", pretty.trim().replaceAll("\n", ""));
 		
 		try {
-			BRSUtil.getSAMLObjectAsPrettyPrintXML(null);
+			SAMLUtil.getSAMLObjectAsPrettyPrintXML(null);
 		} catch (IllegalArgumentException e) {}
 	}
 

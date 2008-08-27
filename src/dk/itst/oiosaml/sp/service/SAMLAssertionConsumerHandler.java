@@ -31,6 +31,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
@@ -45,7 +46,6 @@ import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.PostResponseExtractor;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Servlet for receiving SAML asertions from the IdP.
@@ -124,7 +124,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 		response.validateResponse(ctx.getSpMetadata().getAssertionConsumerServiceLocation(0), metadata.getCertificate(), allowPassive);
 		if (allowPassive && response.isPassive()) {
 			log.debug("Received passive response, setting passive userassertion");
-			Assertion assertion = BRSUtil.buildXMLObject(Assertion.class);
+			Assertion assertion = SAMLUtil.buildXMLObject(Assertion.class);
 			assertion.setID("" + System.currentTimeMillis());
 			LoggedInHandler.getInstance().setAssertion(session, new OIOAssertion(assertion));
 			session.setAttribute(Constants.SESSION_USER_ASSERTION, new PassiveUserAssertion(ctx.getConfiguration().getString(Constants.PROP_PASSIVE_USER_ID)));

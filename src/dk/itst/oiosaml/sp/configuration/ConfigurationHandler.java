@@ -71,15 +71,15 @@ import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.security.keyinfo.KeyInfoGenerator;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 import dk.itst.oiosaml.sp.service.DispatcherServlet;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.SAMLHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Configuration hander for initial OIOSAML-J configuration.
@@ -269,7 +269,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		zos.closeEntry();
 		
 		zos.putNextEntry(new ZipEntry("metadata/SP/SPMetadata.xml"));
-		zos.write(BRSUtil.getSAMLObjectAsPrettyPrintXML(descriptor).getBytes());
+		zos.write(SAMLUtil.getSAMLObjectAsPrettyPrintXML(descriptor).getBytes());
 		zos.closeEntry();
 		
 		zos.putNextEntry(new ZipEntry("metadata/IdP/IdPMetadata.xml"));
@@ -289,23 +289,23 @@ public class ConfigurationHandler implements SAMLHandler {
 	}
 
 	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean supportOCESAttributes) {
-		EntityDescriptor descriptor = BRSUtil.buildXMLObject(EntityDescriptor.class);
+		EntityDescriptor descriptor = SAMLUtil.buildXMLObject(EntityDescriptor.class);
 		descriptor.setEntityID(entityId);
 		
-		SPSSODescriptor spDescriptor = BRSUtil.buildXMLObject(SPSSODescriptor.class);
+		SPSSODescriptor spDescriptor = SAMLUtil.buildXMLObject(SPSSODescriptor.class);
 		spDescriptor.setAuthnRequestsSigned(true);
 		spDescriptor.setWantAssertionsSigned(true);
 		
-		ContactPerson contact = BRSUtil.buildXMLObject(ContactPerson.class);
-		contact.getEmailAddresses().add(BRSUtil.createEmail(email));
-		contact.setCompany(BRSUtil.createCompany(orgName));
+		ContactPerson contact = SAMLUtil.buildXMLObject(ContactPerson.class);
+		contact.getEmailAddresses().add(SAMLUtil.createEmail(email));
+		contact.setCompany(SAMLUtil.createCompany(orgName));
 		
 		descriptor.getContactPersons().add(contact);
-		descriptor.setOrganization(BRSUtil.createOrganization(orgName, orgName, orgUrl));
+		descriptor.setOrganization(SAMLUtil.createOrganization(orgName, orgName, orgUrl));
 		
-		KeyDescriptor signingDescriptor = BRSUtil.buildXMLObject(KeyDescriptor.class);
+		KeyDescriptor signingDescriptor = SAMLUtil.buildXMLObject(KeyDescriptor.class);
 		signingDescriptor.setUse(UsageType.SIGNING);
-		KeyDescriptor encryptionDescriptor = BRSUtil.buildXMLObject(KeyDescriptor.class);
+		KeyDescriptor encryptionDescriptor = SAMLUtil.buildXMLObject(KeyDescriptor.class);
 		encryptionDescriptor.setUse(UsageType.ENCRYPTION);
 
 		try {
@@ -319,22 +319,22 @@ public class ConfigurationHandler implements SAMLHandler {
 		spDescriptor.getKeyDescriptors().add(encryptionDescriptor);
 		
 		spDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
-		spDescriptor.getAssertionConsumerServices().add(BRSUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_POST_BINDING_URI, 0, true));
+		spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_POST_BINDING_URI, 0, true));
 		if (enableArtifact) {
-			spDescriptor.getAssertionConsumerServices().add(BRSUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_ARTIFACT_BINDING_URI, 1, false));
+			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_ARTIFACT_BINDING_URI, 1, false));
 		}
 		if (enableRedirect) {
-			spDescriptor.getAssertionConsumerServices().add(BRSUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_REDIRECT_BINDING_URI, 2, false));
+			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_REDIRECT_BINDING_URI, 2, false));
 		}
 		
-		spDescriptor.getSingleLogoutServices().add(BRSUtil.createSingleLogoutService(baseUrl + DispatcherServlet.LogoutServiceHTTPRedirect, baseUrl + DispatcherServlet.LogoutServiceHTTPRedirectResponse, SAMLConstants.SAML2_REDIRECT_BINDING_URI));
+		spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + DispatcherServlet.LogoutServiceHTTPRedirect, baseUrl + DispatcherServlet.LogoutServiceHTTPRedirectResponse, SAMLConstants.SAML2_REDIRECT_BINDING_URI));
 		
 		if (enableSoap) {
-			spDescriptor.getSingleLogoutServices().add(BRSUtil.createSingleLogoutService(baseUrl + DispatcherServlet.LogoutServiceSOAP, null, SAMLConstants.SAML2_SOAP11_BINDING_URI));
+			spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + DispatcherServlet.LogoutServiceSOAP, null, SAMLConstants.SAML2_SOAP11_BINDING_URI));
 		}
 		
 		if (enableArtifact) {
-			spDescriptor.getArtifactResolutionServices().add(BRSUtil.createArtifactResolutionService(baseUrl + DispatcherServlet.SAMLAssertionConsumer));
+			spDescriptor.getArtifactResolutionServices().add(SAMLUtil.createArtifactResolutionService(baseUrl + DispatcherServlet.SAMLAssertionConsumer));
 		}
 		
 		if (supportOCESAttributes) {
@@ -346,37 +346,37 @@ public class ConfigurationHandler implements SAMLHandler {
 	}
 
 	private void addAttributeConsumerService(SPSSODescriptor spDescriptor, String serviceName) {
-		AttributeConsumingService service = BRSUtil.createAttributeConsumingService(serviceName);
+		AttributeConsumingService service = SAMLUtil.createAttributeConsumingService(serviceName);
 
 		String[] required = {
-				BRSSAMLConstants.ATTRIBUTE_SURNAME_NAME,
-				BRSSAMLConstants.ATTRIBUTE_COMMON_NAME_NAME,
-				BRSSAMLConstants.ATTRIBUTE_UID_NAME,
-				BRSSAMLConstants.ATTRIBUTE_MAIL_NAME,
-				BRSSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME,
-				BRSSAMLConstants.ATTRIBUTE_SPECVER_NAME,
-				BRSSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME,
-				BRSSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME,
+				OIOSAMLConstants.ATTRIBUTE_SURNAME_NAME,
+				OIOSAMLConstants.ATTRIBUTE_COMMON_NAME_NAME,
+				OIOSAMLConstants.ATTRIBUTE_UID_NAME,
+				OIOSAMLConstants.ATTRIBUTE_MAIL_NAME,
+				OIOSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME,
+				OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME,
 		};
 		
 		String[] optional = {
-				BRSSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME,
-				BRSSAMLConstants.ATTRIBUTE_CVR_NUMBER_IDENTIFIER_NAME,
-				BRSSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME,
-				BRSSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME,
-				BRSSAMLConstants.ATTRIBUTE_TITLE_NAME,
-				BRSSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME,
-				BRSSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME,
-				BRSSAMLConstants.ATTRIBUTE_USER_CERTIFICATE_NAME,
-				BRSSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME,
-				BRSSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME,
-				BRSSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME,
+				OIOSAMLConstants.ATTRIBUTE_CVR_NUMBER_IDENTIFIER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME,
+				OIOSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME,
+				OIOSAMLConstants.ATTRIBUTE_TITLE_NAME,
+				OIOSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME,
+				OIOSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME,
+				OIOSAMLConstants.ATTRIBUTE_USER_CERTIFICATE_NAME,
+				OIOSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME,
 		};
 		for (String attr : required) {
-			service.getRequestAttributes().add(BRSUtil.createRequestedAttribute(attr, BRSSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, true));
+			service.getRequestAttributes().add(SAMLUtil.createRequestedAttribute(attr, OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, true));
 		}
 		for (String attr : optional) {
-			service.getRequestAttributes().add(BRSUtil.createRequestedAttribute(attr, BRSSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, false));
+			service.getRequestAttributes().add(SAMLUtil.createRequestedAttribute(attr, OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, false));
 		}
 		
 		spDescriptor.getAttributeConsumingServices().add(service);
@@ -488,7 +488,7 @@ public class ConfigurationHandler implements SAMLHandler {
 	private String getHome(ServletContext ctx) {
 		String home = ctx.getInitParameter(Constants.INIT_OIOSAML_HOME);
 		if (home == null) {
-			home = System.getProperty(BRSUtil.OIOSAML_HOME);
+			home = System.getProperty(SAMLUtil.OIOSAML_HOME);
 		}
 		if (home == null) {
 			home = System.getProperty("user.home") + "/.oiosaml";

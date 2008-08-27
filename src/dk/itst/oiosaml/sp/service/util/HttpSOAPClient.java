@@ -43,9 +43,9 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class HttpSOAPClient implements SOAPClient {
 	private static final String START_SOAP_ENVELOPE = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">" + "<soapenv:Header/><soapenv:Body>";
@@ -61,7 +61,7 @@ public class HttpSOAPClient implements SOAPClient {
 		
 		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
 
-		String xml = XMLHelper.nodeToString(BRSUtil.marshallObject(obj));
+		String xml = XMLHelper.nodeToString(SAMLUtil.marshallObject(obj));
 		xml = START_SOAP_ENVELOPE + xml.substring(xml.indexOf("?>") + 2) + END_SOAP_ENVELOPE;
 
 		return wsCall(lu, location, username, password, ignoreCertPath, xml);
@@ -114,7 +114,7 @@ public class HttpSOAPClient implements SOAPClient {
 			
 			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
 			
-			Envelope envelope = (Envelope) BRSUtil.unmarshallElementFromString(result);
+			Envelope envelope = (Envelope) SAMLUtil.unmarshallElementFromString(result);
 			return envelope.getBody().getUnknownXMLObjects().get(0);
 		} else {
 			InputStream inputStream = c.getErrorStream();

@@ -44,6 +44,7 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
@@ -55,7 +56,6 @@ import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 
 public class UserAttributeQueryTest extends AbstractServiceTests {
@@ -80,7 +80,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		os.close();
 
 		props = new HashMap<String, String>();
-		props.put(BRSUtil.OIOSAML_HOME, System.getProperty("java.io.tmpdir"));
+		props.put(SAMLUtil.OIOSAML_HOME, System.getProperty("java.io.tmpdir"));
 		props.put(Constants.PROP_CERTIFICATE_LOCATION, tmp.getName());
 		props.put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		
@@ -119,15 +119,15 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		
 		Assertion ass = TestHelper.buildAssertion(null, spMetadata.getEntityID());
 		ass.getAttributeStatements().get(0).getAttributes().clear();
-		AttributeStatement stmt = BRSUtil.buildXMLObject(AttributeStatement.class);
+		AttributeStatement stmt = SAMLUtil.buildXMLObject(AttributeStatement.class);
 		stmt.getAttributes().add(AttributeUtil.createAttribute("attr1", null, null));
 		stmt.getAttributes().add(AttributeUtil.createAttribute("attr2", null, null));
 		ass.getAttributeStatements().add(stmt);
 		
-		final Response resp = BRSUtil.buildXMLObject(Response.class);
+		final Response resp = SAMLUtil.buildXMLObject(Response.class);
 		resp.getAssertions().add(ass);
-		resp.setIssuer(BRSUtil.createIssuer(idpEntityId));
-		resp.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		resp.setIssuer(SAMLUtil.createIssuer(idpEntityId));
+		resp.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		new OIOResponse(resp).sign(credential);
 		
 		context.checking(new Expectations() {{

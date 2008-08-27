@@ -22,10 +22,10 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class HttpSOAPClientTest extends AbstractTests {
 	private DummyServer ds;
@@ -47,7 +47,7 @@ public class HttpSOAPClientTest extends AbstractTests {
 	
 	@Test
 	public void testArtifactResolve() throws Exception {
-		ArtifactResolve ar = BRSUtil.buildXMLObject(ArtifactResolve.class);
+		ArtifactResolve ar = SAMLUtil.buildXMLObject(ArtifactResolve.class);
 		
 		XMLObject res = client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test", "test", true);
 		assertTrue(res instanceof ArtifactResponse);
@@ -58,7 +58,7 @@ public class HttpSOAPClientTest extends AbstractTests {
 
 	@Test
 	public void dontFailWhenUsingLongUsernamePassword() throws Exception {
-		ArtifactResolve ar = BRSUtil.buildXMLObject(ArtifactResolve.class);
+		ArtifactResolve ar = SAMLUtil.buildXMLObject(ArtifactResolve.class);
 		
 		client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test123456789012345678901234567890", "test123456789012345678901234567890", true);
 	}
@@ -98,11 +98,11 @@ public class HttpSOAPClientTest extends AbstractTests {
 				pw.println("Server: test");
 				pw.println();
 
-				Envelope env = BRSUtil.buildXMLObject(Envelope.class);
-				Body body = BRSUtil.buildXMLObject(Body.class);
+				Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
+				Body body = SAMLUtil.buildXMLObject(Body.class);
 				env.setBody(body);
-				body.getUnknownXMLObjects().add(BRSUtil.buildXMLObject(ArtifactResponse.class));
-				pw.println(XMLHelper.nodeToString(BRSUtil.marshallObject(env)));
+				body.getUnknownXMLObjects().add(SAMLUtil.buildXMLObject(ArtifactResponse.class));
+				pw.println(XMLHelper.nodeToString(SAMLUtil.marshallObject(env)));
 				pw.close();
 				
 			} catch (IOException e) {

@@ -57,6 +57,7 @@ import com.gargoylesoftware.htmlunit.SubmitMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
@@ -64,7 +65,6 @@ import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public abstract class IntegrationTests {
 	protected static final String BASE = "http://127.0.0.1:8808/saml";
@@ -92,12 +92,12 @@ public abstract class IntegrationTests {
 		credential = TestHelper.getCredential();
 		EntityDescriptor idpDescriptor = TestHelper.buildEntityDescriptor(credential);
 		FileOutputStream fos = new FileOutputStream(new File(tmpdir, "metadata/IdP/gen.xml"));
-		IOUtils.write(XMLHelper.nodeToString(BRSUtil.marshallObject(idpDescriptor)).getBytes(), fos);
+		IOUtils.write(XMLHelper.nodeToString(SAMLUtil.marshallObject(idpDescriptor)).getBytes(), fos);
 		fos.close();
 		
-		EntityDescriptor spDescriptor = (EntityDescriptor) BRSUtil.unmarshallElement("/dk/itst/oiosaml/sp/SPMetadata.xml");
+		EntityDescriptor spDescriptor = (EntityDescriptor) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/SPMetadata.xml");
 		fos = new FileOutputStream(new File(tmpdir, "metadata/SP/SPMetadata.xml"));
-		IOUtils.write(XMLHelper.nodeToString(BRSUtil.marshallObject(spDescriptor)).getBytes(), fos);
+		IOUtils.write(XMLHelper.nodeToString(SAMLUtil.marshallObject(spDescriptor)).getBytes(), fos);
 		fos.close();
 		
 		spMetadata = new SPMetadata(spDescriptor);
@@ -111,7 +111,7 @@ public abstract class IntegrationTests {
 		props.setProperty(Constants.PROP_CERTIFICATE_LOCATION, "keystore");
 		props.setProperty(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		props.setProperty(Constants.PROP_LOG_FILE_NAME, "oiosaml-sp.log4j.xml");
-		props.setProperty(BRSUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
+		props.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		
 		KeyStore ks = KeyStore.getInstance("JKS");
 		ks.load(null, null);
@@ -130,7 +130,7 @@ public abstract class IntegrationTests {
 		BRSConfiguration.setSystemConfiguration(null);
 		IdpMetadata.setMetadata(null);
 		SPMetadata.setMetadata(null);
-		System.setProperty(BRSUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
+		System.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		server = new Server(8808);
 		WebAppContext wac = new WebAppContext();
 		wac.setClassLoader(Thread.currentThread().getContextClassLoader());
@@ -175,7 +175,7 @@ public abstract class IntegrationTests {
 		assertion.getAttributeStatements().get(0).getAttributes().add(AttributeUtil.createAssuranceLevel(assuranceLevel));
 		
 		Response r = TestHelper.buildResponse(assertion);
-		r.setStatus(BRSUtil.createStatus(status));
+		r.setStatus(SAMLUtil.createStatus(status));
 		r.setInResponseTo(ar.getID());
 		OIOResponse response = new OIOResponse(r);
 		response.sign(credential);

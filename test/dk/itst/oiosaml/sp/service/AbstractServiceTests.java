@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.xml.security.credential.Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
@@ -19,7 +20,6 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public abstract class AbstractServiceTests extends AbstractTests {
 
@@ -50,7 +50,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 			allowing(req).getSession(); will(returnValue(session));
 			allowing(session).getAttribute(Constants.SESSION_ID_LIST); will(returnValue(ids));
 		}});
-		assertion = (Assertion) BRSUtil.unmarshallElement("../model/assertion.xml");
+		assertion = (Assertion) SAMLUtil.unmarshallElement("../sp/model/assertion.xml");
 
 		handler = LoggedInHandler.getInstance();
 		handler.resetReplayProtection(10);

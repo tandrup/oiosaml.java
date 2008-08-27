@@ -46,9 +46,9 @@ import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Base class for all SAML objects.
@@ -78,7 +78,7 @@ public class OIOSamlObject {
 	 * Get an XML representation of the object.
 	 */
 	public String toXML() {
-		Element e = BRSUtil.marshallObject(obj);
+		Element e = SAMLUtil.marshallObject(obj);
 		return XMLHelper.nodeToString(e);
 	}
 
@@ -91,7 +91,7 @@ public class OIOSamlObject {
 	 * @param signingCredential The credential used for signing the object.
 	 */
 	public void sign(Credential signingCredential) {
-		Signature signature = BRSUtil.buildXMLObject(Signature.class);
+		Signature signature = SAMLUtil.buildXMLObject(Signature.class);
 		if (!(obj instanceof SignableSAMLObject)) {
 			throw new IllegalStateException("Object of type " + obj.getClass() + " is not signable");
 		}
@@ -129,7 +129,7 @@ public class OIOSamlObject {
 	 * @return The XML representation encoded with base64. 
 	 */
 	public String toBase64() {
-		Element element = BRSUtil.marshallObject(obj);
+		Element element = SAMLUtil.marshallObject(obj);
 		String xml = XMLHelper.nodeToString(element);
 		return Base64.encodeBytes(xml.getBytes(), Base64.DONT_BREAK_LINES);
 	}
@@ -175,11 +175,11 @@ public class OIOSamlObject {
 	}
 
 	public String toSoapEnvelope() {
-		Body body = BRSUtil.buildXMLObject(Body.class);
+		Body body = SAMLUtil.buildXMLObject(Body.class);
 		body.getUnknownXMLObjects().add(obj);
 
 		// Build output...
-		Envelope envelope = BRSUtil.buildXMLObject(Envelope.class);
+		Envelope envelope = SAMLUtil.buildXMLObject(Envelope.class);
 		envelope.setBody(body);
 		Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(envelope);
 		try {

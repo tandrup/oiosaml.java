@@ -12,10 +12,10 @@ import org.junit.Test;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.xml.security.credential.Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIORequestTest extends AbstractTests{
 	private OIOAuthnRequest request;
@@ -24,7 +24,7 @@ public class OIORequestTest extends AbstractTests{
 	
 	@Before
 	public void setUp() throws Exception {
-		ar = (AuthnRequest) BRSUtil.unmarshallElement("../model/request.xml");
+		ar = (AuthnRequest) SAMLUtil.unmarshallElement("../sp/model/request.xml");
 		ar.getIssuer().setValue("issuerValue");
 		
 		this.request = new OIOAuthnRequest(ar);
@@ -74,7 +74,7 @@ public class OIORequestTest extends AbstractTests{
 		assertEquals(1, errors.size());
 		
 		errors.clear();
-		ar.setIssuer(BRSUtil.createIssuer("test"));
+		ar.setIssuer(SAMLUtil.createIssuer("test"));
 		request.validateRequest("issuer", "dest", credential.getPublicKey(), errors);
 		assertEquals(2, errors.size());
 		

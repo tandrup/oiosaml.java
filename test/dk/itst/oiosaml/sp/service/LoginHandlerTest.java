@@ -53,13 +53,13 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.util.Base64;
 import org.w3c.dom.Document;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
@@ -149,7 +149,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 					assertNotNull(ar.getNameIDPolicy());
 					assertTrue(ar.getNameIDPolicy().getAllowCreate());
 					assertEquals(spMetadata.getEntityID(), ar.getNameIDPolicy().getSPNameQualifier());
-					assertEquals(BRSSAMLConstants.PERSISTENT, ar.getNameIDPolicy().getFormat());
+					assertEquals(OIOSAMLConstants.PERSISTENT, ar.getNameIDPolicy().getFormat());
 					
 				} catch (Exception e) {
 					throw new RuntimeException(e);

@@ -14,8 +14,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.junit.Test;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class BRSConfigurationTest {
 
@@ -28,7 +28,7 @@ public class BRSConfigurationTest {
 	@Test
 	public void testGetStringPrefixedWithBRSHome() {
 		Map<String, String> props = new HashMap<String, String>() {{
-			put(BRSUtil.OIOSAML_HOME, "home");
+			put(SAMLUtil.OIOSAML_HOME, "home");
 			put("key", "value");
 		}};
 		

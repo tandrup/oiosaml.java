@@ -20,12 +20,12 @@ import org.opensaml.saml2.core.SessionIndex;
 import org.opensaml.xml.security.credential.Credential;
 import org.w3c.dom.Document;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
 public class OIOLogoutRequestTest extends AbstractServiceTests {
@@ -35,7 +35,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 	
 	@Before
 	public void setUp() {
-		lr = BRSUtil.buildXMLObject(LogoutRequest.class);
+		lr = SAMLUtil.buildXMLObject(LogoutRequest.class);
 		lh = new OIOLogoutRequest(lr);
 	}
 	
@@ -44,7 +44,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 	public void testGetSessionIndex() {
 		assertNull(lh.getSessionIndex());
 
-		SessionIndex idx = BRSUtil.createSessionIndex("val");
+		SessionIndex idx = SAMLUtil.createSessionIndex("val");
 		lr.getSessionIndexes().add(idx);
 		
 		assertEquals("val", lh.getSessionIndex());
@@ -53,7 +53,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 	@Test
 	public void testIsSessionIndexOK() {
 		assertFalse(lh.isSessionIndexOK("idx"));
-		lr.getSessionIndexes().add(BRSUtil.createSessionIndex("idx"));
+		lr.getSessionIndexes().add(SAMLUtil.createSessionIndex("idx"));
 		
 		assertTrue(lh.isSessionIndexOK("idx"));
 	}

@@ -13,9 +13,9 @@ import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class DispatcherServletTest extends AbstractServiceTests {
 
@@ -29,7 +29,7 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		handler = context.mock(SAMLHandler.class);
 		servlet = new DispatcherServlet();
 		conf = new HashMap<String, String>() {{
-			put(BRSUtil.OIOSAML_HOME, "/test");
+			put(SAMLUtil.OIOSAML_HOME, "/test");
 		}};
 		configuration = TestHelper.buildConfiguration(conf);
 		servlet.setConfiguration(configuration);

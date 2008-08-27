@@ -25,11 +25,11 @@ import org.opensaml.xml.encryption.KeyEncryptionParameters;
 import org.opensaml.xml.security.SecurityTestHelper;
 import org.opensaml.xml.security.credential.Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIOResponseTest extends AbstractTests {
 
@@ -42,7 +42,7 @@ public class OIOResponseTest extends AbstractTests {
 	
 	@Before
 	public void setUp() throws Exception {
-		srt = (Response) ((ArtifactResponse)BRSUtil.unmarshallElement("../model/response.xml")).getMessage();
+		srt = (Response) ((ArtifactResponse)SAMLUtil.unmarshallElement("../sp/model/response.xml")).getMessage();
 		srt.setDestination(destination);
 		srt.getIssuer().setValue(issuerValue);
 		
@@ -103,7 +103,7 @@ public class OIOResponseTest extends AbstractTests {
 	
 	@Test(expected=ValidationException.class)
 	public void validateFailOnWrongStatus() throws Exception {
-		srt.setStatus(BRSUtil.createStatus(StatusCode.AUTHN_FAILED_URI));
+		srt.setStatus(SAMLUtil.createStatus(StatusCode.AUTHN_FAILED_URI));
 		response.validateResponse(srt.getDestination(), cert, false);
 		fail("invalid status");
 	}
@@ -137,8 +137,8 @@ public class OIOResponseTest extends AbstractTests {
 	@Test
 	public void validatePassiveAllowed() throws Exception {
 		srt.getAssertions().clear();
-		srt.setStatus(BRSUtil.createStatus(StatusCode.RESPONDER_URI));
-		StatusCode code = BRSUtil.buildXMLObject(StatusCode.class);
+		srt.setStatus(SAMLUtil.createStatus(StatusCode.RESPONDER_URI));
+		StatusCode code = SAMLUtil.buildXMLObject(StatusCode.class);
 		code.setValue(StatusCode.NO_PASSIVE_URI);
 		srt.getStatus().getStatusCode().setStatusCode(code);
 
@@ -148,8 +148,8 @@ public class OIOResponseTest extends AbstractTests {
 	@Test(expected=ValidationException.class)
 	public void validatePassiveNotAllowed() throws Exception {
 		srt.getAssertions().clear();
-		srt.setStatus(BRSUtil.createStatus(StatusCode.RESPONDER_URI));
-		StatusCode code = BRSUtil.buildXMLObject(StatusCode.class);
+		srt.setStatus(SAMLUtil.createStatus(StatusCode.RESPONDER_URI));
+		StatusCode code = SAMLUtil.buildXMLObject(StatusCode.class);
 		code.setValue(StatusCode.NO_PASSIVE_URI);
 		srt.getStatus().getStatusCode().setStatusCode(code);
 		

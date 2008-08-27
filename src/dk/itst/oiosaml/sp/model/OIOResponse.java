@@ -41,9 +41,9 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Base class for all SAML responses.
@@ -135,7 +135,7 @@ public class OIOResponse extends OIOAbstractResponse {
 		        // otherwise the signature will not validate later on
 				Assertion assertion = decrypter.decrypt(enc);
 				OIOAssertion res = new OIOAssertion(assertion);
-				assertion = (Assertion) BRSUtil.unmarshallElementFromString(res.toXML());
+				assertion = (Assertion) SAMLUtil.unmarshallElementFromString(res.toXML());
 				if (log.isDebugEnabled()) log.debug("Decrypted assertion: " + res.toXML());
 				
 				response.getAssertions().add(assertion);

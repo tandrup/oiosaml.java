@@ -35,6 +35,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.metadata.Endpoint;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
@@ -46,7 +47,6 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class LoginHandler implements SAMLHandler {
 	private static final Logger log = Logger.getLogger(LoginHandler.class);
@@ -81,7 +81,7 @@ public class LoginHandler implements SAMLHandler {
 			} else if ("".equals(samlIdp)) {
 				metadata = idpMetadata.getFirstMetadata();
 			} else {
-				String[] entityIds = BRSUtil.decodeDiscoveryValue(samlIdp);
+				String[] entityIds = SAMLUtil.decodeDiscoveryValue(samlIdp);
 				metadata = idpMetadata.findSupportedEntity(entityIds);
 				log.debug("Discovered idp " + metadata.getEntityID());
 			}

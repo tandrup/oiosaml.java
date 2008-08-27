@@ -13,11 +13,11 @@ import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.credential.Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class IdpMetadataTest extends AbstractTests {
 	
@@ -37,7 +37,7 @@ public class IdpMetadataTest extends AbstractTests {
 	
 	@Test(expected=IllegalStateException.class)
 	public void dontCreateWhenMissingCertificate() throws Exception {
-		EntityDescriptor ed = BRSUtil.buildXMLObject(EntityDescriptor.class);
+		EntityDescriptor ed = SAMLUtil.buildXMLObject(EntityDescriptor.class);
 		new IdpMetadata(ed);
 	}
 

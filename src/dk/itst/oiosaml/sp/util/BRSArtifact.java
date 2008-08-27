@@ -36,10 +36,10 @@ import org.opensaml.saml2.binding.artifact.SAML2ArtifactType0004;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.DatatypeHelper;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 
 /**
  * Utility methods related to extract the content of a SAML Artifact
@@ -97,8 +97,8 @@ public class BRSArtifact {
 		byte[] sourceID = samlArtifact.getSourceID();
 		try {
 			for (String entityId : relyingParties) {
-				MessageDigest md = MessageDigest.getInstance(BRSSAMLConstants.SHA_HASH_ALGORHTM);
-		        byte[] expectedSourceID = md.digest(entityId.getBytes(BRSSAMLConstants.UTF_8));
+				MessageDigest md = MessageDigest.getInstance(OIOSAMLConstants.SHA_HASH_ALGORHTM);
+		        byte[] expectedSourceID = md.digest(entityId.getBytes(OIOSAMLConstants.UTF_8));
 
 		        if (Arrays.equals(expectedSourceID, sourceID)) {
 
@@ -144,7 +144,7 @@ public class BRSArtifact {
             trimmedIndex[0] = endpointIndex[2];
             trimmedIndex[1] = endpointIndex[3];
 
-            MessageDigest sha1Digester = MessageDigest.getInstance(BRSSAMLConstants.SHA_HASH_ALGORHTM);
+            MessageDigest sha1Digester = MessageDigest.getInstance(OIOSAMLConstants.SHA_HASH_ALGORHTM);
             byte[] source = sha1Digester.digest(entityID.getBytes());
 
             SecureRandom handleGenerator = SecureRandom.getInstance("SHA1PRNG");

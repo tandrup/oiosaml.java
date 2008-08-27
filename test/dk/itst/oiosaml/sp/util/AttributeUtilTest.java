@@ -36,15 +36,16 @@ import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.schema.impl.XSAnyUnmarshaller;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 
 
 public class AttributeUtilTest extends AbstractTests {
 
 	@Test
 	public void testExtractAttributeValue() {
-		Attribute attr = AttributeUtil.createAttribute("test", "test", BRSSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT);
+		Attribute attr = AttributeUtil.createAttribute("test", "test", OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT);
 		attr.getAttributeValues().add(AttributeUtil.createAttributeValue("value"));
 		
 		assertEquals("value", AttributeUtil.extractAttributeValueValue(attr));
@@ -52,12 +53,12 @@ public class AttributeUtilTest extends AbstractTests {
 	
 	@Test
 	public void testExtractComplexAttributeValue() throws Exception {
-		Attribute attr = AttributeUtil.createAttribute("test", "test", BRSSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT);
+		Attribute attr = AttributeUtil.createAttribute("test", "test", OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT);
 		XSAnyBuilder builder = new XSAnyBuilder();
 		XSAny ep = builder.buildObject(SAMLConstants.SAML20_NS, AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME, SAMLConstants.SAML20_PREFIX);
 
 		String xml = "<t:test xmlns:t=\"http://test.org\"><t:more>text here</t:more></t:test>";
-		XMLObject val = new XSAnyUnmarshaller().unmarshall(BRSUtil.loadElementFromString(xml));
+		XMLObject val = new XSAnyUnmarshaller().unmarshall(SAMLUtil.loadElementFromString(xml));
 		ep.getUnknownXMLObjects().add(val);
 		attr.getAttributeValues().add(ep);
 		

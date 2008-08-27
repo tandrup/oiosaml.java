@@ -57,10 +57,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 import dk.itst.oiosaml.sp.util.SecurityHelper;
 
 public class TestHelper {
@@ -137,7 +137,7 @@ public class TestHelper {
 	}
 
 	public static String signObject(SignableSAMLObject obj, Credential credential) throws MarshallingException, org.opensaml.xml.signature.SignatureException {
-		org.opensaml.xml.signature.Signature signature = BRSUtil.createSignature("test");
+		org.opensaml.xml.signature.Signature signature = SAMLUtil.createSignature("test");
 		signature.setSigningCredential(credential);
 		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
 		signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
@@ -150,23 +150,23 @@ public class TestHelper {
 	}
 	
 	public static Assertion buildAssertion(String recipient, String audience) {
-		Assertion assertion = BRSUtil.buildXMLObject(Assertion.class);
+		Assertion assertion = SAMLUtil.buildXMLObject(Assertion.class);
 		assertion.setID(Utils.generateUUID());
-		assertion.setSubject(BRSUtil.createSubject("joetest", recipient, new DateTime().plusHours(1)));
+		assertion.setSubject(SAMLUtil.createSubject("joetest", recipient, new DateTime().plusHours(1)));
 		assertion.setIssueInstant(new DateTime());
-		assertion.setIssuer(BRSUtil.createIssuer("idp1.test.oio.dk"));
+		assertion.setIssuer(SAMLUtil.createIssuer("idp1.test.oio.dk"));
 		
-		assertion.setConditions(BRSUtil.createAudienceCondition(audience));
+		assertion.setConditions(SAMLUtil.createAudienceCondition(audience));
 		assertion.getConditions().setNotOnOrAfter(new DateTime().plus(10000));
 
-		AuthnContext context = BRSUtil.createAuthnContext("urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
-		AuthnStatement authnStatement = BRSUtil.buildXMLObject(AuthnStatement.class);
+		AuthnContext context = SAMLUtil.createAuthnContext("urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
+		AuthnStatement authnStatement = SAMLUtil.buildXMLObject(AuthnStatement.class);
 		authnStatement.setAuthnContext(context);
 		authnStatement.setAuthnInstant(new DateTime());
 		authnStatement.setSessionIndex(Utils.generateUUID());
 		assertion.getAuthnStatements().add(authnStatement);
 		
-		AttributeStatement as = BRSUtil.buildXMLObject(AttributeStatement.class);
+		AttributeStatement as = SAMLUtil.buildXMLObject(AttributeStatement.class);
 		as.getAttributes().add(AttributeUtil.createAssuranceLevel(2));
 		assertion.getAttributeStatements().add(as);
 		
@@ -174,15 +174,15 @@ public class TestHelper {
 	}
 
 	public static SPMetadata buildSPMetadata() {
-		EntityDescriptor data = (EntityDescriptor) BRSUtil.unmarshallElement("/dk/itst/oiosaml/sp/service/SPMetadata.xml");
+		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/service/SPMetadata.xml");
 		return new SPMetadata(data);
 	}
 
 	public static EntityDescriptor buildEntityDescriptor(Credential cred) {
-		EntityDescriptor data = (EntityDescriptor) BRSUtil.unmarshallElement("/dk/itst/oiosaml/sp/service/IdPMetadata.xml");
+		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement("/dk/itst/oiosaml/sp/service/IdPMetadata.xml");
         IDPSSODescriptor idpSSODescriptor = data.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
         
-        org.opensaml.xml.signature.X509Certificate cert = BRSUtil.buildXMLObject(org.opensaml.xml.signature.X509Certificate.class);
+        org.opensaml.xml.signature.X509Certificate cert = SAMLUtil.buildXMLObject(org.opensaml.xml.signature.X509Certificate.class);
         try {
 			cert.setValue(Base64.encodeBytes(getCertificate(cred).getEncoded()));
 		} catch (Exception e) {
@@ -209,8 +209,8 @@ public class TestHelper {
 	}
 	
 	public static Response buildResponse(Assertion assertion) {
-		final Response response = BRSUtil.buildXMLObject(Response.class);
-		response.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		final Response response = SAMLUtil.buildXMLObject(Response.class);
+		response.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		response.getAssertions().add(assertion);
 		return response;
 	}

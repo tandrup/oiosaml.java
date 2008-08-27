@@ -35,7 +35,7 @@ import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 import dk.itst.oiosaml.sp.util.SecurityHelper;
@@ -87,7 +87,7 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public int getAssuranceLevel() {
-		String level = getAttributeValue(BRSSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME);
+		String level = getAttributeValue(OIOSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME);
 		if (level == null) {
 			return 0;
 		} else if ("test".equals(level)) {
@@ -102,15 +102,15 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public String getCVRNumberIdentifier() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_CVR_NUMBER_IDENTIFIER_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_CVR_NUMBER_IDENTIFIER_NAME);
 	}
 
 	public String getCertificateSerialNumber() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME);
 	}
 
 	public String getCommonName() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_COMMON_NAME_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_COMMON_NAME_NAME);
 	}
 
 	public Date getIssueTime() {
@@ -122,7 +122,7 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public String getMail() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_MAIL_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_MAIL_NAME);
 	}
 
 	public NameIDFormat getNameIDFormat() {
@@ -130,15 +130,15 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public String getOrganizationName() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME);
 	}
 
 	public String getOrganizationUnit() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME);
 	}
 
 	public String getPostalAddress() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME);
 	}
 
 	public Date getSessionExpireTime() {
@@ -146,7 +146,7 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public String getSpecificationVersion() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_SPECVER_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME);
 	}
 
 	public String getSubject() {
@@ -154,19 +154,19 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public String getSurname() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_SURNAME_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_SURNAME_NAME);
 	}
 
 	public String getTitle() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_TITLE_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_TITLE_NAME);
 	}
 
 	public String getUniqueAccountKey() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME);
 	}
 
 	public String getUserId() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_UID_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_UID_NAME);
 	}
 
 	public String getXML() {
@@ -187,23 +187,23 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public String getCPRNumber() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME);
 	}
 
 	public String getRIDNumber() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME);
 	}
 
 	public String getPIDNumber() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME);
 	}
 
 	public String getPseudonym() {
-		return getAttributeValue(BRSSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME);
+		return getAttributeValue(OIOSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME);
 	}
 
 	public X509Certificate getUserCertificate() {
-		String val = getAttributeValue(BRSSAMLConstants.ATTRIBUTE_USER_CERTIFICATE_NAME);
+		String val = getAttributeValue(OIOSAMLConstants.ATTRIBUTE_USER_CERTIFICATE_NAME);
 		if (val == null) return null;
 		
 		try {
@@ -261,7 +261,7 @@ public class UserAssertionImpl implements UserAssertion {
 	}
 
 	public Boolean isYouthCertificate() {
-		String val = getAttributeValue(BRSSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME);
+		String val = getAttributeValue(OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME);
 		if (val == null) return null;
 		
 		return Boolean.valueOf(val);

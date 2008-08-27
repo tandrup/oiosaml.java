@@ -13,10 +13,10 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.util.Base64;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.service.SAMLAssertionConsumerHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class PostBindingResponseTest extends AbstractServiceTests {
 	
@@ -29,7 +29,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 		
 		handler = new SAMLAssertionConsumerHandler();
 
-		response = BRSUtil.buildXMLObject(Response.class);
+		response = SAMLUtil.buildXMLObject(Response.class);
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("uri"));
 			allowing(req).getQueryString(); will(returnValue("query"));
@@ -39,7 +39,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 
 	@Test(expected=RuntimeException.class)
 	public void failOnMissingSignature() throws Exception {
-		response.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		response.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		final String encoded = encodeResponse(response);
 		
 		context.checking(new Expectations() {{
@@ -53,7 +53,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 	
 	@Test
 	public void failOnNoAssertions() throws Exception {
-		response.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		response.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		
 		final String xml = TestHelper.signObject(response, credential);
 		context.checking(new Expectations() {{
@@ -69,7 +69,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 	
 	@Test
 	public void handleSuccess() throws Exception {
-		response.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		response.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		response.setDestination(spMetadata.getAssertionConsumerServiceLocation(0));
 
 		Assertion assertion = TestHelper.buildAssertion(spMetadata.getAssertionConsumerServiceLocation(0), spMetadata.getEntityID());
@@ -90,7 +90,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 	
 	@Test
 	public void failOnWrongDestination() throws Exception {
-		response.setStatus(BRSUtil.createStatus(StatusCode.SUCCESS_URI));
+		response.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
 		response.setDestination("http://consumer");
 		Assertion assertion = TestHelper.buildAssertion(spMetadata.getAssertionConsumerServiceLocation(0), spMetadata.getEntityID());
 		response.getAssertions().add(assertion);
@@ -109,7 +109,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 	
 	
 	private String encodeResponse(Response response) {
-		final String encoded = Base64.encodeBytes(BRSUtil.getSAMLObjectAsPrettyPrintXML(response).getBytes());
+		final String encoded = Base64.encodeBytes(SAMLUtil.getSAMLObjectAsPrettyPrintXML(response).getBytes());
 		return encoded;
 	}
 }

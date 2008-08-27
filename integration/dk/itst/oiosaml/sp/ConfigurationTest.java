@@ -44,11 +44,11 @@ import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class ConfigurationTest {
 	
@@ -69,7 +69,7 @@ public class ConfigurationTest {
 		BRSConfiguration.setSystemConfiguration(null);
 		IdpMetadata.setMetadata(null);
 		SPMetadata.setMetadata(null);
-		System.setProperty(BRSUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
+		System.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		
 		server = new Server(8808);
 		WebAppContext wac = new WebAppContext();

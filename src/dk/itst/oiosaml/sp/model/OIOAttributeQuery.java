@@ -36,10 +36,10 @@ import org.opensaml.saml2.core.Subject;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.credential.Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIOAttributeQuery extends OIORequest {
 	private static final Logger log = Logger.getLogger(OIOAttributeQuery.class);
@@ -53,23 +53,23 @@ public class OIOAttributeQuery extends OIORequest {
 
 	public static OIOAttributeQuery newQuery(String endpointLocation, String nameId, String spEntityId) {
 		
-		org.opensaml.saml2.core.AttributeQuery q = BRSUtil.buildXMLObject(org.opensaml.saml2.core.AttributeQuery.class);
+		org.opensaml.saml2.core.AttributeQuery q = SAMLUtil.buildXMLObject(org.opensaml.saml2.core.AttributeQuery.class);
 		q.setVersion(SAMLVersion.VERSION_20);
 		
-		Subject subject = BRSUtil.createSubject(nameId, endpointLocation, new DateTime().plusMinutes(5));
+		Subject subject = SAMLUtil.createSubject(nameId, endpointLocation, new DateTime().plusMinutes(5));
 		q.setSubject(subject);
 		
 		q.setDestination(endpointLocation);
 		q.setIssueInstant(new DateTime());
 		q.setID(Utils.generateUUID());
-		q.setIssuer(BRSUtil.createIssuer(spEntityId));
+		q.setIssuer(SAMLUtil.createIssuer(spEntityId));
 		q.setConsent("urn:oasis:names:tc:SAML:2.0:consent:current-implicit");
 		
 		return new OIOAttributeQuery(q);
 	}
 	
 	public void addAttribute(String name, String format) {
-		Attribute a = BRSUtil.buildXMLObject(Attribute.class);
+		Attribute a = SAMLUtil.buildXMLObject(Attribute.class);
 		a.setName(name);
 		a.setNameFormat(format);
 		request.getAttributes().add(a);

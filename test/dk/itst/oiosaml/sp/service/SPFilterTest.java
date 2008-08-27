@@ -29,13 +29,13 @@ import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class SPFilterTest extends AbstractServiceTests {
 
@@ -96,7 +96,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(dir.getAbsolutePath()));
 			one(session).getMaxInactiveInterval(); will(returnValue(10*60*1000));
 		}});
-		System.clearProperty(BRSUtil.OIOSAML_HOME);
+		System.clearProperty(SAMLUtil.OIOSAML_HOME);
 		filter.init(config);
 		
 		final RequestDispatcher dispatcher = context.mock(RequestDispatcher.class);

@@ -47,13 +47,14 @@ import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.validation.ValidationException;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
 public class OIOLogoutRequest extends OIORequest {
@@ -146,16 +147,16 @@ public class OIOLogoutRequest extends OIORequest {
 
 		logoutRequest.setID(LoggedInHandler.getInstance().getID(session, lu));
 		logoutRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
-		logoutRequest.addNamespace(BRSSAMLConstants.SAML20_NAMESPACE);
+		logoutRequest.addNamespace(OIOSAMLConstants.SAML20_NAMESPACE);
 		logoutRequest.setDestination(logoutServiceLocation);
 
-		logoutRequest.setIssuer(BRSUtil.createIssuer(issuerEntityId));
+		logoutRequest.setIssuer(SAMLUtil.createIssuer(issuerEntityId));
 
 		SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
 		sessionIndex.setSessionIndex(LoggedInHandler.getInstance().getSessionIndexFromAssertion(session.getId()));
 		logoutRequest.getSessionIndexes().add(sessionIndex);
 
-		logoutRequest.setNameID(BRSUtil.createNameID(LoggedInHandler.getInstance().getNameIdFromAssertion(session.getId())));
+		logoutRequest.setNameID(SAMLUtil.createNameID(LoggedInHandler.getInstance().getNameIdFromAssertion(session.getId())));
 
 		try {
 			if (log.isDebugEnabled())

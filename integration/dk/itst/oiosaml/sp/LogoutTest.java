@@ -38,12 +38,12 @@ import org.w3c.dom.Document;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class LogoutTest extends IntegrationTests {
 	
@@ -76,12 +76,12 @@ public class LogoutTest extends IntegrationTests {
 	public void testIdpInitiatedLogout_IT_SLO_2() throws Exception {
 		login();
 
-		LogoutRequest lr = BRSUtil.buildXMLObject(LogoutRequest.class);
+		LogoutRequest lr = SAMLUtil.buildXMLObject(LogoutRequest.class);
 		lr.setID(Utils.generateUUID());
-		lr.setIssuer(BRSUtil.createIssuer(idpMetadata.getFirstMetadata().getEntityID()));
+		lr.setIssuer(SAMLUtil.createIssuer(idpMetadata.getFirstMetadata().getEntityID()));
 		lr.setDestination(spMetadata.getSingleLogoutServiceHTTPRedirectLocation());
 		lr.setIssueInstant(new DateTime());
-		lr.setNameID(BRSUtil.createNameID("joetest"));
+		lr.setNameID(SAMLUtil.createNameID("joetest"));
 		OIOLogoutRequest req = new OIOLogoutRequest(lr);
 		String redirectUrl = req.getRedirectRequestURL(credential, new LogUtil(getClass(), ""));
 		

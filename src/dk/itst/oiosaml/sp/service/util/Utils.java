@@ -47,9 +47,9 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.Base64;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 
 /**
  * Utility class used for signing SAML documents and verifying the signed
@@ -193,7 +193,7 @@ public final class Utils {
 			log.debug("key....:" + key.toString());
 
 		try {
-			Signature signer = Signature.getInstance(BRSSAMLConstants.SHA1_WITH_RSA);
+			Signature signer = Signature.getInstance(OIOSAMLConstants.SHA1_WITH_RSA);
 			signer.initVerify(key);
 			signer.update(data);
 			return signer.verify(sig);

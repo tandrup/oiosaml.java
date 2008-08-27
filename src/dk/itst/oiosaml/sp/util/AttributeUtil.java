@@ -38,7 +38,8 @@ import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.util.XMLConstants;
 import org.opensaml.xml.util.XMLHelper;
 
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 
 /**
  * Utility methods related to extract the content of a SAML Attribute
@@ -46,7 +47,7 @@ import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
  * @author lsteinth
  * 
  */
-public class AttributeUtil implements BRSSAMLConstants {
+public class AttributeUtil implements OIOSAMLConstants {
 	public static final String VERSION = "$Id: AttributeUtil.java 2950 2008-05-28 08:22:34Z jre $";
 
 
@@ -292,7 +293,7 @@ public class AttributeUtil implements BRSSAMLConstants {
 					if (ep.getUnknownXMLObjects().size() > 0) {
 						StringBuilder res = new StringBuilder();
 						for (XMLObject obj : ep.getUnknownXMLObjects()) {
-							res.append(XMLHelper.nodeToString(BRSUtil.marshallObject(obj)));
+							res.append(XMLHelper.nodeToString(SAMLUtil.marshallObject(obj)));
 						}
 						return res.toString();
 					}

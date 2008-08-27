@@ -49,12 +49,12 @@ import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.xml.signature.X509Data;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
 import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.model.Bindings;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 import dk.itst.oiosaml.sp.util.SecurityHelper;
 
 /**
@@ -93,7 +93,7 @@ public class IdpMetadata {
 			List<EntityDescriptor> descriptors = new ArrayList<EntityDescriptor>();
 			for (File md : files) {
 				log.info("Loading metadata from " + md);
-				descriptors.add((EntityDescriptor) BRSUtil.unmarshallElementFromFile(md.getAbsolutePath()));
+				descriptors.add((EntityDescriptor) SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath()));
 			}
 			if (descriptors.isEmpty()) {
 				throw new IllegalStateException("No IdP descriptors found in " + directory + "! At least one file is required.");

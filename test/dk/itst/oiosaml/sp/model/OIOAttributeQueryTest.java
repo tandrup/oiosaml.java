@@ -34,6 +34,7 @@ import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
@@ -41,7 +42,6 @@ import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 
 public class OIOAttributeQueryTest extends AbstractServiceTests {
@@ -85,7 +85,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 		q.addAttribute("uid", null);
 		
 		HttpSOAPClient client = new HttpSOAPClient();
-		EntityDescriptor d = (EntityDescriptor) BRSUtil.unmarshallElementFromFile("/tmp/env/metadata/IdP/IdPMetadata.xml.old");
+		EntityDescriptor d = (EntityDescriptor) SAMLUtil.unmarshallElementFromFile("/tmp/env/metadata/IdP/IdPMetadata.xml.old");
 		IdpMetadata md = new IdpMetadata(d);
 		
 		BasicX509Credential credential = Utils.getCredential("/tmp/env/certificate/keystore", "test");

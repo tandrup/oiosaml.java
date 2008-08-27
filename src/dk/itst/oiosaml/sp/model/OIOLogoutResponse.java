@@ -48,12 +48,12 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.util.Pair;
 import org.opensaml.xml.validation.ValidationException;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class OIOLogoutResponse extends OIOAbstractResponse {
 	private static final Logger log = Logger.getLogger(OIOLogoutResponse.class);
@@ -66,17 +66,17 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 	}
 	
 	public static OIOLogoutResponse fromRequest(OIOLogoutRequest request, String statusCode, String consent, String entityId, String destination) {
-		LogoutResponse logoutResponse = BRSUtil.buildXMLObject(LogoutResponse.class);
+		LogoutResponse logoutResponse = SAMLUtil.buildXMLObject(LogoutResponse.class);
 
 		logoutResponse.setID(Utils.generateUUID());
 		logoutResponse.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		logoutResponse.setVersion(SAMLVersion.VERSION_20);
-		logoutResponse.setStatus(BRSUtil.createStatus(statusCode != null ? statusCode : StatusCode.SUCCESS_URI));
+		logoutResponse.setStatus(SAMLUtil.createStatus(statusCode != null ? statusCode : StatusCode.SUCCESS_URI));
 		
 		if (request != null) {
 			logoutResponse.setInResponseTo(request.getID());
 		}
-		logoutResponse.setIssuer(BRSUtil.createIssuer(entityId));
+		logoutResponse.setIssuer(SAMLUtil.createIssuer(entityId));
 		logoutResponse.setDestination(destination);
 		if (consent != null) {
 			logoutResponse.setConsent(consent);

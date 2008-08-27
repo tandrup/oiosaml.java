@@ -21,7 +21,7 @@
  *   Rolf Njor Jensen <rolf@trifork.com>
  *
  */
-package dk.itst.oiosaml.sp.util;
+package dk.itst.oiosaml.common;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -85,7 +85,6 @@ import org.xml.sax.SAXException;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
 
 /**
  * Class with utility methods for creating SAML objects.
@@ -95,9 +94,9 @@ import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
  * will happen inside OpenSAML.
  * 
  */
-public class BRSUtil {
+public class SAMLUtil {
 	public static final String VERSION = "$Id: BRSUtil.java 2910 2008-05-21 13:07:31Z jre $";
-	private static final Logger log = Logger.getLogger(BRSUtil.class);
+	private static final Logger log = Logger.getLogger(SAMLUtil.class);
 	public static final String OIOSAML_HOME = "oiosaml.home";
 
 	/**
@@ -152,7 +151,7 @@ public class BRSUtil {
 	public static NameID createNameID(String nameIDValue) {
 		NameID nameID = buildXMLObject(NameID.class);
 		nameID.setValue(nameIDValue);
-		nameID.setFormat(BRSSAMLConstants.PERSISTENT);
+		nameID.setFormat(OIOSAMLConstants.PERSISTENT);
 		return nameID;
 	}
 
@@ -183,7 +182,7 @@ public class BRSUtil {
 		Subject subject = buildXMLObject(Subject.class);
 		subject.setNameID(createNameID(nameIDValue));
 		SubjectConfirmation subjectConfirmation = buildXMLObject(SubjectConfirmation.class);
-		subjectConfirmation.setMethod(BRSSAMLConstants.METHOD_BEARER);
+		subjectConfirmation.setMethod(OIOSAMLConstants.METHOD_BEARER);
 		SubjectConfirmationData subjectConfirmationData = buildXMLObject(SubjectConfirmationData.class);
 		subjectConfirmationData.setRecipient(recipient);
 		subjectConfirmationData.setNotOnOrAfter(notOnOrAfter);
@@ -272,7 +271,7 @@ public class BRSUtil {
 	 * Create a SAML email address.
 	 */
 	public static EmailAddress createEmail(String email) {
-		EmailAddress ea = BRSUtil.buildXMLObject(EmailAddress.class);
+		EmailAddress ea = SAMLUtil.buildXMLObject(EmailAddress.class);
 		ea.setAddress(email);
 		return ea;
 	}
@@ -281,16 +280,16 @@ public class BRSUtil {
 	 * Create a new Organization object.
 	 */
 	public static Organization createOrganization(String name, String displayName, String url) {
-		OrganizationDisplayName display = BRSUtil.buildXMLObject(OrganizationDisplayName.class);
+		OrganizationDisplayName display = SAMLUtil.buildXMLObject(OrganizationDisplayName.class);
 		display.setName(new LocalizedString(displayName, null));
-		Organization org = BRSUtil.buildXMLObject(Organization.class);
+		Organization org = SAMLUtil.buildXMLObject(Organization.class);
 		org.getDisplayNames().add(display);
 
-		OrganizationName orgName = BRSUtil.buildXMLObject(OrganizationName.class);
+		OrganizationName orgName = SAMLUtil.buildXMLObject(OrganizationName.class);
 		orgName.setName(new LocalizedString(name, null));
 		org.getOrganizationNames().add(orgName);
 
-		OrganizationURL orgUrl = BRSUtil.buildXMLObject(OrganizationURL.class);
+		OrganizationURL orgUrl = SAMLUtil.buildXMLObject(OrganizationURL.class);
 		orgUrl.setURL(new LocalizedString(url, null));
 		org.getURLs().add(orgUrl);
 		return org;
@@ -337,7 +336,7 @@ public class BRSUtil {
             
             DocumentBuilder builder = newFactory.newDocumentBuilder();
 
-			Document doc = builder.parse(BRSUtil.class.getResourceAsStream(elementFile));
+			Document doc = builder.parse(SAMLUtil.class.getResourceAsStream(elementFile));
 			Element samlElement = doc.getDocumentElement();
 
 			return samlElement;
@@ -536,8 +535,8 @@ public class BRSUtil {
 	}
 	
 	public static AttributeConsumingService createAttributeConsumingService(String serviceName) {
-		AttributeConsumingService service = BRSUtil.buildXMLObject(AttributeConsumingService.class);
-		ServiceName name = BRSUtil.buildXMLObject(ServiceName.class);
+		AttributeConsumingService service = SAMLUtil.buildXMLObject(AttributeConsumingService.class);
+		ServiceName name = SAMLUtil.buildXMLObject(ServiceName.class);
 		name.setName(new LocalizedString(serviceName, null));
 		service.getNames().add(name);
 		

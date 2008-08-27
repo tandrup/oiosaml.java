@@ -24,9 +24,9 @@ import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.ws.soap.soap11.Envelope;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.service.LogoutServiceSOAPHandler;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 
@@ -66,7 +66,7 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 		servlet.handleGet(ctx);
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected=RuntimeException.class)
 	public void failWhenBodyIsNotSoap() throws Exception {
 		context.checking(new Expectations() {{
 			allowing(req).getParameter("wsdl"); will(returnValue(null));
@@ -125,7 +125,7 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 	}
 	
 	private LogoutResponse getResponse() throws UnsupportedEncodingException {
-		Envelope env = (Envelope) BRSUtil.unmarshallElementFromString(new String(bos.toByteArray(), "UTF-8"));
+		Envelope env = (Envelope) SAMLUtil.unmarshallElementFromString(new String(bos.toByteArray(), "UTF-8"));
 		LogoutResponse res = (LogoutResponse) env.getBody().getOrderedChildren().get(0);
 		return res;
 	}

@@ -28,11 +28,11 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLConstants;
 
-import dk.itst.oiosaml.sp.model.BRSSAMLConstants;
+import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 public class UserAssertionImplTest {
 	
@@ -48,7 +48,7 @@ public class UserAssertionImplTest {
 	@Before
 	public void setUp() {
 		assertion = new OIOAssertion(createAssertion());
-		attributeStatement = BRSUtil.buildXMLObject(AttributeStatement.class);
+		attributeStatement = SAMLUtil.buildXMLObject(AttributeStatement.class);
 		assertion.getAssertion().getAttributeStatements().add(attributeStatement);
 		as = assertion.getAssertion();
 	}
@@ -88,7 +88,7 @@ public class UserAssertionImplTest {
 	public void testGetCertificateSerialNumber() {
 		assertNull(new UserAssertionImpl(assertion).getCertificateSerialNumber());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME, "cert"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME, "cert"));
 		assertEquals("cert", new UserAssertionImpl(assertion).getCertificateSerialNumber());
 	}
 
@@ -112,7 +112,7 @@ public class UserAssertionImplTest {
 	@Test
 	public void testGetIssuer() {
 		assertNull(new UserAssertionImpl(assertion).getIssuer());
-		as.setIssuer(BRSUtil.createIssuer("issuer"));
+		as.setIssuer(SAMLUtil.createIssuer("issuer"));
 		
 		assertEquals("issuer", new UserAssertionImpl(assertion).getIssuer());
 		
@@ -131,7 +131,7 @@ public class UserAssertionImplTest {
 		assertNull(new UserAssertionImpl(assertion).getNameIDFormat());
 		assertNull(new UserAssertionImpl(assertion).getSubject());
 		
-		as.setSubject(BRSUtil.createSubject("subject", "url", new DateTime()));
+		as.setSubject(SAMLUtil.createSubject("subject", "url", new DateTime()));
 		
 		assertEquals(NameIDFormat.PERSISTENT, new UserAssertionImpl(assertion).getNameIDFormat());
 		assertEquals("subject", new UserAssertionImpl(assertion).getSubject());
@@ -141,7 +141,7 @@ public class UserAssertionImplTest {
 	public void testGetOrganizationName() {
 		assertNull(new UserAssertionImpl(assertion).getOrganizationName());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME, "org"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME, "org"));
 		assertEquals("org", new UserAssertionImpl(assertion).getOrganizationName());
 	}
 
@@ -149,7 +149,7 @@ public class UserAssertionImplTest {
 	public void testGetOrganizationUnit() {
 		assertNull(new UserAssertionImpl(assertion).getOrganizationUnit());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME, "org"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME, "org"));
 		assertEquals("org", new UserAssertionImpl(assertion).getOrganizationUnit());
 	}
 
@@ -157,7 +157,7 @@ public class UserAssertionImplTest {
 	public void testGetPostalAddress() {
 		assertNull(new UserAssertionImpl(assertion).getPostalAddress());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME, "postal"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME, "postal"));
 		assertEquals("postal", new UserAssertionImpl(assertion).getPostalAddress());
 	}
 
@@ -165,7 +165,7 @@ public class UserAssertionImplTest {
 	public void testGetSessionExpireTime() {
 		assertNull(new UserAssertionImpl(assertion).getSessionExpireTime());
 	
-		AuthnStatement st = BRSUtil.buildXMLObject(AuthnStatement.class);
+		AuthnStatement st = SAMLUtil.buildXMLObject(AuthnStatement.class);
 		as.getAuthnStatements().add(st);
 		DateTime dt = new DateTime();
 		st.setSessionNotOnOrAfter(dt);
@@ -177,7 +177,7 @@ public class UserAssertionImplTest {
 	public void testGetSpecificationVersion() {
 		assertNull(new UserAssertionImpl(assertion).getSpecificationVersion());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_SPECVER_NAME, "version"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME, "version"));
 		assertEquals("version", new UserAssertionImpl(assertion).getSpecificationVersion());
 	}
 
@@ -193,7 +193,7 @@ public class UserAssertionImplTest {
 	public void testGetTitle() {
 		assertNull(new UserAssertionImpl(assertion).getTitle());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_TITLE_NAME, "title"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_TITLE_NAME, "title"));
 		assertEquals("title", new UserAssertionImpl(assertion).getTitle());
 		
 	}
@@ -202,7 +202,7 @@ public class UserAssertionImplTest {
 	public void testGetUniqueAccountKey() {
 		assertNull(new UserAssertionImpl(assertion).getUniqueAccountKey());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME, "key"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME, "key"));
 		assertEquals("key", new UserAssertionImpl(assertion).getUniqueAccountKey());
 	}
 
@@ -224,7 +224,7 @@ public class UserAssertionImplTest {
 	public void testIsSigned() {
 		assertFalse(new UserAssertionImpl(assertion).isSigned());
 		
-		as.setSignature(BRSUtil.createSignature("key"));
+		as.setSignature(SAMLUtil.createSignature("key"));
 		assertTrue(new UserAssertionImpl(assertion).isSigned());
 	}
 	
@@ -232,7 +232,7 @@ public class UserAssertionImplTest {
 	public void testGetCPRNumber() {
 		assertNull(new UserAssertionImpl(assertion).getCPRNumber());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME, "cpr"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME, "cpr"));
 		assertEquals("cpr", new UserAssertionImpl(assertion).getCPRNumber());
 	}
 	
@@ -256,7 +256,7 @@ public class UserAssertionImplTest {
 	public void testGetPseudonym() {
 		assertNull(new UserAssertionImpl(assertion).getPseudonym());
 		
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME, "ps"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME, "ps"));
 		assertEquals("ps", new UserAssertionImpl(assertion).getPseudonym());
 	}
 	
@@ -283,11 +283,11 @@ public class UserAssertionImplTest {
 	@Test
 	public void testIsYouthCertificate() {
 		assertNull(new UserAssertionImpl(assertion).isYouthCertificate());
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "true"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "true"));
 		assertEquals(true, new UserAssertionImpl(assertion).isYouthCertificate());
 
 		attributeStatement.getAttributes().clear();
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "false"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "false"));
 		assertEquals(false, new UserAssertionImpl(assertion).isYouthCertificate());
 	}
 	
@@ -296,10 +296,10 @@ public class UserAssertionImplTest {
 		assertFalse(new UserAssertionImpl(assertion).isOCESProfileCompliant());
 		assertFalse(new UserAssertionImpl(assertion).isOIOSAMLCompliant());
 		
-		as.setSignature(BRSUtil.createSignature("key"));
-		as.setIssuer(BRSUtil.createIssuer("issuer"));
-		as.setSubject(BRSUtil.createSubject("id", "url", new DateTime()));
-		AuthnStatement st = BRSUtil.buildXMLObject(AuthnStatement.class);
+		as.setSignature(SAMLUtil.createSignature("key"));
+		as.setIssuer(SAMLUtil.createIssuer("issuer"));
+		as.setSubject(SAMLUtil.createSubject("id", "url", new DateTime()));
+		AuthnStatement st = SAMLUtil.buildXMLObject(AuthnStatement.class);
 		st.setSessionIndex("idx");
 		as.getAuthnStatements().add(st);
 		
@@ -309,14 +309,14 @@ public class UserAssertionImplTest {
 		attributeStatement.getAttributes().add(AttributeUtil.createMail("mail"));
 		
 		attributeStatement.getAttributes().add(AttributeUtil.createAssuranceLevel(2));
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_SPECVER_NAME, "DK-SAML-2.0"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME, "DK-SAML-2.0"));
 		
 		assertTrue(new UserAssertionImpl(assertion).isOIOSAMLCompliant());
 		assertFalse(new UserAssertionImpl(assertion).isOCESProfileCompliant());
 		
 		as.getSubject().getNameID().setFormat(NameIDFormat.X509SUBJECT.getFormat());
 		attributeStatement.getAttributes().add(AttributeUtil.createSerialNumber("number"));
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "true"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "true"));
 		attributeStatement.getAttributes().add(AttributeUtil.createPidNumberIdentifier("pid"));
 		attributeStatement.getAttributes().remove(2);
 		attributeStatement.getAttributes().add(AttributeUtil.createUid("PID:pid"));
@@ -331,10 +331,10 @@ public class UserAssertionImplTest {
 	
 	@Test
 	public void testIsPersistentCompliant() {
-		as.setSubject(BRSUtil.createSubject("id", "url", new DateTime()));
+		as.setSubject(SAMLUtil.createSubject("id", "url", new DateTime()));
 		as.getSubject().getNameID().setFormat(NameIDFormat.PERSISTENT.getFormat());
 		attributeStatement.getAttributes().add(AttributeUtil.createAssuranceLevel(2));
-		attributeStatement.getAttributes().add(createAttribute(BRSSAMLConstants.ATTRIBUTE_SPECVER_NAME, "DK-SAML-2.0"));
+		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME, "DK-SAML-2.0"));
 		
 		assertTrue(new UserAssertionImpl(assertion).isPersistentPseudonymProfileCompliant());
 		
@@ -349,11 +349,11 @@ public class UserAssertionImplTest {
 	
 	
 	private Assertion createAssertion() {
-		return BRSUtil.buildXMLObject(Assertion.class);
+		return SAMLUtil.buildXMLObject(Assertion.class);
 	}
 	
 	private Attribute createAttribute(String name, String value) {
-		Attribute attr = BRSUtil.buildXMLObject(Attribute.class);
+		Attribute attr = SAMLUtil.buildXMLObject(Attribute.class);
 		attr.setName(name);
 		XSAnyBuilder builder = new XSAnyBuilder();
 		XSAny ep = builder.buildObject(SAMLConstants.SAML20_NS,

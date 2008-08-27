@@ -32,8 +32,8 @@ import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 
 /**
  * Utility class to extract relevant values of the meta data related to the service provider.
@@ -64,7 +64,7 @@ public class SPMetadata {
 	        String directory = BRSConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
 	        String fileName = conf.getString(METADATA_FILE);
 	        try {
-		        instance = new SPMetadata( (EntityDescriptor) BRSUtil.unmarshallElementFromFile(directory+"/"+fileName));
+		        instance = new SPMetadata( (EntityDescriptor) SAMLUtil.unmarshallElementFromFile(directory+"/"+fileName));
 	        } catch (Exception e) {
 	        	log.error("Cannot load the metadata file: "+fileName+" - "+e.getMessage(), e);
 	        	throw new IllegalArgumentException(e.getMessage());

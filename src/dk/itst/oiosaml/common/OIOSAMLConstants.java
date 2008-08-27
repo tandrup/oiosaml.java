@@ -21,7 +21,7 @@
  *   Rolf Njor Jensen <rolf@trifork.com>
  *
  */
-package dk.itst.oiosaml.sp.model;
+package dk.itst.oiosaml.common;
 
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Attribute;
@@ -29,11 +29,9 @@ import org.opensaml.xml.Namespace;
 
 /**
  * Interface with a variety of constants used in the brs-common project for accessing SAML objects
- * @author lsteinth
  *
  */
-public interface BRSSAMLConstants {
-	public static final String VERSION = "$Id: BRSSAMLConstants.java 2950 2008-05-28 08:22:34Z jre $";
+public interface OIOSAMLConstants {
     /** BRS SAML 2.0 XML Namespace */
 	
     public final static String BRS_NS = "http://www.eogs.dk/2007/07/brs";

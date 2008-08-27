@@ -42,6 +42,7 @@ import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.credential.Credential;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
@@ -49,7 +50,6 @@ import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.util.BRSUtil;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
 /**
@@ -69,7 +69,7 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 		
 		// Unpack the <LogoutRequest>
 		String xml = IOUtils.toString(is);
-		XMLObject xmlObject = BRSUtil.unmarshallElementFromString(xml);
+		XMLObject xmlObject = SAMLUtil.unmarshallElementFromString(xml);
 
 		if (log.isDebugEnabled()) log.debug("Request..:" + xml);
 
