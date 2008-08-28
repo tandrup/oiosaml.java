@@ -110,7 +110,12 @@ public class SAMLUtil {
 	@SuppressWarnings("unchecked")
 	public static <T extends XMLObject> T buildXMLObject(Class<T> type) {
 		try {
-			Field typeField = type.getDeclaredField("DEFAULT_ELEMENT_NAME");
+			Field typeField;
+			try { 
+				typeField = type.getDeclaredField("DEFAULT_ELEMENT_NAME");
+			} catch (NoSuchFieldException ex) {
+				typeField = type.getDeclaredField("ELEMENT_NAME");
+			}
 			
 			QName objectQName = (QName) typeField.get(null);
 			XMLObjectBuilder<T> builder = Configuration.getBuilderFactory().getBuilder(objectQName);
