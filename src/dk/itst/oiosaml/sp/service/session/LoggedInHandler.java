@@ -203,7 +203,6 @@ public class LoggedInHandler {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	private Map<String, LogId> getIdMap(HttpSession session) {
 		Map idList = (Map) session.getAttribute(Constants.SESSION_ID_LIST);
 		if (idList == null) {

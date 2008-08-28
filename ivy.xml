@@ -8,9 +8,8 @@
     <publications>
     	<artifact />
     	<artifact name="opensaml-2.0.0-jdk-1.5" type="jar" conf="*" />
-    	<artifact name="openliberty-r221" type="jar" conf="*" />
-    	<artifact name="openws-1.0.0-jdk-1.5" type="jar" conf="*" />
-    	<artifact name="xmltooling-1.0.0-jdk-1.5" type="jar" conf="*" />
+    	<artifact name="openws-wstrust" type="jar" conf="*" />
+    	<artifact name="xmltooling-1.1.0" type="jar" conf="*" />
     	<artifact name="not-yet-commons-ssl-0.3.9" type="jar" conf="*" />
     	<artifact name="xmlsec-1.4.1" type="jar" conf="*" />
     </publications>

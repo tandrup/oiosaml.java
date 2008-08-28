@@ -5,11 +5,8 @@
 	<classpathentry kind="src" path="integration"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/opensaml-2.0.0-jdk-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/xmltooling-1.0.0-jdk-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/openws-1.0.0-jdk-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.9.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec-1.4.1.jar"/>
-	<classpathentry kind="lib" path="lib/openliberty-r221.jar"/>
 	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
 	<classpathentry kind="lib" path="lib/build/commons-codec-commons-codec.jar"/>
 	<classpathentry kind="lib" path="lib/build/commons-collections-commons-collections.jar"/>
@@ -45,5 +42,7 @@
 	<classpathentry kind="lib" path="lib/build/xalan-xalan.jar"/>
 	<classpathentry kind="lib" path="lib/build/xerces-xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/build/xml-resolver-xml-resolver.jar"/>
+	<classpathentry kind="lib" path="lib/xmltooling-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/openws-wstrust.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
