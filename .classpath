@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="integration"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/opensaml-2.0.0-jdk-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.9.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
@@ -44,5 +43,6 @@
 	<classpathentry kind="lib" path="lib/build/xml-resolver-xml-resolver.jar"/>
 	<classpathentry kind="lib" path="lib/xmltooling-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/openws-wstrust.jar"/>
+	<classpathentry kind="lib" path="lib/opensaml-2.1.0.jar" sourcepath="/home/recht/install/opensaml-2.1.0"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
