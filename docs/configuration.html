@@ -95,6 +95,10 @@ The servlet receives 3 attributes in the request: SAMLRequest, action, and Relay
 Defaults to artifact,post,redirect,soap.</li>
 </ul>
 
+<h3>Service Provider Metadata</h3>
+<p>OIOSAML.java uses a static metadata file placed in oiosaml-.home/metadata/SP/SPMetadata.xml. Relevant data is read from this file, and
+the file can be freely modified. Metadata can be downloaded online from the saml/metadata servlet. When downloading metadata online, the
+metadata will be signed with the SP credentials.</p>
 
 <h3>Endpoint urls</h3>
 <p>The following protocol endpoints are published by the OIOSAML.java servlet:</p>
