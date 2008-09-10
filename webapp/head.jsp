@@ -27,6 +27,9 @@
 	UserAssertion ua = (UserAssertion)session.getAttribute(Constants.SESSION_USER_ASSERTION);
 	%>
 <%=ua != null && ua.isAuthenticated() ? "<a href=\"" + request.getContextPath() + "/saml/Logout\">Log out</a>" : "<a href=\"" + request.getContextPath() + "/saml/login\">Login</a>"%>
+
+<a href="<%= request.getContextPath() %>/saml/metadata">Metadata</a>
+
 <% } catch (RuntimeException e) { %>
 <h2>System is not configured</h2>
 <a href="saml/configure">Configure the system here</a>.
