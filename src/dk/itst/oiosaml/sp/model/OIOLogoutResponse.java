@@ -81,7 +81,7 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		if (consent != null) {
 			logoutResponse.setConsent(consent);
 		}
-		if (statusCode != null && statusCode != StatusCode.SUCCESS_URI) {
+		if (statusCode != null && !StatusCode.SUCCESS_URI.equals(statusCode)) {
 			log.error("Invalid <LogoutRequest>: " + consent);
 		}
 		try {
@@ -191,7 +191,7 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 
 	}
 	
-	protected class Encoder extends HTTPRedirectDeflateEncoder {
+	protected static class Encoder extends HTTPRedirectDeflateEncoder {
 		
 		@Override
 		public String deflateAndBase64Encode(SAMLObject obj) throws MessageEncodingException {

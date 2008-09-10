@@ -89,7 +89,9 @@ public class BRSConfiguration {
 				throw new IllegalStateException(home + " is not a directory");
 			} else if (!h.exists()) {
 				log.info("Creating empty config dir in " + home);
-				h.mkdir();
+				if (!h.mkdir()) {
+					throw new IllegalStateException(h + " could not be created");
+				}
 			}
 			
 			return false;

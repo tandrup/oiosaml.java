@@ -69,14 +69,14 @@ public class DispatcherServlet extends HttpServlet {
 	final public static String LogoutServiceSOAP = "/LogoutServiceSOAP";
 	final public static String Login  ="/login";
 
-	private IdpMetadata idpMetadata;
-	private SPMetadata spMetadata;
+	private transient IdpMetadata idpMetadata;
+	private transient SPMetadata spMetadata;
 	private Configuration configuration;
 	private Credential credential;
 
 	private HashMap<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
 	private boolean initialized = false;
-	private VelocityEngine engine;
+	private transient VelocityEngine engine;
 
 	private BindingHandlerFactory bindingHandlerFactory;
 	

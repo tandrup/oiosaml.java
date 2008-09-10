@@ -106,7 +106,7 @@ public class BRSArtifact {
 		        }
 			}
 
-			throw new BindingException("The sourceID:"+sourceID+" does not match the expected sourceId");
+			throw new BindingException("The sourceID:"+new String(sourceID)+" does not match the expected sourceId");
 		} catch (NoSuchAlgorithmException e) {
 			throw new WrappedException(Layer.DATAACCESS, e);
 		} catch (UnsupportedEncodingException e) {

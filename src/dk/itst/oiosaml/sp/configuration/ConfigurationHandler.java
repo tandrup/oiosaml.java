@@ -172,7 +172,7 @@ public class ConfigurationHandler implements SAMLHandler {
 			params.put("keystorePassword", password);
 			params.put("entityId", entityId);
 			log.info("Parameters not correct: " + params);
-			log.info("Metadata: " + metadata);
+			log.info("Metadata: " + new String(metadata));
 			
 			String res = renderTemplate("configure.vm", params, true);
 			sendResponse(response, res);
@@ -497,7 +497,9 @@ public class ConfigurationHandler implements SAMLHandler {
 				throw new IllegalStateException(home + " is not a directory");
 			} else if (!h.exists()) {
 				log.info("Creating empty config dir in " + home);
-				h.mkdir();
+				if (!h.mkdir()) {
+					throw new IllegalStateException(h + " could not be created");
+				}
 			}
 		}
 		return home;

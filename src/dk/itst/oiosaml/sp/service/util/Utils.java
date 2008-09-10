@@ -157,8 +157,6 @@ public final class Utils {
 		}
 
 		byte[] buffer = Base64.decode(signature);
-		if (log.isDebugEnabled())
-			log.debug("buffer.....:" + buffer);
 
         String data = queryString.substring(queryString.indexOf(firstQueryParameter), queryString.lastIndexOf("&"));
 		if (log.isDebugEnabled())
@@ -186,9 +184,9 @@ public final class Utils {
 	public static boolean verifySignature(byte[] data, PublicKey key, byte[] sig) {
 
 		if (log.isDebugEnabled())
-			log.debug("data...:" + data);
+			log.debug("data...:" + new String(data));
 		if (log.isDebugEnabled())
-			log.debug("sig....:" + sig);
+			log.debug("sig....:" + new String(sig));
 		if (log.isDebugEnabled())
 			log.debug("key....:" + key.toString());
 

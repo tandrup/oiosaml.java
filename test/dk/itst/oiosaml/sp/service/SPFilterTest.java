@@ -39,8 +39,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class SPFilterTest extends AbstractServiceTests {
 
-	private final class BaseMatcherExtension extends
-			BaseMatcher<ServletRequest> {
+	private static final class BaseMatcherExtension extends BaseMatcher<ServletRequest> {
 		public boolean matches(Object item) {
 			HttpServletRequest req = (HttpServletRequest)item;
 			String remoteUser = (req).getRemoteUser();

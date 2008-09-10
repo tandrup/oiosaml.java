@@ -25,6 +25,7 @@ package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -126,12 +127,12 @@ public class LoginHandler implements SAMLHandler {
 		if (path == null) {
 			path = "/";
 		}
-		if (log.isDebugEnabled()) log.debug("ForceAuthn urls: " + urls + "; path: " + path);
+		if (log.isDebugEnabled()) log.debug("ForceAuthn urls: " + Arrays.toString(urls) + "; path: " + path);
 		
 		
 		for (String url : urls) {
 			if (path.matches(url.trim())) {
-				if (log.isDebugEnabled()) log.debug("Requested url " + path + " is in forceauthn list " + urls);
+				if (log.isDebugEnabled()) log.debug("Requested url " + path + " is in forceauthn list " + Arrays.toString(urls));
 				return true;
 			}
 		}

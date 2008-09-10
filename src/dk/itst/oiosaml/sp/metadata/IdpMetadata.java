@@ -93,7 +93,12 @@ public class IdpMetadata {
 			List<EntityDescriptor> descriptors = new ArrayList<EntityDescriptor>();
 			for (File md : files) {
 				log.info("Loading metadata from " + md);
-				descriptors.add((EntityDescriptor) SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath()));
+				try {
+					descriptors.add((EntityDescriptor) SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath()));
+				} catch (RuntimeException e) {
+					log.error("Unable to load metadata from " + md + ". File must contain valid XML and have EntityDescriptor as top tag",e);
+					throw e;
+				}
 			}
 			if (descriptors.isEmpty()) {
 				throw new IllegalStateException("No IdP descriptors found in " + directory + "! At least one file is required.");

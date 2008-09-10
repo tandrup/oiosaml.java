@@ -212,19 +212,15 @@ public class LogUtil implements Serializable {
 	 */
 	private StringBuffer format(Map<?, ?> m) {
 		StringBuffer str = new StringBuffer("");
-		Object key = null;
-		Object value = null;
 		boolean first = true;
-		Iterator<?> it = m.keySet().iterator();
-		while (it.hasNext()) {
-			key = it.next();
-			value = m.get(key);
+		for (Map.Entry<?, ?> e : m.entrySet()) {
 			if (!first) {
 				str.append(" ");
 			}
-			str.append(key.toString()).append("=").append("[");
-			str.append(value.toString()).append("]");
+			str.append(e.getKey()).append("=").append("[");
+			str.append(e.getValue()).append("]");
 			first = false;
+			
 		}
 		return str;
 	}
@@ -741,9 +737,7 @@ public class LogUtil implements Serializable {
 	/**
 	 * Helper class to deal with more than one concurrent time measurement
 	 */
-	private class TimeUtil implements Serializable {
-
-		private static final long serialVersionUID = 7868773344048143907L;
+	private class TimeUtil {
 
 		private String serviceProviderHost;
 

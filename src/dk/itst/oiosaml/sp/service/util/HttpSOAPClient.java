@@ -114,7 +114,10 @@ public class HttpSOAPClient implements SOAPClient {
 			
 			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
 			
-			Envelope envelope = (Envelope) SAMLUtil.unmarshallElementFromString(result);
+			XMLObject res = SAMLUtil.unmarshallElementFromString(result);
+			if (log.isDebugEnabled()) log.debug("Server SOAP response: " + res);
+			
+			Envelope envelope = (Envelope) res;
 			return envelope.getBody().getUnknownXMLObjects().get(0);
 		} else {
 			InputStream inputStream = c.getErrorStream();

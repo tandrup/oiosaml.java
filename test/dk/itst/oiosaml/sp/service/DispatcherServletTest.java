@@ -56,27 +56,27 @@ public class DispatcherServletTest extends AbstractServiceTests {
 	}
 
 	@Test
-	public void SAMLAssertionConsumerHandler() throws Exception {
+	public void samlAssertionConsumerHandler() throws Exception {
 		handlePostAndGetForSpecific(DispatcherServlet.SAMLAssertionConsumer);
 	}
 
 	@Test
-	public void LogoutServiceHTTPRedirectHandler() throws Exception {
+	public void logoutServiceHTTPRedirectHandler() throws Exception {
 		handlePostAndGetForSpecific(DispatcherServlet.LogoutServiceHTTPRedirect);
 	}
 
 	@Test
-	public void LogoutHTTPResponseHandler() throws Exception {
+	public void logoutHTTPResponseHandler() throws Exception {
 		handlePostAndGetForSpecific(DispatcherServlet.LogoutServiceHTTPRedirectResponse);
 	}
 
 	@Test
-	public void LogoutHandler() throws Exception {
+	public void logoutHandler() throws Exception {
 		handlePostAndGetForSpecific(DispatcherServlet.Logout);
 	}
 
 	@Test
-	public void LogoutServiceSoapHandler() throws Exception {
+	public void logoutServiceSoapHandler() throws Exception {
 		handlePostAndGetForSpecific(DispatcherServlet.LogoutServiceSOAP);
 	}
 	

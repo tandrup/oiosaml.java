@@ -14,7 +14,7 @@ import dk.itst.oiosaml.logging.LogUtil;
 
 public class LogUtilTest {
 
-	private final class CountLogger extends Logger {
+	private static final class CountLogger extends Logger {
 		int invokeCount = 0;
 
 		private CountLogger(String name) {

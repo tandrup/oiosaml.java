@@ -52,8 +52,8 @@ import dk.itst.oiosaml.sp.util.SubjectStubImpl;
 
 public class OIOAssertionTest extends AbstractTests {
 	private OIOAssertion assertion;
-	private final String assertionConsumerURL = "http://jre-mac.trifork.com:8080/saml/SAMLAssertionConsumer";
-	private final String serviceProviderEntityId = "poc3.eogs.capgemini.dk.spref";
+	private static final String assertionConsumerURL = "http://jre-mac.trifork.com:8080/saml/SAMLAssertionConsumer";
+	private static final String serviceProviderEntityId = "poc3.eogs.capgemini.dk.spref";
 
 
 	@Before
@@ -91,7 +91,7 @@ public class OIOAssertionTest extends AbstractTests {
 		String requiredMethodBearer = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
 
 		assertFalse(assertion.checkRecipient(null));
-		assertFalse(new OIOAssertion(new AssertionStubImpl()).checkRecipient(new String()));
+		assertFalse(new OIOAssertion(new AssertionStubImpl()).checkRecipient(""));
 
 		Assertion localAssertion = new AssertionStubImpl();
 		localAssertion.setSubject(new SubjectStubImpl());
@@ -178,7 +178,7 @@ public class OIOAssertionTest extends AbstractTests {
 
 	@Test
 	public void checkAudience() {
-		String expectedServiceProviderEntityID = new String("someString");
+		String expectedServiceProviderEntityID = "someString";
 
 		Audience audience = new AudienceStubImpl();
 		audience.setAudienceURI(expectedServiceProviderEntityID);

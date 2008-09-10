@@ -429,8 +429,8 @@ public class SAMLUtil {
 			Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory()
 					.getUnmarshaller(samlElement);
 			if (unmarshaller == null) {
-				log.error("Unable to retrieve unmarshaller by DOM Element");
-				throw new IllegalArgumentException("No unmarshaller for " + fileName);
+				log.error("Unable to retrieve unmarshaller by DOM Element for {" + samlElement.getNamespaceURI() + "}" + samlElement.getLocalName());
+				throw new IllegalArgumentException("No unmarshaller for element {" + samlElement.getNamespaceURI() + "}" + samlElement.getLocalName() + " from file " + fileName);
 			}
 
 			return unmarshaller.unmarshall(samlElement);

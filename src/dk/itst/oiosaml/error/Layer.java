@@ -30,10 +30,10 @@ package dk.itst.oiosaml.error;
 public class Layer {
     
 	public static final String VERSION = "$Id: Layer.java 2829 2008-05-13 12:11:31Z jre $";
-    public static Layer CLIENT = new Layer("CLIENT");
-    public static Layer BUSINESS = new Layer("BUSINESS");
-    public static Layer DATAACCESS = new Layer("RESOURCE");
-    public static Layer UNDEFINED = new Layer("UNDEFINED");
+    public static final Layer CLIENT = new Layer("CLIENT");
+    public static final Layer BUSINESS = new Layer("BUSINESS");
+    public static final Layer DATAACCESS = new Layer("RESOURCE");
+    public static final Layer UNDEFINED = new Layer("UNDEFINED");
 
     private String value;
 
