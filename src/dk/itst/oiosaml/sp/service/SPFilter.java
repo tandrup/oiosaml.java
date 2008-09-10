@@ -120,7 +120,6 @@ public class SPFilter implements Filter {
 		}
 
 		if(!isFilterInitialized()) {
-			LoggedInHandler.getInstance().scheduleCleanupTasks(((HttpServletRequest)request).getSession().getMaxInactiveInterval());
 			try {
 				Configuration conf = BRSConfiguration.getSystemConfiguration();
 				setRuntimeConfiguration(conf);
@@ -128,6 +127,7 @@ public class SPFilter implements Filter {
 				request.getRequestDispatcher("/saml/configure").forward(request, response);
 				return;
 			}
+			LoggedInHandler.getInstance().scheduleCleanupTasks(((HttpServletRequest)request).getSession().getMaxInactiveInterval());
 		}
 		HttpServletRequest servletRequest = ((HttpServletRequest) request);
 		
@@ -184,14 +184,18 @@ public class SPFilter implements Filter {
 			homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
 		}
 		log.info("Trying to retrieve configuration from " + homeParam);
-		if (BRSConfiguration.setHomeProperty(homeParam)) {
-			try {
+		BRSConfiguration.setHomeProperty(homeParam);
+		
+		if (BRSConfiguration.isConfigured()) {
+ 			try {
 				Configuration conf = BRSConfiguration.getSystemConfiguration();
 				setRuntimeConfiguration(conf);
 				setFilterInitialized(true);
 				return;
-			} catch (IllegalStateException e) {}
-		} 
+			} catch (IllegalStateException e) {
+				log.error("Unable to configure", e);
+			}
+		}
 		log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam  + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
 		setFilterInitialized(false);
 	}

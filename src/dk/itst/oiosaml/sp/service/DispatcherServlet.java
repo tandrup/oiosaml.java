@@ -90,6 +90,7 @@ public class DispatcherServlet extends HttpServlet {
 		setHandler(new LogoutServiceSOAPHandler(), LogoutServiceSOAP);
 		setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
 		setHandler(new LoginHandler(bindingHandlerFactory), Login);
+		setHandler(new MetadataHandler(), "/metadata");
 		
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");

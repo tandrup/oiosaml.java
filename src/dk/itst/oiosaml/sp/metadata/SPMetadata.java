@@ -31,9 +31,11 @@ import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
+import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.sp.model.OIOSamlObject;
 
 /**
  * Utility class to extract relevant values of the meta data related to the service provider.
@@ -148,6 +150,18 @@ public class SPMetadata {
     		}
     	}
     	return null;
+    }
+
+    /**
+     * Get a string representation of the signed metadata.
+     * @param signingCredential Credential to use for signing.
+     * @return The signed metadata as a string.
+     */
+    public String getMetadata(Credential signingCredential) {
+    	OIOSamlObject obj = new OIOSamlObject(entityDescriptor);
+    	obj.sign(signingCredential);
+    	
+    	return obj.toXML();
     }
 
 }

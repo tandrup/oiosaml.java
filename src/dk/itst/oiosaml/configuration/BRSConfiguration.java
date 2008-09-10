@@ -24,11 +24,11 @@
 package dk.itst.oiosaml.configuration;
 
 import java.io.File;
-import java.net.URL;
 
+import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationFactory;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -45,10 +45,11 @@ import dk.itst.oiosaml.sp.service.SPFilter;
  *
  */
 public class BRSConfiguration {
-	private static final String CONFIGURATION_FILE = "/config.xml";
 	private static final Logger log = Logger.getLogger(BRSConfiguration.class);
 	public static final String VERSION = "$Id: BRSConfiguration.java 2941 2008-05-26 09:14:03Z jre $";
 	private static Configuration systemConfiguration;
+	
+	private static String home;
 	
 	/**
 	 * Get the current system configuration. 
@@ -58,17 +59,21 @@ public class BRSConfiguration {
 	public static Configuration getSystemConfiguration() throws IllegalStateException {
 		if (systemConfiguration != null) return systemConfiguration;
 
-		if (System.getProperty(SAMLUtil.OIOSAML_HOME) == null || !isConfigured(System.getProperty(SAMLUtil.OIOSAML_HOME))) {
+		if (home == null || !isConfigured()) {
 			throw new IllegalStateException("System not configured");
 		}
-		ConfigurationFactory factory = new ConfigurationFactory();
-		URL configURL = BRSConfiguration.class.getResource(CONFIGURATION_FILE);
-		factory.setConfigurationURL(configURL);
+		
+		CompositeConfiguration conf = new CompositeConfiguration();
+		conf.setProperty("oiosaml.home", home);
+		
 		try {
-			systemConfiguration = factory.getConfiguration();
+			conf.addConfiguration(new PropertiesConfiguration(BRSConfiguration.class.getResource("/oiosaml-common.properties")));
+			conf.addConfiguration(new PropertiesConfiguration(new File(home, "oiosaml-sp.properties")));
+			
+			systemConfiguration = conf;
 			return systemConfiguration;
 		} catch (ConfigurationException e) {
-			log.error("Cannot load the configuration file: "+CONFIGURATION_FILE);
+			log.error("Cannot load the configuration file", e);
 			throw new WrappedException(Layer.DATAACCESS, e);
 		}		
 	}
@@ -77,37 +82,28 @@ public class BRSConfiguration {
 		return conf.getString(SAMLUtil.OIOSAML_HOME)+"/"+conf.getString(key);
 	}
 
-	public static boolean setHomeProperty(String home) {
-		if (home != null) {
-			System.setProperty(SAMLUtil.OIOSAML_HOME, home);
-			return true;
-		} else {
+	public static void setHomeProperty(String home) {
+		if (home == null){
 			home = System.getProperty("user.home") + "/.oiosaml";
-			System.setProperty(SAMLUtil.OIOSAML_HOME, home);
-			File h = new File(home);
-			if (h.exists() && !h.isDirectory()) {
-				throw new IllegalStateException(home + " is not a directory");
-			} else if (!h.exists()) {
-				log.info("Creating empty config dir in " + home);
-				if (!h.mkdir()) {
-					throw new IllegalStateException(h + " could not be created");
-				}
-			}
-			
-			return false;
 		}
+		
+		File h = new File(home);
+		if (h.exists() && !h.isDirectory()) {
+			throw new IllegalStateException(home + " is not a directory");
+		} else if (!h.exists()) {
+			log.info("Creating empty config dir in " + home);
+			if (!h.mkdir()) {
+				throw new IllegalStateException(h + " could not be created");
+			}
+		}
+		log.info("oiosaml.home set to " + home);
+		BRSConfiguration.home = home;
 	}
 
-	public static boolean isConfigured(String home) {
+	public static boolean isConfigured() {
 		if(home == null) return false;
-		File homeDir = new File(home);
-		if(homeDir.exists() && homeDir.isDirectory()) {
-			String[] files = homeDir.list();
-			if (files == null || files.length > 0) {
-				return true;
-			}
-		}
-		return false;
+		File config = new File(home, "oiosaml-sp.properties");
+		return config.exists();
 	}
 	
 	public static void setSystemConfiguration(Configuration conf) {

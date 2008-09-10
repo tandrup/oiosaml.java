@@ -27,10 +27,10 @@ import java.security.PublicKey;
 
 import org.apache.log4j.Logger;
 import org.opensaml.Configuration;
-import org.opensaml.common.SAMLObject;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.security.SecurityException;
@@ -61,9 +61,9 @@ import dk.itst.oiosaml.error.WrappedException;
 public class OIOSamlObject {
 	private static final Logger log = Logger.getLogger(OIOSamlObject.class);
 
-	private final SAMLObject obj;
+	private final XMLObject obj;
 
-	public OIOSamlObject(SAMLObject obj) {
+	public OIOSamlObject(XMLObject obj) {
 		if (obj == null) throw new IllegalArgumentException("Object cannot be null");
 
 		this.obj = obj;

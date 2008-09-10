@@ -93,7 +93,6 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations(){{
 			one(config).getServletContext(); will(returnValue(servletContext));
 			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(dir.getAbsolutePath()));
-			one(session).getMaxInactiveInterval(); will(returnValue(10*60*1000));
 		}});
 		System.clearProperty(SAMLUtil.OIOSAML_HOME);
 		filter.init(config);
