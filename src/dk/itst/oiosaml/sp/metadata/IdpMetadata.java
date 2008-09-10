@@ -47,6 +47,7 @@ import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.X509Data;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -94,7 +95,11 @@ public class IdpMetadata {
 			for (File md : files) {
 				log.info("Loading metadata from " + md);
 				try {
-					descriptors.add((EntityDescriptor) SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath()));
+					XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
+					if (!(descriptor instanceof EntityDescriptor)) {
+						throw new RuntimeException("Metadata file " + md + " does not contain an EntityDescriptor. Found " + descriptor.getElementQName()  + ", expected " + EntityDescriptor.ELEMENT_QNAME);
+					}
+					descriptors.add((EntityDescriptor) descriptor);
 				} catch (RuntimeException e) {
 					log.error("Unable to load metadata from " + md + ". File must contain valid XML and have EntityDescriptor as top tag",e);
 					throw e;
