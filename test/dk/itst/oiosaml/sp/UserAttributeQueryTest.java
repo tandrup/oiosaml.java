@@ -136,7 +136,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		}});
 		
 		UserAttributeQuery q = new UserAttributeQuery(idpMetadata.getFirstMetadata(), null, null, client, credential, true, false, spMetadata.getEntityID());
-		Collection<UserAttribute> attrs = q.query("name", "attr1", "attr2");
+		Collection<UserAttribute> attrs = q.query("name", NameIDFormat.EMAIL,"attr1", "attr2");
 		assertEquals(2, attrs.size());
 	}
 }

@@ -36,6 +36,7 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
@@ -54,7 +55,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 	public void setUp() {
 		dest = "https://saml-idp.trifork.com:9031/idp/attrsvc.ssaml2";
 		issuer = "saml.jre-pc.trifork.com";
-		q = OIOAttributeQuery.newQuery(dest, "joetest", issuer);
+		q = OIOAttributeQuery.newQuery(dest, "joetest",NameIDFormat.X509SUBJECT, issuer);
 	}
 
 	@Test

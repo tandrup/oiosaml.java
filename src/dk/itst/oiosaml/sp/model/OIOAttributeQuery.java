@@ -38,6 +38,7 @@ import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
@@ -51,12 +52,15 @@ public class OIOAttributeQuery extends OIORequest {
 		this.request = request;
 	}
 
-	public static OIOAttributeQuery newQuery(String endpointLocation, String nameId, String spEntityId) {
+	public static OIOAttributeQuery newQuery(String endpointLocation, String nameId, NameIDFormat format, String spEntityId) {
 		
 		org.opensaml.saml2.core.AttributeQuery q = SAMLUtil.buildXMLObject(org.opensaml.saml2.core.AttributeQuery.class);
 		q.setVersion(SAMLVersion.VERSION_20);
 		
 		Subject subject = SAMLUtil.createSubject(nameId, endpointLocation, new DateTime().plusMinutes(5));
+		subject.getSubjectConfirmations().clear();
+		subject.getNameID().setFormat(format.getFormat());
+		
 		q.setSubject(subject);
 		
 		q.setDestination(endpointLocation);

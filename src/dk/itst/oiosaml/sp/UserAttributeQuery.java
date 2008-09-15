@@ -86,8 +86,8 @@ public class UserAttributeQuery {
 		this.requireEncryption = requireEncryption;
 	}
 	
-	public Collection<UserAttribute> query(String nameId, String ... attributes) throws InvalidCertificateException, IOException {
-		OIOAttributeQuery q = OIOAttributeQuery.newQuery(idpMetadata.getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI), nameId, spEntityId);
+	public Collection<UserAttribute> query(String nameId, NameIDFormat format, String ... attributes) throws InvalidCertificateException, IOException {
+		OIOAttributeQuery q = OIOAttributeQuery.newQuery(idpMetadata.getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI), nameId, format, spEntityId);
 		
 		for (String attribute : attributes) {
 			q.addAttribute(attribute, null);
