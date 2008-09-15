@@ -91,7 +91,7 @@ public class HttpSOAPClient implements SOAPClient {
 		c.setAllowUserInteraction(false);
 		c.setDoInput(true);
 		c.setDoOutput(true);
-		c.setFixedLengthStreamingMode(xml.getBytes().length);
+		c.setFixedLengthStreamingMode(xml.getBytes("UTF-8").length);
 		c.setRequestMethod("POST");
 		c.setReadTimeout(20000);
 		c.setConnectTimeout(30000);
