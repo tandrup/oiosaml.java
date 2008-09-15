@@ -392,7 +392,7 @@ public class SAMLUtil {
             
             DocumentBuilder builder = newFactory.newDocumentBuilder();
 
-			Document doc = builder.parse(new ByteArrayInputStream(elementString.getBytes()));
+			Document doc = builder.parse(new ByteArrayInputStream(elementString.getBytes("UTF-8")));
 			Element samlElement = doc.getDocumentElement();
 
 			return samlElement;
