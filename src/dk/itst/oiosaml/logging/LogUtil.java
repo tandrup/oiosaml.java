@@ -23,16 +23,17 @@
  */
 package dk.itst.oiosaml.logging;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -135,10 +136,15 @@ public class LogUtil implements Serializable {
 	 *            The log4j configuration file. It must be in xml format, since
 	 *            the DomConfigurator is used unconditionally. An absolute path is expected.
 	 */
-	public static void configureLog4j(String xmlFilename) {
+	public static void configureLog4j(final String xmlFilename) {
+		log.info("Configuring logging from " + xmlFilename);
 		try {
-			DOMConfigurator.configure(xmlFilename);
-			log.info("Configuring logging from " + xmlFilename);
+			new DOMConfigurator() {
+				@Override
+				protected String subst(String value) {
+					return value.replaceAll("\\$\\{oiosaml.home\\}", new File(xmlFilename).getParent());
+				}
+			}.doConfigure(xmlFilename, LogManager.getLoggerRepository());
 		} catch (Exception e) {
 			log.error("Unable to configure logging from " + xmlFilename, e);
 		}
