@@ -127,7 +127,7 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		
 		// Build the <LogoutResponse>
 		lu.setRequestId(response.getID());
-		lu.audit(Constants.SERVICE_LOGOUT_REQUEST, toXML());
+		lu.audit(Constants.SERVICE_LOGOUT_RESPONSE, toXML());
 
 		Encoder enc = new Encoder();
 

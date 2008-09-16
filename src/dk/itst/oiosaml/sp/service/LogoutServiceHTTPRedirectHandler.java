@@ -69,7 +69,7 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 
 		OIOLogoutRequest logoutRequest = OIOLogoutRequest.fromRedirectRequest(request);
 		if (log.isDebugEnabled())
-			log.debug("Got InboundSAMLMessage..:" + logoutRequest);
+			log.debug("Got InboundSAMLMessage..:" + logoutRequest.toXML());
 
 		String statusCode = StatusCode.SUCCESS_URI;
 		String consent = null;
@@ -85,7 +85,7 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 			Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 
 			ctx.getLogUtil().setRequestId(logoutRequest.getID());
-			ctx.getLogUtil().audit(Constants.SERVICE_LOGOUT_RESPONSE, logoutRequest.toXML());
+			ctx.getLogUtil().audit(Constants.SERVICE_LOGOUT_REQUEST, logoutRequest.toXML());
 
 			try {
 				logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getCertificate().getPublicKey(), ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectLocation(), metadata.getEntityID());
