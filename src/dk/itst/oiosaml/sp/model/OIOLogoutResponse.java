@@ -23,8 +23,12 @@
  */
 package dk.itst.oiosaml.sp.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.PublicKey;
 import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,7 +49,9 @@ import org.opensaml.ws.transport.http.HttpServletRequestAdapter;
 import org.opensaml.xml.security.SecurityConfiguration;
 import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.security.credential.Credential;
+import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.Pair;
+import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -195,7 +201,19 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		
 		@Override
 		public String deflateAndBase64Encode(SAMLObject obj) throws MessageEncodingException {
-			return super.deflateAndBase64Encode(obj);
+            String messageStr = XMLHelper.nodeToString(marshallMessage(obj));
+
+            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+            Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+            DeflaterOutputStream deflaterStream = new DeflaterOutputStream(bytesOut, deflater);
+            try {
+				deflaterStream.write(messageStr.getBytes("UTF-8"));
+				deflaterStream.finish();
+			} catch (IOException e) {
+				throw new RuntimeException("Unable to deflate message", e);
+			}
+
+            return Base64.encodeBytes(bytesOut.toByteArray(), Base64.DONT_BREAK_LINES);
 		}
 		
 		@Override
