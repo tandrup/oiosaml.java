@@ -23,8 +23,12 @@
  */
 package dk.itst.oiosaml.sp.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.PublicKey;
 import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 import org.opensaml.common.SAMLObject;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
@@ -33,6 +37,8 @@ import org.opensaml.saml2.binding.encoding.HTTPRedirectDeflateEncoder;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
 import org.opensaml.xml.security.credential.Credential;
+import org.opensaml.xml.util.Base64;
+import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 
 /**
@@ -118,7 +124,20 @@ public abstract class OIORequest extends OIOSamlObject {
 			// Sign the parameters
 			messageContext.setOutboundSAMLMessageSigningCredential(signingCredential);
 
-			return super.buildRedirectURL(messageContext, request.getDestination(), deflateAndBase64Encode(request));
+            String messageStr = XMLHelper.nodeToString(marshallMessage(request));
+
+            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+            Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+            DeflaterOutputStream deflaterStream = new DeflaterOutputStream(bytesOut, deflater);
+            try {
+				deflaterStream.write(messageStr.getBytes("UTF-8"));
+				deflaterStream.finish();
+			} catch (IOException e) {
+				throw new RuntimeException("Unable to deflate message", e);
+			}
+
+            String encoded = Base64.encodeBytes(bytesOut.toByteArray(), Base64.DONT_BREAK_LINES);
+			return super.buildRedirectURL(messageContext, request.getDestination(), encoded);
 		}
 	}
 
