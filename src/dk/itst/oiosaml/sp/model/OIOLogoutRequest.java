@@ -37,6 +37,7 @@ import org.opensaml.common.SAMLObject;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
 import org.opensaml.saml2.binding.decoding.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.SessionIndex;
 import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml2.core.impl.SessionIndexBuilder;
@@ -156,7 +157,10 @@ public class OIOLogoutRequest extends OIORequest {
 		sessionIndex.setSessionIndex(LoggedInHandler.getInstance().getSessionIndexFromAssertion(session.getId()));
 		logoutRequest.getSessionIndexes().add(sessionIndex);
 
-		logoutRequest.setNameID(SAMLUtil.createNameID(LoggedInHandler.getInstance().getNameIdFromAssertion(session.getId())));
+		OIOAssertion assertion = LoggedInHandler.getInstance().getAssertion(session.getId());
+		NameID nameID = SAMLUtil.createNameID(assertion.getSubjectNameIDValue());
+		nameID.setFormat(assertion.getAssertion().getSubject().getNameID().getFormat());
+		logoutRequest.setNameID(nameID);
 
 		try {
 			if (log.isDebugEnabled())
