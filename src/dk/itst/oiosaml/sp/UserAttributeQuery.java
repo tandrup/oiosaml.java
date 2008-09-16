@@ -87,21 +87,28 @@ public class UserAttributeQuery {
 	}
 	
 	public Collection<UserAttribute> query(String nameId, NameIDFormat format, String ... attributes) throws InvalidCertificateException, IOException {
+		UserAttribute[] attrs = new UserAttribute[attributes.length];
+		for (int i = 0; i < attributes.length; i++) {
+			attrs[i] = UserAttribute.create(attributes[i], null);
+		}
+		return query(nameId, format, attrs);
+	}
+	
+	public Collection<UserAttribute> query(String nameId, NameIDFormat format, UserAttribute ... attributes) throws InvalidCertificateException, IOException {
 		OIOAttributeQuery q = OIOAttributeQuery.newQuery(idpMetadata.getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI), nameId, format, spEntityId);
 		
-		for (String attribute : attributes) {
-			q.addAttribute(attribute, null);
+		for (UserAttribute attribute : attributes) {
+			q.addAttribute(attribute.getName(), attribute.getFormat());
 		}
 		OIOAssertion res = q.executeQuery(client, credential, username, password, ignoreCertPath, idpMetadata.getCertificate(), !requireEncryption);
 		
 		Collection<UserAttribute> attrs = new ArrayList<UserAttribute>();
 		for (AttributeStatement attrStatement : res.getAssertion().getAttributeStatements()) {
 			for (Attribute attr : attrStatement.getAttributes()) {
-				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValue(attr)));
+				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValue(attr), attr.getNameFormat()));
 			}
 		}
 		
 		return attrs;
 	}
-	
 }

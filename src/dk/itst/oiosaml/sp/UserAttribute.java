@@ -32,12 +32,14 @@ public class UserAttribute implements Serializable{
 	private final String name;
 	private final String friendlyName;
 	private final String value;
+	private final String format;
 	
-	public UserAttribute(String name, String friendlyName, String value) {
+	public UserAttribute(String name, String friendlyName, String value, String format) {
 		super();
 		this.name = name;
 		this.friendlyName = friendlyName;
 		this.value = value;
+		this.format = format;
 	}
 
 	public String getName() {
@@ -50,6 +52,17 @@ public class UserAttribute implements Serializable{
 
 	public String getValue() {
 		return value;
+	}
+	
+	public String getFormat() {
+		return format;
+	}
+	
+	public static UserAttribute create(String name, String format) {
+		if (format != null && format.trim().equals("")) {
+			format = null;
+		}
+		return new UserAttribute(name, null, null, format);
 	}
 
 	@Override

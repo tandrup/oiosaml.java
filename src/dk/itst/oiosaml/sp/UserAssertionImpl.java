@@ -55,7 +55,7 @@ public class UserAssertionImpl implements UserAssertion {
 	public UserAssertionImpl(OIOAssertion assertion) {
 		for (AttributeStatement attrStatement : assertion.getAssertion().getAttributeStatements()) {
 			for (Attribute attr : attrStatement.getAttributes()) {
-				attributes.put(attr.getName(), new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValue(attr)));
+				attributes.put(attr.getName(), new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValue(attr), attr.getNameFormat()));
 			}
 		}
 		id = assertion.getID();

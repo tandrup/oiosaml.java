@@ -13,10 +13,10 @@
 <form method="get">
 <table border="0">
 <tr><td>NameID:</td><td><input type="text" name="nameId" /></td></tr>
-<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td></tr>
-<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td></tr>
-<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td></tr>
-<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td></tr>
+<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td><td>Format: </td><td><input type="text" name="format" /></td></tr>
+<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td><td>Format: </td><td><input type="text" name="format" /></td></tr>
+<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td><td>Format: </td><td><input type="text" name="format" /></td></tr>
+<tr><td>Attribute:</td><td><input type="text" name="attribute" /></td><td>Format: </td><td><input type="text" name="format" /></td></tr>
 <tr><td colspan="2"><input type="submit" value="Perform attribute query"/></td></tr>
 </table>
 </form>
@@ -30,13 +30,16 @@ if (request.getParameter("nameId") != null) {
 	<tr><td><strong>Attribute</strong></td><td><strong>Value</strong></td></tr><%
 	UserAttributeQuery aq = new UserAttributeQuery();
 	
-	List<String> names = new ArrayList();
-	for (String value : request.getParameterValues("attribute")) {
-		if (value != null && !"".equals(value)) {
-			names.add(value);
+	List<UserAttribute> names = new ArrayList<UserAttribute>();
+	String[] reqnames = request.getParameterValues("attribute");
+	for (int i = 0; i < reqnames.length; i++) {
+		if (reqnames[i] != null && !"".equals(reqnames[i])) {
+			names.add(UserAttribute.create(reqnames[i], request.getParameterValues("format")[i]));
 		}
 	}
-	Collection<UserAttribute> attrs = aq.query(request.getParameter("nameId"), names.toArray(new String[0]));
+	UserAssertion ua = (UserAssertion)session.getAttribute(Constants.SESSION_USER_ASSERTION);
+	
+	Collection<UserAttribute> attrs = aq.query(request.getParameter("nameId"), ua.getNameIDFormat(), names.toArray(new UserAttribute[0]));
 	
 	for (UserAttribute attr: attrs) {
 		%><tr><td><%= attr.getName() %></td><td><%= attr.getValue() %></td></tr><%
@@ -47,4 +50,6 @@ if (request.getParameter("nameId") != null) {
 %>
       
   </body>
-</html>
+
+<%@page import="dk.itst.oiosaml.sp.UserAssertion"%>
+<%@page import="dk.itst.oiosaml.sp.service.util.Constants"%></html>
