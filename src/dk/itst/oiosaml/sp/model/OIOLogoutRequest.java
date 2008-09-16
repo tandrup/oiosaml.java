@@ -158,9 +158,11 @@ public class OIOLogoutRequest extends OIORequest {
 		logoutRequest.getSessionIndexes().add(sessionIndex);
 
 		OIOAssertion assertion = LoggedInHandler.getInstance().getAssertion(session.getId());
-		NameID nameID = SAMLUtil.createNameID(assertion.getSubjectNameIDValue());
-		nameID.setFormat(assertion.getAssertion().getSubject().getNameID().getFormat());
-		logoutRequest.setNameID(nameID);
+		if (assertion != null) {
+			NameID nameID = SAMLUtil.createNameID(assertion.getSubjectNameIDValue());
+			nameID.setFormat(assertion.getAssertion().getSubject().getNameID().getFormat());
+			logoutRequest.setNameID(nameID);
+		}
 
 		try {
 			if (log.isDebugEnabled())
