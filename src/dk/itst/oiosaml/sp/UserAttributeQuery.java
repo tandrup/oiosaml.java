@@ -57,7 +57,7 @@ public class UserAttributeQuery {
 	private final String spEntityId;
 	
 	public UserAttributeQuery() {
-		this(null, null);
+		this(BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
 	}
 	
 	public UserAttributeQuery(String username, String password) {
