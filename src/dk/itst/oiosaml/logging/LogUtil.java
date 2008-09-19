@@ -137,7 +137,7 @@ public class LogUtil implements Serializable {
 	 *            the DomConfigurator is used unconditionally. An absolute path is expected.
 	 */
 	public static void configureLog4j(final String xmlFilename) {
-		log.info("Configuring logging from " + xmlFilename);
+		System.out.println("Configuring logging from " + xmlFilename);
 		try {
 			new DOMConfigurator() {
 				@Override
