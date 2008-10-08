@@ -80,11 +80,10 @@ public class DispatcherServlet extends HttpServlet {
 
 	private BindingHandlerFactory bindingHandlerFactory;
 
-	private ServletConfig config;
-	
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
-		this.config = config;
+		setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
+
 		initServlet();
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
@@ -114,7 +113,6 @@ public class DispatcherServlet extends HttpServlet {
 				setHandler(new LogoutHTTPResponseHandler(), LogoutServiceHTTPRedirectResponse);
 				setHandler(new LogoutHandler(), Logout);
 				setHandler(new LogoutServiceSOAPHandler(), LogoutServiceSOAP);
-				setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
 				setHandler(new LoginHandler(bindingHandlerFactory), Login);
 				setHandler(new MetadataHandler(), "/metadata");
 				
