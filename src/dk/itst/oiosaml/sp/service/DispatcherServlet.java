@@ -79,19 +79,13 @@ public class DispatcherServlet extends HttpServlet {
 	private transient VelocityEngine engine;
 
 	private BindingHandlerFactory bindingHandlerFactory;
+
+	private ServletConfig config;
 	
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
+		this.config = config;
 		initServlet();
-		setHandler(new SAMLAssertionConsumerHandler(), SAMLAssertionConsumer);
-		setHandler(new LogoutServiceHTTPRedirectHandler(), LogoutServiceHTTPRedirect);
-		setHandler(new LogoutHTTPResponseHandler(), LogoutServiceHTTPRedirectResponse);
-		setHandler(new LogoutHandler(), Logout);
-		setHandler(new LogoutServiceSOAPHandler(), LogoutServiceSOAP);
-		setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
-		setHandler(new LoginHandler(bindingHandlerFactory), Login);
-		setHandler(new MetadataHandler(), "/metadata");
-		
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
 		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -115,6 +109,15 @@ public class DispatcherServlet extends HttpServlet {
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
 				LoggedInHandler.getInstance().resetReplayProtection(BRSConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 	
+				setHandler(new SAMLAssertionConsumerHandler(), SAMLAssertionConsumer);
+				setHandler(new LogoutServiceHTTPRedirectHandler(), LogoutServiceHTTPRedirect);
+				setHandler(new LogoutHTTPResponseHandler(), LogoutServiceHTTPRedirectResponse);
+				setHandler(new LogoutHandler(), Logout);
+				setHandler(new LogoutServiceSOAPHandler(), LogoutServiceSOAP);
+				setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
+				setHandler(new LoginHandler(bindingHandlerFactory), Login);
+				setHandler(new MetadataHandler(), "/metadata");
+				
 				initialized = true;
 			}
 		} catch (IllegalStateException e) {}
