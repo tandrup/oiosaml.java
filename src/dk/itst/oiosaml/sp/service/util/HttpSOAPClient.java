@@ -54,7 +54,7 @@ public class HttpSOAPClient implements SOAPClient {
 
 	public XMLObject wsCall(OIOSamlObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
 		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
-		return wsCall(lu, location, username, password, ignoreCertPath, obj.toSoapEnvelope());
+		return wsCall(lu, location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security");
 	}
 	
 	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
@@ -64,10 +64,10 @@ public class HttpSOAPClient implements SOAPClient {
 		String xml = XMLHelper.nodeToString(SAMLUtil.marshallObject(obj));
 		xml = START_SOAP_ENVELOPE + xml.substring(xml.indexOf("?>") + 2) + END_SOAP_ENVELOPE;
 
-		return wsCall(lu, location, username, password, ignoreCertPath, xml);
+		return wsCall(lu, location, username, password, ignoreCertPath, xml, "http://www.oasis-open.org/committees/security");
 	}
 
-	public Envelope wsCall(LogUtil lu, String location, String username, String password, boolean ignoreCertPath, String xml) throws IOException, MalformedURLException, ProtocolException {
+	public Envelope wsCall(LogUtil lu, String location, String username, String password, boolean ignoreCertPath, String xml, String soapAction) throws IOException, MalformedURLException, ProtocolException {
 		URI serviceLocation;
 		try {
 			serviceLocation = new URI(location);
@@ -97,7 +97,7 @@ public class HttpSOAPClient implements SOAPClient {
 		c.setConnectTimeout(30000);
 		
 		c.addRequestProperty("Content-Type", "text/xml; charset=utf-8");
-		c.addRequestProperty("SOAPAction", "http://www.oasis-open.org/committees/security");
+		c.addRequestProperty("SOAPAction",  soapAction);
 		
 		if (username != null && password != null) {
 			c.addRequestProperty("Authorization", "Basic " + Base64.encodeBytes((username + ":" + password).getBytes(), Base64.DONT_BREAK_LINES));
