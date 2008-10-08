@@ -57,7 +57,7 @@ public class HttpSOAPClient implements SOAPClient {
 		return wsCall(lu, location, username, password, ignoreCertPath, obj.toSoapEnvelope());
 	}
 	
-	public XMLObject wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
+	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
 		
 		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
 
@@ -67,7 +67,7 @@ public class HttpSOAPClient implements SOAPClient {
 		return wsCall(lu, location, username, password, ignoreCertPath, xml);
 	}
 
-	public XMLObject wsCall(LogUtil lu, String location, String username, String password, boolean ignoreCertPath, String xml) throws IOException, MalformedURLException, ProtocolException {
+	public Envelope wsCall(LogUtil lu, String location, String username, String password, boolean ignoreCertPath, String xml) throws IOException, MalformedURLException, ProtocolException {
 		URI serviceLocation;
 		try {
 			serviceLocation = new URI(location);
@@ -118,7 +118,7 @@ public class HttpSOAPClient implements SOAPClient {
 			if (log.isDebugEnabled()) log.debug("Server SOAP response: " + res);
 			
 			Envelope envelope = (Envelope) res;
-			return envelope.getBody().getUnknownXMLObjects().get(0);
+			return envelope;
 		} else {
 			InputStream inputStream = c.getErrorStream();
 			String result = IOUtils.toString(inputStream, "UTF-8");

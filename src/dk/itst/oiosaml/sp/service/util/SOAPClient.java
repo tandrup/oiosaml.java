@@ -25,13 +25,14 @@ package dk.itst.oiosaml.sp.service.util;
 
 import java.io.IOException;
 
+import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObject;
 
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 
 public interface SOAPClient {
-	public XMLObject wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException;
+	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException;
 	public XMLObject wsCall(OIOSamlObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException;
 	
 }
