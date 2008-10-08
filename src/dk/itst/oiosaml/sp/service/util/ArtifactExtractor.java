@@ -36,6 +36,7 @@ import org.opensaml.saml2.core.ArtifactResolve;
 import org.opensaml.saml2.core.ArtifactResponse;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.validation.ValidationException;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
@@ -92,7 +93,8 @@ public class ArtifactExtractor  {
 		String id = Utils.generateUUID();
 		ArtifactResolve artifactResolve = buildArtifactResolve(samlArt, id, artifactResolutionServiceLocation);
 
-		ArtifactResponse artifactResponse = (ArtifactResponse) client.wsCall(artifactResolve, lu, artifactResolutionServiceLocation, resolveUsername, resolvePassword, ignoreCertPath);
+		Envelope env = client.wsCall(artifactResolve, lu, artifactResolutionServiceLocation, resolveUsername, resolvePassword, ignoreCertPath);
+		ArtifactResponse artifactResponse = (ArtifactResponse)env.getBody().getUnknownXMLObjects().get(0); 
 		try {
 			artifactResponse.validate(false);
 		} catch (ValidationException e) {

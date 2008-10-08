@@ -49,8 +49,8 @@ public class HttpSOAPClientTest extends AbstractTests {
 	public void testArtifactResolve() throws Exception {
 		ArtifactResolve ar = SAMLUtil.buildXMLObject(ArtifactResolve.class);
 		
-		XMLObject res = client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test", "test", true);
-		assertTrue(res instanceof ArtifactResponse);
+		Envelope env = client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test", "test", true);
+		assertTrue(env.getBody().getUnknownXMLObjects().get(0) instanceof ArtifactResponse);
 		assertEquals("http://www.oasis-open.org/committees/security", ds.headers.get("SOAPAction"));
 		
 		assertEquals("test:test", new String(Base64.decode(ds.headers.get("Authorization").split(" ")[1]), "UTF-8"));

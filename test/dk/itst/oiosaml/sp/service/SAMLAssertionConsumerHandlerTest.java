@@ -30,6 +30,8 @@ import org.opensaml.saml2.core.ArtifactResponse;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.ws.soap.soap11.Body;
+import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
@@ -197,7 +199,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		handler.handleGet(ctx);
 	}
 		
-	private ArtifactResponse buildResponse(String id, boolean sign, boolean passive, String reqId) throws Exception {
+	private Envelope buildResponse(String id, boolean sign, boolean passive, String reqId) throws Exception {
 		ArtifactResponse res = SAMLUtil.buildXMLObject(ArtifactResponse.class);
 		res.setDestination(spMetadata.getEntityID());
 		res.setIssuer(SAMLUtil.createIssuer(idpEntityId));
@@ -232,7 +234,11 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			Signer.signObject(signature);			
 		}
 		
-		return res;
+		Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
+		Body body = SAMLUtil.buildXMLObject(Body.class);
+		env.setBody(body);
+		body.getUnknownXMLObjects().add(res);
+		return env;
 	}
 
 	private ByteArrayOutputStream generateArtifact() throws IOException,
