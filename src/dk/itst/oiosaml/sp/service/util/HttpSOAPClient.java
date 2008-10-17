@@ -97,7 +97,7 @@ public class HttpSOAPClient implements SOAPClient {
 		c.setConnectTimeout(30000);
 		
 		c.addRequestProperty("Content-Type", "text/xml; charset=utf-8");
-		c.addRequestProperty("SOAPAction",  "'" + soapAction == null ? "" : soapAction + "'");
+		c.addRequestProperty("SOAPAction",  "\"" + (soapAction == null ? "" : soapAction) + "\"");
 		
 		if (username != null && password != null) {
 			c.addRequestProperty("Authorization", "Basic " + Base64.encodeBytes((username + ":" + password).getBytes(), Base64.DONT_BREAK_LINES));

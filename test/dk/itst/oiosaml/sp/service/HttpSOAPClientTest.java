@@ -51,7 +51,7 @@ public class HttpSOAPClientTest extends AbstractTests {
 		
 		Envelope env = client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test", "test", true);
 		assertTrue(env.getBody().getUnknownXMLObjects().get(0) instanceof ArtifactResponse);
-		assertEquals("http://www.oasis-open.org/committees/security", ds.headers.get("SOAPAction"));
+		assertEquals("\"http://www.oasis-open.org/committees/security\"", ds.headers.get("SOAPAction"));
 		
 		assertEquals("test:test", new String(Base64.decode(ds.headers.get("Authorization").split(" ")[1]), "UTF-8"));
 	}
