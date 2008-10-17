@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
@@ -83,7 +83,7 @@ public class SPFilterTest extends AbstractServiceTests {
 	
 	@Test
 	public void failOnNotConfigured() throws ServletException, IOException {
-		BRSConfiguration.setSystemConfiguration(null);
+		SAMLConfiguration.setSystemConfiguration(null);
 		final File dir = new File(File.createTempFile("test", "test").getAbsolutePath() + "dir");
 		dir.mkdir();
 		

@@ -44,8 +44,8 @@ import dk.itst.oiosaml.sp.service.SPFilter;
  * @author Rolf Njor Jensen <rolf@trifork.com>
  *
  */
-public class BRSConfiguration {
-	private static final Logger log = Logger.getLogger(BRSConfiguration.class);
+public class SAMLConfiguration {
+	private static final Logger log = Logger.getLogger(SAMLConfiguration.class);
 	public static final String VERSION = "$Id: BRSConfiguration.java 2941 2008-05-26 09:14:03Z jre $";
 	private static Configuration systemConfiguration;
 	
@@ -67,7 +67,7 @@ public class BRSConfiguration {
 		conf.setProperty("oiosaml.home", home);
 		
 		try {
-			conf.addConfiguration(new PropertiesConfiguration(BRSConfiguration.class.getResource("/oiosaml-common.properties")));
+			conf.addConfiguration(new PropertiesConfiguration(SAMLConfiguration.class.getResource("/oiosaml-common.properties")));
 			conf.addConfiguration(new PropertiesConfiguration(new File(home, "oiosaml-sp.properties")));
 			
 			systemConfiguration = conf;
@@ -97,7 +97,7 @@ public class BRSConfiguration {
 			}
 		}
 		log.info("oiosaml.home set to " + home);
-		BRSConfiguration.home = home;
+		SAMLConfiguration.home = home;
 	}
 
 	public static boolean isConfigured() {

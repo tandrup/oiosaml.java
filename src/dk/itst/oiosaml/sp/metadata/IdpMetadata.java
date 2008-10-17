@@ -51,7 +51,7 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.X509Data;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
@@ -82,8 +82,8 @@ public class IdpMetadata {
 
 	public static IdpMetadata getInstance() {
 		if (instance == null) {
-			Configuration conf = BRSConfiguration.getSystemConfiguration();
-			String directory = BRSConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
+			Configuration conf = SAMLConfiguration.getSystemConfiguration();
+			String directory = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
 			File idpDir = new File(directory);
 			File[] files = idpDir.listFiles(new FilenameFilter() {
 				public boolean accept(File dir, String name) {

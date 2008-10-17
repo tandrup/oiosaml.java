@@ -45,7 +45,7 @@ import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
@@ -84,7 +84,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		props.put(Constants.PROP_CERTIFICATE_LOCATION, tmp.getName());
 		props.put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		
-		BRSConfiguration.setSystemConfiguration(TestHelper.buildConfiguration(props));
+		SAMLConfiguration.setSystemConfiguration(TestHelper.buildConfiguration(props));
 		IdpMetadata.setMetadata(new IdpMetadata(TestHelper.buildEntityDescriptor(cred)));
 		SPMetadata.setMetadata(spMetadata);
 	}

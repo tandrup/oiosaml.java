@@ -38,7 +38,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.bindings.DefaultBindingHandlerFactory;
@@ -98,15 +98,15 @@ public class DispatcherServlet extends HttpServlet {
 	private void initServlet() {
 		try {
 			if (initialized  == false) {
-				setConfiguration(BRSConfiguration.getSystemConfiguration());
-				LogUtil.configureLog4j(BRSConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_LOG_FILE_NAME));
+				setConfiguration(SAMLConfiguration.getSystemConfiguration());
+				LogUtil.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_LOG_FILE_NAME));
 				
 				setBindingHandler(new DefaultBindingHandlerFactory());
 				setIdPMetadata(IdpMetadata.getInstance());
 				setSPMetadata(SPMetadata.getInstance());
-				setCredential(Utils.getCredential(BRSConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
+				setCredential(Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
-				LoggedInHandler.getInstance().resetReplayProtection(BRSConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
+				LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 	
 				setHandler(new SAMLAssertionConsumerHandler(), SAMLAssertionConsumer);
 				setHandler(new LogoutServiceHTTPRedirectHandler(), LogoutServiceHTTPRedirect);

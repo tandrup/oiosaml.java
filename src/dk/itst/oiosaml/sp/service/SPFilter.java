@@ -42,7 +42,7 @@ import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
@@ -121,7 +121,7 @@ public class SPFilter implements Filter {
 
 		if(!isFilterInitialized()) {
 			try {
-				Configuration conf = BRSConfiguration.getSystemConfiguration();
+				Configuration conf = SAMLConfiguration.getSystemConfiguration();
 				setRuntimeConfiguration(conf);
 			} catch (IllegalStateException e) {
 				request.getRequestDispatcher("/saml/configure").forward(request, response);
@@ -184,11 +184,11 @@ public class SPFilter implements Filter {
 			homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
 		}
 		log.info("Trying to retrieve configuration from " + homeParam);
-		BRSConfiguration.setHomeProperty(homeParam);
+		SAMLConfiguration.setHomeProperty(homeParam);
 		
-		if (BRSConfiguration.isConfigured()) {
+		if (SAMLConfiguration.isConfigured()) {
  			try {
-				Configuration conf = BRSConfiguration.getSystemConfiguration();
+				Configuration conf = SAMLConfiguration.getSystemConfiguration();
 				setRuntimeConfiguration(conf);
 				setFilterInitialized(true);
 				return;
@@ -201,7 +201,7 @@ public class SPFilter implements Filter {
 	}
 	
 	private void setRuntimeConfiguration(Configuration conf) {
-		LogUtil.configureLog4j(BRSConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_LOG_FILE_NAME));
+		LogUtil.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_LOG_FILE_NAME));
 		restartCRLChecker(conf);
 		setFilterInitialized(true);
 		setConfiguration(conf);
@@ -212,7 +212,7 @@ public class SPFilter implements Filter {
 				throw new IllegalStateException("Discovery location cannot be null when discovery profile is active");
 			}
 		}
-		LoggedInHandler.getInstance().resetReplayProtection(BRSConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
+		LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 
 		log.info("Home url: " + conf.getString(Constants.PROP_HOME));
 		log.info("Assurance leve: " + conf.getInt(Constants.PROP_ASSURANCE_LEVEL));

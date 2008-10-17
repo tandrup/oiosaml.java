@@ -32,7 +32,7 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
@@ -57,7 +57,7 @@ public class UserAttributeQuery {
 	private final String spEntityId;
 	
 	public UserAttributeQuery() {
-		this(BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
+		this(SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
 	}
 	
 	public UserAttributeQuery(String username, String password) {
@@ -66,11 +66,11 @@ public class UserAttributeQuery {
 
 	public UserAttributeQuery(String idpEntityId, String username, String password) {
 		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(), 
-				Utils.getCredential(BRSConfiguration.getStringPrefixedWithBRSHome(
-						BRSConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
-						BRSConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)),
-				BRSConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
-				BRSConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true),
+				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
+						SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
+						SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)),
+				SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
+				SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true),
 				SPMetadata.getInstance().getEntityID());
 	}
 	

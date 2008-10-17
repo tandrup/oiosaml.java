@@ -58,7 +58,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOResponse;
@@ -127,7 +127,7 @@ public abstract class IntegrationTests {
 		props.store(fos, "Generated");
 		fos.close();
 		
-		BRSConfiguration.setSystemConfiguration(null);
+		SAMLConfiguration.setSystemConfiguration(null);
 		IdpMetadata.setMetadata(null);
 		SPMetadata.setMetadata(null);
 		System.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());

@@ -21,8 +21,8 @@ public class BRSConfigurationTest {
 
 	@Test(expected=IllegalStateException.class)
 	public void failOnMissingSystemProperty() {
-		BRSConfiguration.setSystemConfiguration(null);
-		BRSConfiguration.getSystemConfiguration();
+		SAMLConfiguration.setSystemConfiguration(null);
+		SAMLConfiguration.getSystemConfiguration();
 	}
 	
 	@Test
@@ -34,28 +34,28 @@ public class BRSConfigurationTest {
 		
 		
 		Configuration conf = new MapConfiguration(props);
-		assertEquals("home/value", BRSConfiguration.getStringPrefixedWithBRSHome(conf, "key"));
+		assertEquals("home/value", SAMLConfiguration.getStringPrefixedWithBRSHome(conf, "key"));
 		
 	}
 	
 	@Test
 	public void testIsConfigured() throws Exception{
-		assertFalse(BRSConfiguration.isConfigured());
+		assertFalse(SAMLConfiguration.isConfigured());
 		
-		BRSConfiguration.setHomeProperty(System.getProperty("java.io.tmpdir") + "/void");
-		assertFalse(BRSConfiguration.isConfigured());
+		SAMLConfiguration.setHomeProperty(System.getProperty("java.io.tmpdir") + "/void");
+		assertFalse(SAMLConfiguration.isConfigured());
 		final File dir = new File(File.createTempFile("test", "test").getAbsolutePath() + ".home");
 		dir.mkdir();
-		BRSConfiguration.setHomeProperty(dir.getAbsolutePath());
-		assertFalse(BRSConfiguration.isConfigured());
+		SAMLConfiguration.setHomeProperty(dir.getAbsolutePath());
+		assertFalse(SAMLConfiguration.isConfigured());
 		
 		File content = new File(dir, "oiosaml-sp.properties");
 		FileOutputStream fos = new FileOutputStream(content);
 		fos.write("testing".getBytes());
 		fos.close();
 		
-		BRSConfiguration.setHomeProperty(dir.getAbsolutePath());
-		assertTrue(BRSConfiguration.isConfigured());
+		SAMLConfiguration.setHomeProperty(dir.getAbsolutePath());
+		assertTrue(SAMLConfiguration.isConfigured());
 		
 		content.delete();
 		dir.delete();
@@ -64,8 +64,8 @@ public class BRSConfigurationTest {
 	@Test
 	public void setSystemConfiguration() {
 		Configuration conf = TestHelper.buildConfiguration(new HashMap<String, String>());
-		BRSConfiguration.setSystemConfiguration(conf);
-		assertSame(conf, BRSConfiguration.getSystemConfiguration());
+		SAMLConfiguration.setSystemConfiguration(conf);
+		assertSame(conf, SAMLConfiguration.getSystemConfiguration());
 	}
 
 }

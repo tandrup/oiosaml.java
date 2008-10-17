@@ -34,7 +34,7 @@ import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 
 /**
@@ -62,8 +62,8 @@ public class SPMetadata {
 
     public static SPMetadata getInstance() {
     	if (instance == null) {
-	    	Configuration conf = BRSConfiguration.getSystemConfiguration();
-	        String directory = BRSConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
+	    	Configuration conf = SAMLConfiguration.getSystemConfiguration();
+	        String directory = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
 	        String fileName = conf.getString(METADATA_FILE);
 	        try {
 		        instance = new SPMetadata( (EntityDescriptor) SAMLUtil.unmarshallElementFromFile(directory+"/"+fileName));

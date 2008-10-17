@@ -34,7 +34,7 @@ import javax.servlet.http.HttpSession;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 
@@ -64,7 +64,7 @@ public class PostBindingHandler implements BindingHandler {
 	public static final String VERSION = "$Id: ClientSSOEngine.java 2546 2008-04-11 13:29:25Z jre $";
 
 	public PostBindingHandler() {
-		dispatchPath = BRSConfiguration.getSystemConfiguration().getString("POSTDispatchPath", null);
+		dispatchPath = SAMLConfiguration.getSystemConfiguration().getString("POSTDispatchPath", null);
 	}
 
 	public PostBindingHandler(String dispatchPath) {

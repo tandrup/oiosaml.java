@@ -90,6 +90,11 @@ public class LoginHandler implements SAMLHandler {
 			metadata = idpMetadata.getFirstMetadata();
 		}
 		Endpoint signonLocation = metadata.findLoginEndpoint(conf.getStringArray(Constants.PROP_SUPPORTED_BINDINGS));
+		if (signonLocation == null) {
+			String msg = "Could not find a valid IdP signon location. Supported bindings: " + conf.getString(Constants.PROP_SUPPORTED_BINDINGS) + ", available: " + metadata.getSingleSignonServices();
+			log.error(msg);
+			throw new RuntimeException(msg);
+		}
 		log.debug("Signing on at " + signonLocation);
 		
 		BindingHandler bindingHandler = bindingHandlerFactory.getBindingHandler(signonLocation.getBinding());

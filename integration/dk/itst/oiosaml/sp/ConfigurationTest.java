@@ -45,7 +45,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.BRSConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.TestHelper;
@@ -66,7 +66,7 @@ public class ConfigurationTest {
 		}
 		tmpdir.mkdir();
 		
-		BRSConfiguration.setSystemConfiguration(null);
+		SAMLConfiguration.setSystemConfiguration(null);
 		IdpMetadata.setMetadata(null);
 		SPMetadata.setMetadata(null);
 		System.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
