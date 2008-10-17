@@ -17,7 +17,7 @@ import org.junit.Test;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.service.TestHelper;
 
-public class BRSConfigurationTest {
+public class SAMLConfigurationTest {
 
 	@Test(expected=IllegalStateException.class)
 	public void failOnMissingSystemProperty() {
