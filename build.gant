@@ -112,7 +112,7 @@ target ( test : 'Run tests' ) {
 	depends(resolve_test, compile_test, instrument)
 	taskdef (classpathref: 'classpath', resource: 'tasks.properties')
 	
-	junit (forkmode: 'once', fork: true, failureproperty: 'tests.failed', printsummary: true) {
+	junit (forkmode: 'once', fork: true, failureproperty: 'tests.failed', printsummary: true, showoutput: true) {
 		sysproperty(key: 'javax.xml.parsers.DocumentBuilderFactory', value: 'org.apache.xerces.jaxp.DocumentBuilderFactoryImpl')
 		sysproperty(key: 'javax.xml.transform.TransformerFactory', value: 'org.apache.xalan.processor.TransformerFactoryImpl')
 		sysproperty(key: 'javax.xml.validation.SchemaFactory', value: 'org.apache.xerces.jaxp.validation.XMLSchemaFactory')
