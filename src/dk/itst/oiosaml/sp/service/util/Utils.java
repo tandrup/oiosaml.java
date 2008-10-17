@@ -63,8 +63,12 @@ public final class Utils {
 
 
 	/**
-	 * @return The {@link Credential} associated with the certificate of the
-	 *         service provider (SP)
+	 * Load credentials from a keystore.
+	 * 
+	 * The first private key is loaded from the keystore.
+	 * 
+	 * @param location keystore file location
+	 * @param password Keystore and private key password. 
 	 */
 	public static BasicX509Credential getCredential(String location, String password) {
 		try {
@@ -89,15 +93,7 @@ public final class Utils {
 		BasicX509Credential credential = new BasicX509Credential();
 
 		try {
-			input = new BufferedInputStream(input);
-			input.mark(1024*1024);
-			KeyStore ks;
-			try {
-				ks = loadStore(input, password, "PKCS12");
-			} catch (IOException e) {
-				input.reset();
-				ks = loadStore(input, password, "JKS");
-			}
+			KeyStore ks = loadKeystore(input, password);
 
 			Enumeration<String> eAliases = ks.aliases();
 			while (eAliases.hasMoreElements()) {
@@ -119,6 +115,57 @@ public final class Utils {
 			throw new WrappedException(Layer.CLIENT, e);
 		}
 		return credential;
+	}
+
+	private static KeyStore loadKeystore(InputStream input, String password)
+			throws KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException {
+		input = new BufferedInputStream(input);
+		input.mark(1024*1024);
+		KeyStore ks;
+		try {
+			ks = loadStore(input, password, "PKCS12");
+		} catch (IOException e) {
+			input.reset();
+			ks = loadStore(input, password, "JKS");
+		}
+		return ks;
+	}
+
+	/**
+	 * Get a x509certificate from a keystore.
+	 * 
+	 * @param location Keystore file location.
+	 * @param password Password for the keystore.
+	 * @param alias Alias to retrieve. If <code>null</code>, the first certificate in the keystore is retrieved.
+	 * @return The certificate.
+	 */
+	public static X509Certificate getCertificate(String location, String password, String alias) {
+		try {
+			KeyStore keystore = loadKeystore(new FileInputStream(location), password);
+			
+			if (alias == null) {
+				Enumeration<String> eAliases = keystore.aliases();
+				while (eAliases.hasMoreElements()) {
+					String strAlias = eAliases.nextElement();
+					log.debug("Trying " + strAlias);
+					if (keystore.isCertificateEntry(strAlias)) {
+						alias = strAlias;
+					}
+				}			
+			}
+			log.debug("Getting certificate from alias " + alias);
+			
+			X509Certificate certificate = (X509Certificate) keystore.getCertificate(alias);
+			if (certificate == null) {
+				throw new RuntimeException("Keystore " + location + " does not contain a certificate with alias " + alias);
+			}
+			return certificate;
+		} catch (GeneralSecurityException e) {
+			throw new WrappedException(Layer.CLIENT, e);
+		} catch (IOException e) {
+			throw new WrappedException(Layer.CLIENT, e);
+		}
 	}
 
 	private static KeyStore loadStore(InputStream input, String password, String type) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {

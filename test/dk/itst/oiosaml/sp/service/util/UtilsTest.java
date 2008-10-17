@@ -3,23 +3,30 @@ package dk.itst.oiosaml.sp.service.util;
 import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,24 +63,16 @@ public class UtilsTest extends AbstractServiceTests {
 
 	@Test
 	public void testGetCredential() throws Exception {
-		Security.addProvider(new BouncyCastleProvider());
-		
 		Credential cred = TestHelper.getCredential();
 		X509Certificate cert = TestHelper.getCertificate(cred);
 		
-		KeyStore store = KeyStore.getInstance("PKCS12", "BC");
-		store.load(null, null);
-		store.setKeyEntry("saml", cred.getPrivateKey(), "test".toCharArray(), new Certificate[] { cert });
-
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		store.store(bos, "test".toCharArray());
-		bos.close();
+		ByteArrayOutputStream bos = generateKeystore(cred, cert);
 		
 		BasicX509Credential newCredential = Utils.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
 		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
 		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
 		
-		store = KeyStore.getInstance("JKS");
+		KeyStore store = KeyStore.getInstance("JKS");
 		store.load(null, null);
 		store.setKeyEntry("saml", cred.getPrivateKey(), "test".toCharArray(), new Certificate[] { cert });
 
@@ -84,6 +83,33 @@ public class UtilsTest extends AbstractServiceTests {
 		newCredential = Utils.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
 		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
 		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
+	}
+
+	private ByteArrayOutputStream generateKeystore(Credential cred, X509Certificate cert) throws KeyStoreException, NoSuchProviderException, IOException, NoSuchAlgorithmException, CertificateException {
+		Security.addProvider(new BouncyCastleProvider());
+		KeyStore store = KeyStore.getInstance("JKS");
+		store.load(null, null);
+		store.setKeyEntry("saml", cred.getPrivateKey(), "test".toCharArray(), new Certificate[] { cert });
+		store.setCertificateEntry("samltest", cert);
+
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		store.store(bos, "test".toCharArray());
+		bos.close();
+		return bos;
+	}
+	
+	@Test
+	public void testGetCertificate() throws Exception {
+		Credential cred = TestHelper.getCredential();
+		X509Certificate cert = TestHelper.getCertificate(cred);
+		
+		ByteArrayOutputStream bos = generateKeystore(cred, cert);
+		
+		File file = File.createTempFile("test", ".keystore");
+		file.deleteOnExit();
+		IOUtils.write(bos.toByteArray(), new FileOutputStream(file));
+		
+		assertNotNull(Utils.getCertificate(file.getAbsolutePath(), "test", null));
 	}
 
 	@Test
