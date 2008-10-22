@@ -38,6 +38,7 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.metadata.ArtifactResolutionService;
 import org.opensaml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.opensaml.saml2.metadata.AttributeService;
@@ -306,6 +307,21 @@ public class IdpMetadata {
 				}
 			}
 			throw new IllegalArgumentException("No SingleSignonService found for " + Arrays.toString(bindings));
+		}
+		
+		/**
+		 * Get the name format for an attribute.
+		 * 
+		 * @param attribute The attribute to look for.
+		 * @param defaultFormat The format to return if the attribute is not present in idp metadata.
+		 */
+		public String getAttributeNameFormat(String attribute, String defaultFormat) {
+			for (Attribute attr : idpSSODescriptor.getAttributes()) {
+				if (attribute.equals(attr.getName())) {
+					return attr.getNameFormat();
+				}
+			}
+			return defaultFormat;
 		}
 	}
 	
