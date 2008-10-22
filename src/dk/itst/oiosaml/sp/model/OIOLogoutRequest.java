@@ -150,6 +150,7 @@ public class OIOLogoutRequest extends OIORequest {
 		logoutRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		logoutRequest.addNamespace(OIOSAMLConstants.SAML20_NAMESPACE);
 		logoutRequest.setDestination(logoutServiceLocation);
+		logoutRequest.setReason("urn:oasis:names:tc:SAML:2.0:logout:user");
 
 		logoutRequest.setIssuer(SAMLUtil.createIssuer(issuerEntityId));
 
@@ -200,6 +201,13 @@ public class OIOLogoutRequest extends OIORequest {
 		} catch (MessageEncodingException e) {
 			throw new WrappedException(Layer.CLIENT, e);
 		}
+	}
+
+	/**
+	 * Set the logout reason. Defaults to urn:oasis:names:tc:SAML:2.0:logout:user.
+	 */
+	public void setReason(String reason) {
+		request.setReason(reason);
 	}
 
 }
