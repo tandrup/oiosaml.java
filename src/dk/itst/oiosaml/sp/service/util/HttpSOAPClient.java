@@ -54,7 +54,7 @@ public class HttpSOAPClient implements SOAPClient {
 
 	public XMLObject wsCall(OIOSamlObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
 		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
-		return wsCall(lu, location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security");
+		return wsCall(lu, location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security").getBody().getUnknownXMLObjects().get(0);
 	}
 	
 	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
