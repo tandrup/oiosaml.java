@@ -25,6 +25,8 @@ package dk.itst.oiosaml.sp;
 
 import java.io.Serializable;
 
+import org.opensaml.xml.util.Base64;
+
 public class UserAttribute implements Serializable{
 
 	private static final long serialVersionUID = 7213348395041737852L;
@@ -52,6 +54,14 @@ public class UserAttribute implements Serializable{
 
 	public String getValue() {
 		return value;
+	}
+
+	/**
+	 * Base64 decode the attribute value and retrieve it.
+	 * @return The decoded value. No checks are made to see if the string is actually encoded correctly.
+	 */
+	public byte[] getBase64Value() {
+		return Base64.decode(value);
 	}
 	
 	public String getFormat() {
