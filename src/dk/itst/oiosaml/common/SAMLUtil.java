@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -69,6 +72,7 @@ import org.opensaml.saml2.metadata.OrganizationURL;
 import org.opensaml.saml2.metadata.RequestedAttribute;
 import org.opensaml.saml2.metadata.ServiceName;
 import org.opensaml.saml2.metadata.SingleLogoutService;
+import org.opensaml.xml.ElementExtensibleXMLObject;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
@@ -99,6 +103,8 @@ public class SAMLUtil {
 	public static final String VERSION = "$Id: BRSUtil.java 2910 2008-05-21 13:07:31Z jre $";
 	private static final Logger log = Logger.getLogger(SAMLUtil.class);
 	public static final String OIOSAML_HOME = "oiosaml.home";
+	
+	private static final Map<Class<?>, QName> elementCache = new ConcurrentHashMap<Class<?>, QName>();
 
 	/**
 	 * Build a new empty object of the requested type.
@@ -110,14 +116,7 @@ public class SAMLUtil {
 	@SuppressWarnings("unchecked")
 	public static <T extends XMLObject> T buildXMLObject(Class<T> type) {
 		try {
-			Field typeField;
-			try { 
-				typeField = type.getDeclaredField("DEFAULT_ELEMENT_NAME");
-			} catch (NoSuchFieldException ex) {
-				typeField = type.getDeclaredField("ELEMENT_NAME");
-			}
-			
-			QName objectQName = (QName) typeField.get(null);
+			QName objectQName = getElementQName(type);
 			XMLObjectBuilder<T> builder = Configuration.getBuilderFactory().getBuilder(objectQName);
 			if (builder == null) {
 				throw new InvalidParameterException("No builder exists for object: " + objectQName.getLocalPart());
@@ -125,11 +124,28 @@ public class SAMLUtil {
 			return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(), objectQName.getPrefix());
 		} catch (SecurityException e) {
 			throw new RuntimeException(e);
+		}				
+	}
+
+	private static <T> QName getElementQName(Class<T> type) {
+		if (elementCache.containsKey(type)) return elementCache.get(type);
+		
+		try {
+			Field typeField;
+			try { 
+				typeField = type.getDeclaredField("DEFAULT_ELEMENT_NAME");
+			} catch (NoSuchFieldException ex) {
+				typeField = type.getDeclaredField("ELEMENT_NAME");
+			}
+
+			QName objectQName = (QName) typeField.get(null);
+			elementCache.put(type, objectQName);
+			return objectQName;
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
-		}				
+		}
 	}
 
 	/**
@@ -571,5 +587,20 @@ public class SAMLUtil {
 		Company c = buildXMLObject(Company.class);
 		c.setName(orgName);
 		return c;
+	}
+	
+	/**
+	 * Get the first element of a specific type from a parent element.
+	 * @param obj The parent element.
+	 * @param type The type to retrieve.
+	 * @return The first element, or <code>null</code> if no elements were found.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends XMLObject> T  getFirstElement(ElementExtensibleXMLObject obj, Class<T> type) {
+		QName name = getElementQName(type);
+		List<XMLObject> objects = obj.getUnknownXMLObjects(name);
+		if (objects.isEmpty()) return null;
+		
+		return (T)objects.get(0);
 	}
 }

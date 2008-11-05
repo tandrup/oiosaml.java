@@ -30,10 +30,18 @@ import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.SessionIndex;
 import org.opensaml.saml2.core.Status;
 import org.opensaml.saml2.core.Subject;
+import org.opensaml.saml2.metadata.Endpoint;
+import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.wssecurity.Created;
+import org.opensaml.ws.wssecurity.Security;
+import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.xml.AbstractXMLObject;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSAny;
+import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.PGPData;
 import org.opensaml.xml.signature.Signature;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
@@ -236,5 +244,15 @@ public class SAMLUtilTest {
 		} catch (IllegalArgumentException e) {}
 	}
 
+	@Test
+	public void testGetFirstElement() {
+		XSAny h = new XSAnyBuilder().buildObject(Endpoint.TYPE_NAME);
+		
+		h.getUnknownXMLObjects().add(SAMLUtil.buildXMLObject(Header.class));
+		h.getUnknownXMLObjects().add(SAMLUtil.buildXMLObject(PGPData.class));
+		
+		assertNull(SAMLUtil.getFirstElement(h, Created.class));
+		assertNotNull(SAMLUtil.getFirstElement(h, Header.class));
+	}
 
 }
