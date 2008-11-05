@@ -34,6 +34,19 @@ import dk.itst.oiosaml.sp.model.OIOSamlObject;
 public interface SOAPClient {
 	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException;
 	public XMLObject wsCall(OIOSamlObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException;
-	
+
+	/**
+	 * Execute a raw request against a SOAP service.
+	 * @param location HTTP Endpoint for the service.
+	 * @param username Username for http basic auth. Can be <code>null</code>, in which case basic auth is disabled.
+	 * @param password Basic auth password.
+	 * @param ignoreCertPath Set to <code>true</code> to ignore certificate path errors on ssl connections.
+	 * @param xml Complete SOAP Envelope as string.
+	 * @param soapAction SOAP Action to invoke.
+	 * @return The response envelope if the server returned 200 OK. An exeption is thrown in all other cases.
+	 * @throws IOException If a generic IO exception occurred, for example if the connection failed.
+	 * @throws SOAPException If the server returned anything but 200 OK.
+	 */
+	public Envelope wsCall(String location, String username, String password, boolean ignoreCertPath, String xml, String soapAction) throws IOException, SOAPException;
 }
 

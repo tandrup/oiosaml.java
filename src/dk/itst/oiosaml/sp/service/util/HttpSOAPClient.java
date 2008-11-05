@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
@@ -54,7 +52,11 @@ public class HttpSOAPClient implements SOAPClient {
 
 	public XMLObject wsCall(OIOSamlObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
 		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
-		return wsCall(lu, location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security").getBody().getUnknownXMLObjects().get(0);
+		try {
+			return wsCall(location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security").getBody().getUnknownXMLObjects().get(0);
+		} finally {
+			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
+		}
 	}
 	
 	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
@@ -63,11 +65,14 @@ public class HttpSOAPClient implements SOAPClient {
 
 		String xml = XMLHelper.nodeToString(SAMLUtil.marshallObject(obj));
 		xml = START_SOAP_ENVELOPE + xml.substring(xml.indexOf("?>") + 2) + END_SOAP_ENVELOPE;
-
-		return wsCall(lu, location, username, password, ignoreCertPath, xml, "http://www.oasis-open.org/committees/security");
+		try {
+			return wsCall(location, username, password, ignoreCertPath, xml, "http://www.oasis-open.org/committees/security");
+		} finally {
+			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
+		}
 	}
 
-	public Envelope wsCall(LogUtil lu, String location, String username, String password, boolean ignoreCertPath, String xml, String soapAction) throws IOException, MalformedURLException, ProtocolException {
+	public Envelope wsCall(String location, String username, String password, boolean ignoreCertPath, String xml, String soapAction) throws IOException, SOAPException {
 		URI serviceLocation;
 		try {
 			serviceLocation = new URI(location);
@@ -111,8 +116,6 @@ public class HttpSOAPClient implements SOAPClient {
 			InputStream inputStream = c.getInputStream();
 			String result = IOUtils.toString(inputStream, "UTF-8");
 			inputStream.close();
-			
-			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
 			
 			XMLObject res = SAMLUtil.unmarshallElementFromString(result);
 			if (log.isDebugEnabled()) log.debug("Server SOAP response: " + result);
