@@ -43,8 +43,8 @@ public class SOAPException extends IOException {
 	private final String response;
 	private Envelope envelope;
 
-	public SOAPException(int responseCode, String response, Throwable cause) {
-		super("Server returned error response: " + responseCode, cause);
+	public SOAPException(int responseCode, String response) {
+		super("Server returned error response: " + responseCode);
 		this.response = response;
 		
 		try {

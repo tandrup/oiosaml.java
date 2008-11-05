@@ -124,7 +124,7 @@ public class HttpSOAPClient implements SOAPClient {
 			String result = IOUtils.toString(inputStream, "UTF-8");
 			inputStream.close();
 			
-			throw new SOAPException(c.getResponseCode(), result, null);
+			throw new SOAPException(c.getResponseCode(), result);
 		}
 	}
 
