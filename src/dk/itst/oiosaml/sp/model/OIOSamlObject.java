@@ -30,6 +30,7 @@ import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.xml.ElementExtensibleXMLObject;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
@@ -150,16 +151,20 @@ public class OIOSamlObject {
 	 * 	Returns <code>false</code> if the object is not signed at all.
 	 */
 	public boolean verifySignature(PublicKey publicKey) {
-		if (!(obj instanceof SignableSAMLObject)) return false;
-		
-		SignableSAMLObject signableObject = (SignableSAMLObject) obj;
-		
 		if (publicKey == null) {
 			throw new IllegalArgumentException("Certificate cannot be null");
 		}
-		Signature signature = signableObject.getSignature();
+		Signature signature = null;
+		if (obj instanceof SignableSAMLObject) {
+			SignableSAMLObject signableObject = (SignableSAMLObject) obj;
+			
+			signature = signableObject.getSignature();
+		} else if (obj instanceof ElementExtensibleXMLObject){
+			signature = SAMLUtil.getFirstElement((ElementExtensibleXMLObject)obj, Signature.class);
+		}
+		
 		if (signature == null) {
-			log.warn("No signature present in object " + signableObject);
+			log.warn("No signature present in object " + obj);
 			return false;
 		}
 		BasicX509Credential credential = new BasicX509Credential();
