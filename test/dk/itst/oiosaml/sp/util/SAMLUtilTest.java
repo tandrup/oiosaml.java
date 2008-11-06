@@ -253,6 +253,8 @@ public class SAMLUtilTest {
 		
 		assertNull(SAMLUtil.getFirstElement(h, Created.class));
 		assertNotNull(SAMLUtil.getFirstElement(h, Header.class));
+		
+		assertNull(SAMLUtil.getFirstElement(null, Created.class));
 	}
 
 }

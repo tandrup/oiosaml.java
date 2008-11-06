@@ -591,12 +591,14 @@ public class SAMLUtil {
 	
 	/**
 	 * Get the first element of a specific type from a parent element.
-	 * @param obj The parent element.
+	 * @param obj The parent element. If this is <code>null</code>, <code>null</code> is returned.
 	 * @param type The type to retrieve.
 	 * @return The first element, or <code>null</code> if no elements were found.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends XMLObject> T  getFirstElement(ElementExtensibleXMLObject obj, Class<T> type) {
+		if (obj == null) return null;
+		
 		QName name = getElementQName(type);
 		List<XMLObject> objects = obj.getUnknownXMLObjects(name);
 		if (objects.isEmpty()) return null;
