@@ -37,6 +37,7 @@ import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
@@ -122,6 +123,10 @@ public class HttpSOAPClient implements SOAPClient {
 			if (log.isDebugEnabled()) log.debug("Server SOAP response: " + result);
 			
 			Envelope envelope = (Envelope) res;
+			if (SAMLUtil.getFirstElement(envelope.getBody(), Fault.class) != null) {
+				log.warn("Result has soap11:Fault, but server returned 200 OK. Treating as error, please fix the server");
+				throw new SOAPException(c.getResponseCode(), result);
+			}
 			return envelope;
 		} else {
 			InputStream inputStream = c.getErrorStream();
