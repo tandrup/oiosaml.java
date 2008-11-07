@@ -126,6 +126,7 @@ public class HttpSOAPClient implements SOAPClient {
 			InputStream inputStream = c.getErrorStream();
 			String result = IOUtils.toString(inputStream, "UTF-8");
 			inputStream.close();
+			if (log.isDebugEnabled()) log.debug("Server SOAP fault: " + result);
 			
 			throw new SOAPException(c.getResponseCode(), result);
 		}
