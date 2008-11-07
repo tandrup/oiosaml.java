@@ -42,6 +42,7 @@ import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 

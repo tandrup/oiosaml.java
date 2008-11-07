@@ -21,7 +21,7 @@
  *   Rolf Njor Jensen <rolf@trifork.com>
  *
  */
-package dk.itst.oiosaml.sp.service.util;
+package dk.itst.oiosaml.common;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +30,6 @@ import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
 import org.opensaml.xml.XMLObject;
 
-import dk.itst.oiosaml.common.SAMLUtil;
 
 /**
  * Representation of a SOAP Fault.

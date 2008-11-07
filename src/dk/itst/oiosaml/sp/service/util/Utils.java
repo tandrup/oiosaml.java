@@ -155,7 +155,9 @@ public final class Utils {
 				}			
 			}
 			log.debug("Getting certificate from alias " + alias);
-			
+			if (alias == null) {
+				throw new NullPointerException("No valid certificate alias found in " + location);
+			}
 			X509Certificate certificate = (X509Certificate) keystore.getCertificate(alias);
 			if (certificate == null) {
 				throw new RuntimeException("Keystore " + location + " does not contain a certificate with alias " + alias);

@@ -28,6 +28,7 @@ import java.io.IOException;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObject;
 
+import dk.itst.oiosaml.common.SOAPException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 
