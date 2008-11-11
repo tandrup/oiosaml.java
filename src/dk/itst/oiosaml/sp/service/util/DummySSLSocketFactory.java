@@ -56,7 +56,6 @@ public class DummySSLSocketFactory extends SSLSocketFactory {
 		return factory.getDefaultCipherSuites();
 	}
 	public Socket createSocket() throws IOException {
-		System.out.println( "createSocket 0");
 		return factory.createSocket();
 	}
 	public String[] getSupportedCipherSuites() {
