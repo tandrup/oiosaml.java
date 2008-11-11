@@ -29,11 +29,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.soap11.Envelope;
@@ -88,11 +86,7 @@ public class HttpSOAPClient implements SOAPClient {
 		if (c instanceof HttpsURLConnection) {
 			HttpsURLConnection sc = (HttpsURLConnection) c;
 			if (ignoreCertPath) {
-				try {
-					sc.setSSLSocketFactory(new EasySSLProtocolSocketFactory());
-				} catch (GeneralSecurityException e) {
-					throw new RuntimeException("Unable to construct easy ssl factory", e);
-				} 
+				sc.setSSLSocketFactory(new DummySSLSocketFactory());
 			}
 		}
 		c.setAllowUserInteraction(false);
