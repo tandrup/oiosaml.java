@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -599,10 +598,11 @@ public class SAMLUtil {
 	public static <T extends XMLObject> T  getFirstElement(ElementExtensibleXMLObject obj, Class<T> type) {
 		if (obj == null) return null;
 		
-		QName name = getElementQName(type);
-		List<XMLObject> objects = obj.getUnknownXMLObjects(name);
-		if (objects.isEmpty()) return null;
-		
-		return (T)objects.get(0);
+		for (XMLObject o : obj.getUnknownXMLObjects()) {
+			if (type.isInstance(o)) {
+				return (T) o;
+			}
+		}
+		return null;
 	}
 }
