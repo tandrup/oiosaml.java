@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.NameID;
@@ -53,6 +54,8 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 public class LoggedInHandler {
 
 	public static final String VERSION = "$Id: LoggedInHandler.java 2896 2008-05-20 09:49:22Z jre $";
+	
+	private static final Logger log = Logger.getLogger(LoggedInHandler.class);
 
 	private static LoggedInHandler instance = new LoggedInHandler();
 
@@ -198,7 +201,7 @@ public class LoggedInHandler {
 		String id =  Utils.generateUUID();
 		LogId logId = new LogId(id, lu);
 		idList.put(id, logId);
-
+		
 		return id;
 	}
 	
@@ -315,6 +318,9 @@ public class LoggedInHandler {
 	}
 	
 	public void registerRequest(String id, String receiverEntityID) {
+		if (log.isDebugEnabled()) log.debug("Registered id " + id + " for " + receiverEntityID + "(size: " + requestIds.size() + ")");
+
+		
 		requestIds.put(id, new TimeOutWrapper<String>(receiverEntityID));
 	}
 	
@@ -324,11 +330,13 @@ public class LoggedInHandler {
 	 * @throws IllegalArgumentException If the request id is unknown.
 	 */
 	public String removeEntityIdForRequest(String id) {
+		if (log.isDebugEnabled()) log.debug("Removing id " + id);
 		 
 		TimeOutWrapper<String> tow = requestIds.remove(id);
 		if(tow == null) {
 			throw new IllegalArgumentException("Request id " + id + " is unknown");
 		}
+		if (log.isDebugEnabled()) log.debug("Entity for request " + id + ": " + tow.getObject());
 		return tow.getObject();
 	}
 
