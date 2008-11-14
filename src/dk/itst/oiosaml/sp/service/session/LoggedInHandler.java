@@ -59,7 +59,7 @@ public class LoggedInHandler {
 	private final Map<String, TimeOutWrapper<OIOAssertion>> sessionMap = new ConcurrentHashMap<String, TimeOutWrapper<OIOAssertion>>();
 	private final Map<String, TimeOutWrapper<String>> sessionIndexMap = new ConcurrentHashMap<String, TimeOutWrapper<String>>();
 	private final Map<String, TimeOutWrapper<String>> requestIds = new ConcurrentHashMap<String, TimeOutWrapper<String>>();
-	private Map<String, OIOAssertion> usedAssertionIds = new LRUMap(1000);
+	private Map<String, OIOAssertion> usedAssertionIds = new LRUMap(10000);
 	
 	private long requestIdsCleanupDelay = ((long)1000*60*5); //5 minutes.
 
