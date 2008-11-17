@@ -36,7 +36,7 @@
         	<exclude org="werken-xpath" />
         	<exclude org="jdom" />
         </dependency>
-        <dependency org="xalan" name="xalan" rev="2.7.1" />
+        <dependency org="xalan" name="xalan" rev="2.7.0" />
         <dependency org="xml-apis" name="xml-apis" rev="2.0.2" />
         <dependency org="xerces" name="xercesImpl" rev="2.9.1" />
         <dependency org="bouncycastle" name="bcprov-jdk15" rev="136" />
