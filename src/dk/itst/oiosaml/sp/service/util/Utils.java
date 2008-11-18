@@ -271,41 +271,42 @@ public final class Utils {
 		if (xml == null || "".equals(xml))
 			return xml;
 
-		String result = "";
+		StringBuffer result = new StringBuffer();
 
+		
 		String[] results = xml.split("<");
 		for (int i = 1; i < results.length; i++) {
 			results[i] = "<" + results[i].trim();
 			if (results[i].endsWith("/>")) {
-				result += results[i] + s;
+				result.append(results[i]).append(s);
 			} else if (results[i].startsWith("</")) {
-				result += results[i] + s;
+				result.append(results[i]).append(s);
 			} else if (results[i].endsWith(">")) {
-				result += results[i] + s;
+				result.append(results[i]).append(s);
 			} else {
-				result += results[i];
+				result.append(results[i]);
 			}
 		}
-		result = result.trim();
+//		result = result.trim();
 
 		if (split == null)
-			return result;
+			return result.toString().trim();
 
-		String newResult = "";
+		StringBuilder newResult = new StringBuilder();
 		String ident = "";
-		results = result.split(s);
+		results = result.toString().split(s);
 		for (int i = 0; i < results.length; i++) {
 			if (results[i].startsWith("</"))
 				ident = ident.substring(split.length());
 
-			newResult += ident + results[i] + "\n";
+			newResult.append(ident).append(results[i]).append("\n");
 
 			if (!results[i].startsWith("<!") && !results[i].startsWith("<?")
 					&& results[i].indexOf("</") == -1
 					&& results[i].indexOf("/>") == -1)
 				ident += split;
 		}
-		return newResult;
+		return newResult.toString();
 	}
 	
 	/**
