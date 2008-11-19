@@ -11,7 +11,6 @@
     	<artifact name="openws-wstrust" type="jar" conf="*" />
     	<artifact name="xmltooling-1.1.0" type="jar" conf="*" />
     	<artifact name="not-yet-commons-ssl-0.3.9" type="jar" conf="*" />
-    	<artifact name="xmlsec-1.4.1" type="jar" conf="*" />
     </publications>
     <dependencies>
         <dependency org="commons-io" name="commons-io" rev="1.4" />
@@ -55,6 +54,8 @@
         <dependency org="org.mortbay.jetty" name="jsp-2.1" rev="6.1.11" conf="test->default">
         	<exclude org="ant" />
         </dependency>
+        
+        <dependency org="org.apache.santuario" name="xmlsec" rev="1.4.2"  />
         
     </dependencies>
 </ivy-module>

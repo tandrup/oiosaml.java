@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="integration"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl-0.3.9.jar"/>
-	<classpathentry kind="lib" path="lib/xmlsec-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/build/bouncycastle-bcprov-jdk15.jar"/>
 	<classpathentry kind="lib" path="lib/build/commons-codec-commons-codec.jar"/>
 	<classpathentry kind="lib" path="lib/build/commons-collections-commons-collections.jar"/>
@@ -46,5 +45,6 @@
 	<classpathentry kind="lib" path="lib/opensaml-2.1.0.jar" sourcepath="/home/recht/install/opensaml-2.1.0"/>
 	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-api-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.santuario-xmlsec.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
