@@ -23,6 +23,7 @@
  */
 package dk.itst.oiosaml.sp;
 
+import java.io.Serializable;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -40,7 +41,7 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 import dk.itst.oiosaml.sp.util.SecurityHelper;
 
-public class UserAssertionImpl implements UserAssertion {
+public class UserAssertionImpl implements UserAssertion, Serializable {
 	
 	private Map<String, UserAttribute> attributes = new HashMap<String, UserAttribute>();
 	private Date issueTime;
