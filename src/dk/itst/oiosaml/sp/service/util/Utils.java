@@ -336,7 +336,6 @@ public final class Utils {
 				} else {
 					prefix = "<" + prefix + ":";
 				}
-				System.out.println("prefix: " + prefix);
 				if (xml.lastIndexOf(prefix + "Envelope", idx) >= start) {
 					return SOAP_VERSIONS[i];
 				}
