@@ -36,6 +36,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
+import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
@@ -97,7 +98,7 @@ public class HttpSOAPClient implements SOAPClient {
 		c.setReadTimeout(20000);
 		c.setConnectTimeout(30000);
 		
-		c.addRequestProperty("Content-Type", "text/xml; charset=utf-8");
+		addContentTypeHeader(xml, c);
 		c.addRequestProperty("SOAPAction",  "\"" + (soapAction == null ? "" : soapAction) + "\"");
 		
 		if (username != null && password != null) {
@@ -132,4 +133,15 @@ public class HttpSOAPClient implements SOAPClient {
 		}
 	}
 
+	private void addContentTypeHeader(String xml, HttpURLConnection c) {
+		String soapVersion = Utils.getSoapVersion(xml);
+		if (SOAPConstants.SOAP11_NS.equals(soapVersion)) {
+			c.addRequestProperty("Content-Type", "text/xml; charset=utf-8");
+		} else if (SOAPConstants.SOAP12_NS.equals(soapVersion)){
+			c.addRequestProperty("Content-Type", "application/soap+xml; charset=utf-8");
+		} else {
+			throw new UnsupportedOperationException("SOAP version " + soapVersion + " not supported");
+		}
+	}
+	
 }

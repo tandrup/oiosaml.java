@@ -1,6 +1,7 @@
 package dk.itst.oiosaml.sp.service.util;
 
 import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -146,5 +147,22 @@ public class UtilsTest extends AbstractServiceTests {
 		
 		assertFalse(Utils.verifySignature(new byte[] {}, key, sig));
 		assertFalse(Utils.verifySignature(data, key, new byte[] {}));
+	}
+	
+	@Test
+	public void testGetSoapVersion() throws Exception {
+		String xml = "<?xml version=\"1.0\"?><soap11:Envelope xmlns:test=\"test\" xmlns:soap11=\"http://schemas.xmlsoap.org/soap/envelope/\"></soap11:Envelope>";
+		
+		assertEquals("http://schemas.xmlsoap.org/soap/envelope/", Utils.getSoapVersion(xml));
+		
+		xml = "<?xml version=\"1.0\"?><Envelope xmlns:test=\"test\" xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"></Envelope>";
+		assertEquals("http://schemas.xmlsoap.org/soap/envelope/", Utils.getSoapVersion(xml));
+
+		xml = "<?xml version=\"1.0\"?><Envelope xmlns:test=\"test\" xmlns:soap11=\"http://www.w3.org/2003/05/soap-envelope\" xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"></Envelope>";
+		assertEquals("http://schemas.xmlsoap.org/soap/envelope/", Utils.getSoapVersion(xml));
+		
+		xml = "<?xml version=\"1.0\"?><soap12:Envelope xmlns:test=\"test\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\" xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"></soap12:Envelope>";
+		assertEquals("http://www.w3.org/2003/05/soap-envelope", Utils.getSoapVersion(xml));
+		
 	}
 }

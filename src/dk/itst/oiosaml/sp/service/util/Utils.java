@@ -43,6 +43,7 @@ import java.util.Enumeration;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.Base64;
@@ -60,6 +61,7 @@ public final class Utils {
 
 	public static final String VERSION = "$Id: Utils.java 3197 2008-07-25 07:47:33Z jre $";
 	private static final Logger log = Logger.getLogger(Utils.class);
+	private static final String[] SOAP_VERSIONS = new String[] { SOAPConstants.SOAP11_NS, SOAPConstants.SOAP12_NS};
 
 
 	/**
@@ -315,4 +317,45 @@ public final class Utils {
 	public static String generateUUID() {
 		return "_" + UUID.randomUUID().toString();
 	}
+	
+	/**
+	 * Get the SOAP version from an Envelope.
+	 * @param xml The complete envelope as a String.
+	 * @return The SOAP version, represented by the SOAP namespace. Returns <code>null</code> if no namespace was found.
+	 */
+	public static String getSoapVersion(String xml) {
+	
+		for (int i = 0; i < SOAP_VERSIONS.length; i++) {
+			int idx = xml.indexOf(SOAP_VERSIONS[i]);
+			if (idx > -1) {
+				String prefix = getPrefix(xml, idx);
+				int start = xml.lastIndexOf('<', idx);
+
+				if (prefix == null) {
+					prefix = "<";
+				} else {
+					prefix = "<" + prefix + ":";
+				}
+				System.out.println("prefix: " + prefix);
+				if (xml.lastIndexOf(prefix + "Envelope", idx) >= start) {
+					return SOAP_VERSIONS[i];
+				}
+			}
+		}
+		return null;
+	}
+	
+	private static String getPrefix(String xml, int idx) {
+		if (idx > -1) {
+			String prefix = xml.substring(xml.lastIndexOf(' ', idx) + 1, idx);
+			if (prefix.startsWith("xmlns:")) {
+				prefix = prefix.substring(6, prefix.lastIndexOf('=')).trim();
+			} else {
+				prefix = null;
+			}
+			return prefix;
+		}
+		return null;
+	}
+
 }
