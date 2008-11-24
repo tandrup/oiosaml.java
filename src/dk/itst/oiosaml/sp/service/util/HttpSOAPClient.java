@@ -30,7 +30,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -86,8 +88,14 @@ public class HttpSOAPClient implements SOAPClient {
 		HttpURLConnection c = (HttpURLConnection) serviceLocation.toURL().openConnection();
 		if (c instanceof HttpsURLConnection) {
 			HttpsURLConnection sc = (HttpsURLConnection) c;
+			
 			if (ignoreCertPath) {
 				sc.setSSLSocketFactory(new DummySSLSocketFactory());
+				sc.setHostnameVerifier(new HostnameVerifier() {
+					public boolean verify(String hostname, SSLSession session) {
+						return true;
+					}
+				});
 			}
 		}
 		c.setAllowUserInteraction(false);
