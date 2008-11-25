@@ -185,14 +185,14 @@ public class ConfigurationHandler implements SAMLHandler {
 		} else if (Boolean.valueOf(extractParameter("createkeystore", parameters))) {
 			try {
 				BasicX509Credential cred = new BasicX509Credential();
-				KeyPair kp = dk.itst.oiosaml.sp.util.SecurityHelper.generateKeyPairFromURI("http://www.w3.org/2001/04/xmlenc#rsa-1_5", 1024);
+				KeyPair kp = dk.itst.oiosaml.security.SecurityHelper.generateKeyPairFromURI("http://www.w3.org/2001/04/xmlenc#rsa-1_5", 1024);
 				cred.setPrivateKey(kp.getPrivate());
 				cred.setPublicKey(kp.getPublic());
 				credential = cred;
 				
 				KeyStore ks = KeyStore.getInstance("JKS");
 				ks.load(null, null);
-				X509Certificate cert = dk.itst.oiosaml.sp.util.SecurityHelper.generateCertificate(credential, getEntityId(request));
+				X509Certificate cert = dk.itst.oiosaml.security.SecurityHelper.generateCertificate(credential, getEntityId(request));
 				cred.setEntityCertificate(cert);
 				
 				ks.setKeyEntry("oiosaml", credential.getPrivateKey(), password.toCharArray(), new Certificate[] { 

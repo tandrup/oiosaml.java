@@ -58,10 +58,10 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.security.SecurityHelper;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.SecurityHelper;
 
 public class TestHelper {
 

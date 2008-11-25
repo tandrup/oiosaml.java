@@ -37,9 +37,9 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
+import dk.itst.oiosaml.security.SecurityHelper;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
-import dk.itst.oiosaml.sp.util.SecurityHelper;
 
 public class UserAssertionImpl implements UserAssertion, Serializable {
 	

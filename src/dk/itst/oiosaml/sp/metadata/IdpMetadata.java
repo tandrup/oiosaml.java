@@ -56,8 +56,8 @@ import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.security.SecurityHelper;
 import dk.itst.oiosaml.sp.model.Bindings;
-import dk.itst.oiosaml.sp.util.SecurityHelper;
 
 /**
  * Utility class to extract relevant values of the meta data related to the Login Site.

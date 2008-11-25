@@ -21,7 +21,7 @@
  *   Rolf Njor Jensen <rolf@trifork.com>
  *
  */
-package dk.itst.oiosaml.sp.util;
+package dk.itst.oiosaml.security;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
