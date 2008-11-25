@@ -40,6 +40,7 @@ import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.bindings.DefaultBindingHandlerFactory;
 import dk.itst.oiosaml.sp.configuration.ConfigurationHandler;
@@ -47,7 +48,6 @@ import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 /**
@@ -104,7 +104,7 @@ public class DispatcherServlet extends HttpServlet {
 				setBindingHandler(new DefaultBindingHandlerFactory());
 				setIdPMetadata(IdpMetadata.getInstance());
 				setSPMetadata(SPMetadata.getInstance());
-				setCredential(Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
+				setCredential(new CredentialRepository().getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
 				LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 	

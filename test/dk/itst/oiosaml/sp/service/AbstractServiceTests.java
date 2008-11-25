@@ -13,6 +13,7 @@ import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
@@ -36,6 +37,8 @@ public abstract class AbstractServiceTests extends AbstractTests {
 
 	protected String idpEntityId;
 	protected LogUtil logUtil = new LogUtil(getClass(), "test");
+	
+	protected CredentialRepository credentialRepository = new CredentialRepository();
 
 	@Before
 	public void setUpTests() throws Exception {

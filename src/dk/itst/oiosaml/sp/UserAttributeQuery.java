@@ -34,6 +34,7 @@ import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.InvalidCertificateException;
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
@@ -42,10 +43,10 @@ import dk.itst.oiosaml.sp.model.OIOAttributeQuery;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 
 public class UserAttributeQuery {
+	private static final CredentialRepository credentialRepository = new CredentialRepository();
 
 	private final String username;
 	private final String password;
@@ -66,7 +67,7 @@ public class UserAttributeQuery {
 
 	public UserAttributeQuery(String idpEntityId, String username, String password) {
 		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(), 
-				Utils.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
+				credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
 						SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
 						SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)),
 				SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),

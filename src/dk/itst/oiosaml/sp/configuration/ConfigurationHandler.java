@@ -75,11 +75,11 @@ import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.service.DispatcherServlet;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.SAMLHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
  * Configuration hander for initial OIOSAML-J configuration.
@@ -181,7 +181,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		Credential credential = context.getCredential();
 		if (keystore != null && keystore.length > 0) {
-			credential  = Utils.createCredential(new ByteArrayInputStream(keystore), password);
+			credential  = CredentialRepository.createCredential(new ByteArrayInputStream(keystore), password);
 		} else if (Boolean.valueOf(extractParameter("createkeystore", parameters))) {
 			try {
 				BasicX509Credential cred = new BasicX509Credential();

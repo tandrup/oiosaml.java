@@ -23,29 +23,15 @@
  */
 package dk.itst.oiosaml.sp.service.util;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Enumeration;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
-import org.opensaml.xml.security.credential.Credential;
-import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.Base64;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
@@ -63,122 +49,6 @@ public final class Utils {
 	private static final Logger log = Logger.getLogger(Utils.class);
 	private static final String[] SOAP_VERSIONS = new String[] { SOAPConstants.SOAP11_NS, SOAPConstants.SOAP12_NS};
 
-
-	/**
-	 * Load credentials from a keystore.
-	 * 
-	 * The first private key is loaded from the keystore.
-	 * 
-	 * @param location keystore file location
-	 * @param password Keystore and private key password. 
-	 */
-	public static BasicX509Credential getCredential(String location, String password) {
-		try {
-			FileInputStream is = new FileInputStream(location);
-			return createCredential(is, password);
-		} catch (FileNotFoundException e) {
-			throw new WrappedException(Layer.CLIENT, e);
-		}
-	}
-
-	/**
-	 * Read credentials from a inputstream.
-	 * 
-	 * The stream can either point to a PKCS12 keystore or a JKS keystore.
-	 * The store is converted into a {@link Credential} including the private key.
-	 * @param input Stream pointing to the certificate store.
-	 * @param password Password for the store. The same password is also used for the certificate.
-	 * 
-	 * @return The {@link Credential}
-	 */
-	public static BasicX509Credential createCredential(InputStream input, String password) {
-		BasicX509Credential credential = new BasicX509Credential();
-
-		try {
-			KeyStore ks = loadKeystore(input, password);
-
-			Enumeration<String> eAliases = ks.aliases();
-			while (eAliases.hasMoreElements()) {
-				String strAlias = eAliases.nextElement();
-
-				if (ks.isKeyEntry(strAlias)) {
-					PrivateKey privateKey = (PrivateKey) ks.getKey(strAlias, password.toCharArray());
-					credential.setPrivateKey(privateKey);
-					credential.setEntityCertificate((X509Certificate) ks.getCertificate(strAlias));
-					PublicKey publicKey = ks.getCertificate(strAlias).getPublicKey();
-					if (log.isDebugEnabled())
-						log.debug("publicKey..:" + publicKey + ", privateKey: " + privateKey);
-					credential.setPublicKey(publicKey);
-				}
-			}
-		} catch (GeneralSecurityException e) {
-			throw new WrappedException(Layer.CLIENT, e);
-		} catch (IOException e) {
-			throw new WrappedException(Layer.CLIENT, e);
-		}
-		return credential;
-	}
-
-	private static KeyStore loadKeystore(InputStream input, String password)
-			throws KeyStoreException, NoSuchAlgorithmException,
-			CertificateException, IOException {
-		input = new BufferedInputStream(input);
-		input.mark(1024*1024);
-		KeyStore ks;
-		try {
-			ks = loadStore(input, password, "PKCS12");
-		} catch (IOException e) {
-			input.reset();
-			ks = loadStore(input, password, "JKS");
-		}
-		return ks;
-	}
-
-	/**
-	 * Get a x509certificate from a keystore.
-	 * 
-	 * @param location Keystore file location.
-	 * @param password Password for the keystore.
-	 * @param alias Alias to retrieve. If <code>null</code>, the first certificate in the keystore is retrieved.
-	 * @return The certificate.
-	 */
-	public static X509Certificate getCertificate(String location, String password, String alias) {
-		try {
-			KeyStore keystore = loadKeystore(new FileInputStream(location), password);
-			
-			if (alias == null) {
-				Enumeration<String> eAliases = keystore.aliases();
-				while (eAliases.hasMoreElements()) {
-					String strAlias = eAliases.nextElement();
-					log.debug("Trying " + strAlias);
-					if (keystore.isCertificateEntry(strAlias)) {
-						alias = strAlias;
-					}
-				}			
-			}
-			log.debug("Getting certificate from alias " + alias);
-			if (alias == null) {
-				throw new NullPointerException("No valid certificate alias found in " + location);
-			}
-			X509Certificate certificate = (X509Certificate) keystore.getCertificate(alias);
-			if (certificate == null) {
-				throw new RuntimeException("Keystore " + location + " does not contain a certificate with alias " + alias);
-			}
-			return certificate;
-		} catch (GeneralSecurityException e) {
-			throw new WrappedException(Layer.CLIENT, e);
-		} catch (IOException e) {
-			throw new WrappedException(Layer.CLIENT, e);
-		}
-	}
-
-	private static KeyStore loadStore(InputStream input, String password, String type) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-		KeyStore ks = KeyStore.getInstance(type);
-		char[] jksPassword = password.toCharArray();
-		ks.load(input, jksPassword);
-		input.close();
-		return ks;
-	}
 
 	/**
 	 * Making nice XML for output in browser, i.e. converting &lt; to &amp;lt;, &gt; to

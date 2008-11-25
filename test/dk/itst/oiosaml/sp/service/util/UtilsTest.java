@@ -1,7 +1,6 @@
 package dk.itst.oiosaml.sp.service.util;
 
 import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,6 +40,7 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.util.Base64;
 import org.w3c.dom.Document;
 
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.model.OIORequest;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
@@ -69,7 +69,7 @@ public class UtilsTest extends AbstractServiceTests {
 		
 		ByteArrayOutputStream bos = generateKeystore(cred, cert);
 		
-		BasicX509Credential newCredential = Utils.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
+		BasicX509Credential newCredential = CredentialRepository.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
 		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
 		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
 		
@@ -81,7 +81,7 @@ public class UtilsTest extends AbstractServiceTests {
 		store.store(bos, "test".toCharArray());
 		bos.close();
 
-		newCredential = Utils.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
+		newCredential = CredentialRepository.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
 		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
 		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
 	}
@@ -110,7 +110,7 @@ public class UtilsTest extends AbstractServiceTests {
 		file.deleteOnExit();
 		IOUtils.write(bos.toByteArray(), new FileOutputStream(file));
 		
-		assertNotNull(Utils.getCertificate(file.getAbsolutePath(), "test", null));
+		assertNotNull(new CredentialRepository().getCertificate(file.getAbsolutePath(), "test", null));
 	}
 
 	@Test

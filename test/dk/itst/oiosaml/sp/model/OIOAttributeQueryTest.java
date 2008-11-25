@@ -42,7 +42,6 @@ import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
-import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 public class OIOAttributeQueryTest extends AbstractServiceTests {
@@ -89,7 +88,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 		EntityDescriptor d = (EntityDescriptor) SAMLUtil.unmarshallElementFromFile("/tmp/env/metadata/IdP/IdPMetadata.xml.old");
 		IdpMetadata md = new IdpMetadata(d);
 		
-		BasicX509Credential credential = Utils.getCredential("/tmp/env/certificate/keystore", "test");
+		BasicX509Credential credential = credentialRepository.getCredential("/tmp/env/certificate/keystore", "test");
 		
 		OIOAssertion res = q.executeQuery(client, credential, null, null, true, md.getFirstMetadata().getCertificate(), false);
 		System.out.println(res.toXML());
