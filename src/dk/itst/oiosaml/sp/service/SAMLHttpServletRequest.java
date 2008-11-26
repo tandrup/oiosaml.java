@@ -34,20 +34,38 @@ import dk.itst.oiosaml.sp.UserAssertion;
 public class SAMLHttpServletRequest extends HttpServletRequestWrapper {
 
 	private final UserAssertion assertion;
+	private final String hostname;
 
-	public SAMLHttpServletRequest(HttpServletRequest request, UserAssertion assertion) {
+	public SAMLHttpServletRequest(HttpServletRequest request, UserAssertion assertion, String hostname) {
 		super(request);
 		this.assertion = assertion;
+		this.hostname = hostname;
 	}
 
 	@Override
 	public String getRemoteUser() {
-		return assertion.getSubject();
+		if (assertion != null) {
+			return assertion.getSubject();
+		} else {
+			return super.getRemoteUser();
+		}
 	}
 	
 	@Override
 	public Principal getUserPrincipal() {
-		return new OIOPrincipal(assertion);
+		if (assertion != null) {
+			return new OIOPrincipal(assertion);
+		} else {
+			return super.getUserPrincipal();
+		}
+	}
+	
+	@Override
+	public StringBuffer getRequestURL() {
+		String url = super.getRequestURL().toString();
+		
+		String mod = hostname + url.substring(url.indexOf('/', 8));
+		return new StringBuffer(mod);
 	}
 
 }

@@ -52,6 +52,10 @@ public class SPFilterTest extends AbstractServiceTests {
 			assertEquals("joetest", p.getName());
 			assertNotNull(p.getAssertion());
 			
+			// test url rewriting in getRequestURL
+			String url = req.getRequestURL().toString();
+			assertEquals("http://trifork.com:8888/saml/service", url);
+			
 			return true;
 		}
 
@@ -70,7 +74,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("http://test"));
 			allowing(req).getPathInfo(); will(returnValue("/test"));
-			allowing(req).getRequestURL(); will(returnValue(new StringBuffer("http://test")));
+			allowing(req).getRequestURL(); will(returnValue(new StringBuffer("http://test/saml/service")));
 			allowing(req).getQueryString();
 			allowing(req).getServletPath(); will(returnValue("/servlet"));
 		}});
@@ -79,6 +83,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "1");
 		filter.setConfiguration(TestHelper.buildConfiguration(conf));
 		filter.setFilterInitialized(true);
+		filter.setHostname("http://trifork.com:8888");
 	}
 	
 	@Test
@@ -119,7 +124,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(session).setAttribute(with(equal(Constants.SESSION_QUERYSTRING)), with(any(String.class)));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 			one(req).getRequestDispatcher("/saml/login"); will(returnValue(dispatcher));
-			one(dispatcher).forward(req, res);
+			one(dispatcher).forward(with(any(HttpServletRequest.class)), with(equal(res)));
 		}});
 		
 		filter.doFilter(req, res, chain);
@@ -158,7 +163,7 @@ public class SPFilterTest extends AbstractServiceTests {
 	public void doFilterWhenRequestAgainstSAMLServlet() throws Exception {
 		conf.put(Constants.PROP_SAML_SERVLET, "/servlet");
 		context.checking(new Expectations() {{
-			one(chain).doFilter(req, res);
+			one(chain).doFilter(with(any(HttpServletRequest.class)), with(equal(res)));
 		}});
 		
 		filter.doFilter(req, res, chain);

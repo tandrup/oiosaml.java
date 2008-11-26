@@ -7,7 +7,6 @@
     <file path="WEB-INF/lib/not-yet-commons-ssl-0.3.9.jar" from="lib/not-yet-commons-ssl-0.3.9.jar" />
     <file path="WEB-INF/lib/opensaml-2.1.0.jar" from="lib/opensaml-2.1.0.jar" />
     <file path="WEB-INF/lib/openws-wstrust.jar" from="lib/openws-wstrust.jar" />
-    <file path="WEB-INF/lib/xmlsec-1.4.1.jar" from="lib/xmlsec-1.4.1.jar" />
     <file path="WEB-INF/lib/xmltooling-1.1.0.jar" from="lib/xmltooling-1.1.0.jar" />
 
     <dir path="docs" from="docs" />

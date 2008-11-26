@@ -51,6 +51,7 @@ import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
 import dk.itst.oiosaml.sp.metadata.CRLChecker;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
+import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
@@ -81,9 +82,9 @@ public class SPFilter implements Filter {
 	private static final Logger log = Logger.getLogger(SPFilter.class);
 	private CRLChecker crlChecker = new CRLChecker();
 	
-	private String entityID;
 	private boolean filterInitialized;
 	private Configuration conf;
+	private String hostname;
 
 	/**
 	 * Static initializer for bootstrapping OpenSAML.
@@ -133,7 +134,7 @@ public class SPFilter implements Filter {
 		
 		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
 			log.debug("Request to SAML servlet, access granted");
-			chain.doFilter(request, response);
+			chain.doFilter(new SAMLHttpServletRequest(servletRequest, null, hostname), response);
 			return;
 		}
 		
@@ -155,7 +156,7 @@ public class SPFilter implements Filter {
 				log.debug("Everything is ok... Assertion: " + ua);
 
 			UserAssertionHolder.set(ua);
-			HttpServletRequestWrapper requestWrap = new SAMLHttpServletRequest(servletRequest, ua);
+			HttpServletRequestWrapper requestWrap = new SAMLHttpServletRequest(servletRequest, ua, hostname);
 			chain.doFilter(requestWrap, response);
 			return;
 		} else {
@@ -173,7 +174,7 @@ public class SPFilter implements Filter {
 			if (log.isDebugEnabled()) log.debug("Redirecting to login handler at " + loginUrl);
 			
 			RequestDispatcher dispatch = servletRequest.getRequestDispatcher(loginUrl);
-			dispatch.forward(request, response);
+			dispatch.forward(new SAMLHttpServletRequest(servletRequest, null, hostname), response);
 		}
 	}
 
@@ -212,11 +213,18 @@ public class SPFilter implements Filter {
 				throw new IllegalStateException("Discovery location cannot be null when discovery profile is active");
 			}
 		}
+		setHostname();
 		LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 
 		log.info("Home url: " + conf.getString(Constants.PROP_HOME));
 		log.info("Assurance leve: " + conf.getInt(Constants.PROP_ASSURANCE_LEVEL));
-		log.info("SP entity ID: " + entityID);
+		log.info("SP entity ID: " + SPMetadata.getInstance().getEntityID());
+		log.info("Base hostname: " + hostname);
+	}
+
+	private void setHostname() {
+		String url = SPMetadata.getInstance().getDefaultAssertionConsumerService().getLocation();
+		setHostname(url.substring(0, url.indexOf('/', 8)));
 	}
 	
 	private void restartCRLChecker(Configuration conf) {
@@ -225,6 +233,10 @@ public class SPFilter implements Filter {
 		if (period > 0) {
 			crlChecker.startChecker(period, IdpMetadata.getInstance(), conf);
 		}
+	}
+	
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
 	}
 
 	public void setFilterInitialized(boolean b) {
