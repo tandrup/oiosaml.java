@@ -50,6 +50,8 @@ public interface OIOSAMLConstants {
 
 	/** Subject Confirmation Methods */
 	public static final String METHOD_BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
+	public static final String METHOD_HOK = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
+	
 	
 	/** Format of NameId */
 	public static final String PERSISTENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";

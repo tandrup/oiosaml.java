@@ -331,4 +331,12 @@ public class OIOAssertion extends OIOSamlObject {
     public String getID() {
     	return assertion.getID();
     }
+    
+	public boolean isHolderOfKey() {
+		if (assertion.getSubject() == null) return false;
+		if (assertion.getSubject().getSubjectConfirmations().isEmpty()) return false;
+		
+		return OIOSAMLConstants.METHOD_HOK.equals(assertion.getSubject().getSubjectConfirmations().get(0).getMethod());
+	}
+
 }
