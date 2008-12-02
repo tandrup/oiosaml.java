@@ -619,4 +619,12 @@ public class SAMLUtil {
 		}
 		return null;
 	}
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Clone a XML object, including all references.
+	 */
+	public static <T extends XMLObject> T clone(T object) {
+		return (T) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(SAMLUtil.marshallObject(object)));
+	}
 }
