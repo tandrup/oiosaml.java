@@ -340,6 +340,20 @@ public class SAMLUtil {
 
 		return null;
 	}
+	
+	public static XMLObject unmarshallElement(Element element) {
+		Unmarshaller unmarshaller = Configuration.getUnmarshallerFactory().getUnmarshaller(element);
+		if (unmarshaller == null) {
+			log.error("Unable to retrieve unmarshaller by DOM Element " + element);
+			throw new IllegalArgumentException("No unmarshaller for " + element);
+		}
+		try {
+			return unmarshaller.unmarshall(element);
+		} catch (UnmarshallingException e) {
+			log.error("Unmarshalling failed when parsing element file " + element, e);
+			return null;
+		}
+	}
 
 	/**
 	 * Read the content of a given XML resource file.
