@@ -45,8 +45,9 @@ import dk.itst.oiosaml.sp.service.SPFilter;
  *
  */
 public class SAMLConfiguration {
+	private static String name = "oiosaml-sp";
+	
 	private static final Logger log = Logger.getLogger(SAMLConfiguration.class);
-	public static final String VERSION = "$Id: BRSConfiguration.java 2941 2008-05-26 09:14:03Z jre $";
 	private static Configuration systemConfiguration;
 	
 	private static String home;
@@ -68,7 +69,7 @@ public class SAMLConfiguration {
 		
 		try {
 			conf.addConfiguration(new PropertiesConfiguration(SAMLConfiguration.class.getResource("/oiosaml-common.properties")));
-			conf.addConfiguration(new PropertiesConfiguration(new File(home, "oiosaml-sp.properties")));
+			conf.addConfiguration(new PropertiesConfiguration(new File(home, name + ".properties")));
 			
 			systemConfiguration = conf;
 			return systemConfiguration;
@@ -108,5 +109,9 @@ public class SAMLConfiguration {
 	
 	public static void setSystemConfiguration(Configuration conf) {
 		systemConfiguration = conf;
+	}
+	
+	public static void setConfigurationName(String name) {
+		SAMLConfiguration.name = name;
 	}
 }
