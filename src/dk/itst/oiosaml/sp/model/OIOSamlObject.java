@@ -25,12 +25,15 @@ package dk.itst.oiosaml.sp.model;
 
 import java.security.PublicKey;
 
+import javax.xml.crypto.dsig.XMLSignature;
+
 import org.apache.log4j.Logger;
 import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.ElementExtensibleXMLObject;
+import org.opensaml.xml.Namespace;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
@@ -96,6 +99,8 @@ public class OIOSamlObject {
 		if (!(obj instanceof SignableSAMLObject)) {
 			throw new IllegalStateException("Object of type " + obj.getClass() + " is not signable");
 		}
+		// manually add the ds namespace, as it will be added to the inclusiveNamespaces element
+		obj.addNamespace(new Namespace(XMLSignature.XMLNS, "ds"));
 	
 	    signature.setSigningCredential(signingCredential);
 	    try {
