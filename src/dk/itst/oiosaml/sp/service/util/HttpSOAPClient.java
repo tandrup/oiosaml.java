@@ -132,6 +132,8 @@ public class HttpSOAPClient implements SOAPClient {
 			}
 			return envelope;
 		} else {
+			log.debug("Response code: " + c.getResponseCode());
+			
 			InputStream inputStream = c.getErrorStream();
 			String result = IOUtils.toString(inputStream, "UTF-8");
 			inputStream.close();
