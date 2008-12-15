@@ -42,7 +42,7 @@ import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.error.ValidationException;
+import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 
 /**

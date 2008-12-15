@@ -46,8 +46,11 @@ import dk.itst.oiosaml.sp.bindings.DefaultBindingHandlerFactory;
 import dk.itst.oiosaml.sp.configuration.ConfigurationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
+import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
+import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 /**
@@ -106,9 +109,12 @@ public class DispatcherServlet extends HttpServlet {
 				setSPMetadata(SPMetadata.getInstance());
 				setCredential(new CredentialRepository().getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
-				LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
+				LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
+				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
+
+				AssertionValidator validator = (AssertionValidator) Utils.newInstance(configuration, Constants.PROP_VALIDATOR);
 	
-				setHandler(new SAMLAssertionConsumerHandler(), SAMLAssertionConsumer);
+				setHandler(new SAMLAssertionConsumerHandler(validator), SAMLAssertionConsumer);
 				setHandler(new LogoutServiceHTTPRedirectHandler(), LogoutServiceHTTPRedirect);
 				setHandler(new LogoutHTTPResponseHandler(), LogoutServiceHTTPRedirectResponse);
 				setHandler(new LogoutHandler(), Logout);

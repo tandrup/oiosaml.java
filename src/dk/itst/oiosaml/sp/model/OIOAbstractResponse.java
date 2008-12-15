@@ -26,7 +26,7 @@ package dk.itst.oiosaml.sp.model;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.core.StatusResponseType;
 
-import dk.itst.oiosaml.error.ValidationException;
+import dk.itst.oiosaml.sp.model.validation.ValidationException;
 
 public class OIOAbstractResponse extends OIOSamlObject {
 

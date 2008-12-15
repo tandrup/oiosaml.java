@@ -39,6 +39,7 @@ import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.model.RelayState;
+import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.ArtifactExtractor;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -72,8 +73,10 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 	
 	private static final Logger log = Logger.getLogger(SAMLAssertionConsumerHandler.class);
 	private SOAPClient client;
+	private final AssertionValidator validator;
 
-	public SAMLAssertionConsumerHandler() {
+	public SAMLAssertionConsumerHandler(AssertionValidator validator) {
+		this.validator = validator;
 		setSoapClient(new HttpSOAPClient());
 	}
 	
@@ -132,7 +135,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			OIOAssertion assertion = response.getAssertion();
 	
 			// Validate the content of the assertion
-			assertion.validateAssertion(ctx.getSpMetadata().getEntityID(), ctx.getSpMetadata().getAssertionConsumerServiceLocation(0));
+			assertion.validateAssertion(validator, ctx.getSpMetadata().getEntityID(), ctx.getSpMetadata().getAssertionConsumerServiceLocation(0));
 			new LogUtil(getClass(), VERSION, NAME, assertion.getSubjectNameIDValue()).audit("Received assertion " + assertion.getID());
 	
 			// Store the assertion in the session store

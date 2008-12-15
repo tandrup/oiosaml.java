@@ -30,6 +30,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.util.UUID;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.xml.util.Base64;
@@ -227,4 +228,18 @@ public final class Utils {
 		return null;
 	}
 
+	public static Object newInstance(Configuration cfg, String property) {
+		String name = cfg.getString(property);
+		if (name == null) {
+			throw new IllegalArgumentException("Property " + property + " has not been set");
+		}
+		
+		try {
+			Class<?> c = Class.forName(name);
+			
+			return c.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to create instance of " + name, e);
+		}
+	}
 }

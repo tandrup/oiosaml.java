@@ -21,17 +21,13 @@
  *   Rolf Njor Jensen <rolf@trifork.com>
  *
  */
-package dk.itst.oiosaml.error;
+package dk.itst.oiosaml.sp.model.validation;
+
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 
 
-public class ValidationException extends RuntimeException {
+public interface AssertionValidator {
+	
+	public void validate(OIOAssertion assertion, String spEntityId, String spAssertionConsumerURL) throws ValidationException;
 
-
-	public ValidationException(String msg) {
-		super(msg);
-	}
-
-	public ValidationException(Exception e) {
-		super(e);
-	}
 }

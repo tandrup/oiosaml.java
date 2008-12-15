@@ -68,6 +68,7 @@ public interface Constants {
 	static final String PROP_CRL_CHECK_PERIOD = "oiosaml-sp.crl.period";
 	static final String PROP_REQUIRE_ENCRYPTION = "oiosaml-sp.encryption.force";
 	static final String PROP_NUM_TRACKED_ASSERTIONIDS = "common.saml2.loggedinhandler.numusedassertionids";
+	static final String PROP_VALIDATOR = "oiosaml-sp.assertion.validator";
 	
 	static final String PROP_NAMEID_POLICY = "oiosaml-sp.nameid.policy";
 	static final String PROP_NAMEID_POLICY_ALLOW_CREATE = "oiosaml-sp.nameid.allowcreate";

@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.error.ValidationException;
+import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class DispatcherServletTest extends AbstractServiceTests {

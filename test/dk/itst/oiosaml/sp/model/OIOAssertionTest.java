@@ -20,12 +20,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
-import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Subject;
@@ -35,16 +32,12 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.xml.sax.SAXException;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.error.ValidationException;
 import dk.itst.oiosaml.sp.AbstractTests;
-import dk.itst.oiosaml.sp.model.OIOAssertion;
+import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.util.AssertionStubImpl;
-import dk.itst.oiosaml.sp.util.AudienceRestrictionStubImpl;
-import dk.itst.oiosaml.sp.util.AudienceStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnContextClassRefStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnContextStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnStatementStubImpl;
-import dk.itst.oiosaml.sp.util.ConditionsStubImpl;
 import dk.itst.oiosaml.sp.util.NameIDStubImpl;
 import dk.itst.oiosaml.sp.util.SubjectConfirmationDataStubImpl;
 import dk.itst.oiosaml.sp.util.SubjectConfirmationStubImpl;
@@ -52,6 +45,7 @@ import dk.itst.oiosaml.sp.util.SubjectStubImpl;
 
 public class OIOAssertionTest extends AbstractTests {
 	private OIOAssertion assertion;
+	private OIOSAMLAssertionValidator validator;
 	private static final String assertionConsumerURL = "http://jre-mac.trifork.com:8080/saml/SAMLAssertionConsumer";
 	private static final String serviceProviderEntityId = "poc3.eogs.capgemini.dk.spref";
 
@@ -65,6 +59,7 @@ public class OIOAssertionTest extends AbstractTests {
 		assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(new DateTime().plus(60000));
 		
 		this.assertion = new OIOAssertion(assertion);
+		validator = new OIOSAMLAssertionValidator();
 	}
 
 
@@ -122,91 +117,6 @@ public class OIOAssertionTest extends AbstractTests {
 		assertTrue(assertion.checkRecipient(assertionConsumerURL));
 	}
 	
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnNoSubject() {
-		assertion.getAssertion().setSubject(null);
-		assertion.checkConfirmationTime();
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnNoSubjectConfirmation() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().clear();
-		assertion.checkConfirmationTime();
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnExpired() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(new DateTime().minus(1000));
-		assertion.checkConfirmationTime();
-	}
-
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnNoDate() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(null);
-		assertion.checkConfirmationTime();
-	}
-
-	@Test
-	public void testCheckConfirmationTime() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(new DateTime().plus(10000));
-		assertion.checkConfirmationTime();
-	}
-	
-	@Test
-	public void testCheckConditionTime() {
-		assertion.getAssertion().getConditions().setNotOnOrAfter(new DateTime().plus(10000));
-		assertion.checkConditionTime();
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConditionTimeFailOnNoTime() {
-		assertion.getAssertion().getConditions().setNotOnOrAfter(null);
-		assertion.checkConditionTime();
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConditionTimeFailOnExpired() {
-		assertion.getAssertion().getConditions().setNotOnOrAfter(new DateTime().minus(1000));
-		assertion.checkConditionTime();
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConditionTimeFailOnNoConditions() {
-		assertion.getAssertion().setConditions(null);
-		assertion.checkConditionTime();
-	}
-
-	@Test
-	public void checkAudience() {
-		String expectedServiceProviderEntityID = "someString";
-
-		Audience audience = new AudienceStubImpl();
-		audience.setAudienceURI(expectedServiceProviderEntityID);
-
-		List<Audience> audiences = new ArrayList<Audience>();
-		audiences.add(audience);
-
-		AudienceRestriction audienceRestriction = new AudienceRestrictionStubImpl(audiences);
-
-		List<AudienceRestriction> audienceRestrictions = new ArrayList<AudienceRestriction>();
-		audienceRestrictions.add(audienceRestriction);
-
-		Conditions conditions = new ConditionsStubImpl(audienceRestrictions);
-
-		Assertion localAssertion = new AssertionStubImpl();
-		localAssertion.setConditions(conditions);
-		OIOAssertion la = new OIOAssertion(localAssertion);
-
-		assertTrue(la.checkAudience(expectedServiceProviderEntityID));
-
-		audience.setAudienceURI("unexpected string");
-		assertFalse(la.checkAudience(expectedServiceProviderEntityID));
-
-		assertFalse(la.checkAudience(null));
-
-		assertTrue(assertion.checkAudience(serviceProviderEntityId));
-	}
-
 	@Test
 	public void getSessionIndex() {
 		String expectedSessionIndex = "expected SessionIndex";
@@ -264,7 +174,7 @@ public class OIOAssertionTest extends AbstractTests {
 
 	@Test
 	public void validateAssertion() throws Exception {
-		assertion.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+		assertion.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 	}
 
 	@Test
@@ -286,7 +196,7 @@ public class OIOAssertionTest extends AbstractTests {
 
 			try {
 				OIOAssertion ah = new OIOAssertion(getProxiedAssertion(handler));
-				ah.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+				ah.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 				fail("Assertion util should have failed");
 			} catch(Exception e) {}
 	}
@@ -304,14 +214,14 @@ public class OIOAssertionTest extends AbstractTests {
 
 			try {
 				OIOAssertion ah = new OIOAssertion(getProxiedAssertion(handler));
-				ah.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+				ah.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 				fail("Assertion util should have failed");
 			} catch(Exception e) {}
 	}
 	
 	@Test
 	public void validateAssertionShouldFailForWrongSamlVersion() throws Exception {
-		assertion.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+		assertion.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 		
 		InvocationHandler handler = new InvocationHandler() {
 			private int cnt = 0;
@@ -330,13 +240,13 @@ public class OIOAssertionTest extends AbstractTests {
 
 			OIOAssertion ah = new OIOAssertion(getProxiedAssertion(handler));
 			try {
-				ah.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+				ah.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 				fail("Assertion util should not accept saml 1.0");
 			} catch(Exception e) {}
 			
 			ah = new OIOAssertion(getProxiedAssertion(handler));
 			try {
-				ah.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+				ah.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 				fail("Assertion util should not accept saml 1.1");
 			} catch(Exception e) {}
 	}
@@ -373,7 +283,7 @@ public class OIOAssertionTest extends AbstractTests {
 		
 		try {
 			OIOAssertion ah = new OIOAssertion(getProxiedAssertion(handler));
-			ah.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+			ah.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 			fail("Assertion util should have failed");
 		} catch(Exception e) {}
 	}
@@ -389,14 +299,14 @@ public class OIOAssertionTest extends AbstractTests {
 		assertion.getAssertion().setSubject(subject);
 				
 		try {
-			assertion.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+			assertion.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 			fail("Assertion util should have failed");
 		} catch(Exception e) {}
 		
 		nameid.setValue("");
 		
 		try {
-			assertion.validateAssertion(serviceProviderEntityId, assertionConsumerURL);
+			assertion.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 			fail("Assertion util should have failed");
 		} catch(Exception e) {}
 

@@ -176,12 +176,12 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		return urlBuilder.buildURL();
 	}
 	
-	public void validate(String requestId, String expectedDestination) throws dk.itst.oiosaml.error.ValidationException {
+	public void validate(String requestId, String expectedDestination) throws dk.itst.oiosaml.sp.model.validation.ValidationException {
 		try {
 			response.validate(true);
 		} catch (ValidationException e) {
 			log.error("Unable to validate message", e);
-			throw new dk.itst.oiosaml.error.ValidationException(e);
+			throw new dk.itst.oiosaml.sp.model.validation.ValidationException(e);
 		}
 		validateResponse(requestId, expectedDestination, false);
 	}
@@ -190,7 +190,7 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		validate(requestId, expectedDestination);
 		// Verifying the signature....
 		if (!Utils.verifySignature(signature, queryString, Constants.SAML_SAMLRESPONSE, key)) {
-			throw new dk.itst.oiosaml.error.ValidationException("Invalid signature");
+			throw new dk.itst.oiosaml.sp.model.validation.ValidationException("Invalid signature");
 		} else if (log.isDebugEnabled()) {
 			log.debug("...signature OK");
 		}

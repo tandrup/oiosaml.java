@@ -15,6 +15,7 @@ import org.opensaml.xml.util.Base64;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.UserAssertion;
+import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.SAMLAssertionConsumerHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
@@ -27,7 +28,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 	@Before
 	public void setUp() throws Exception {
 		
-		handler = new SAMLAssertionConsumerHandler();
+		handler = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
 
 		response = SAMLUtil.buildXMLObject(Response.class);
 		context.checking(new Expectations() {{

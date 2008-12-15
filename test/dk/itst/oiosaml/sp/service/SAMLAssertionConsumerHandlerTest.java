@@ -43,6 +43,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
+import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
@@ -63,7 +64,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getRequestURI(); will(returnValue("http://test"));
 			allowing(req).getQueryString(); will(returnValue(""));
 		}});
-		handler = new SAMLAssertionConsumerHandler();
+		handler = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
 		conf = new HashMap<String, String>() {{
 			put(Constants.PROP_IGNORE_CERTPATH, "false");
 		}};
