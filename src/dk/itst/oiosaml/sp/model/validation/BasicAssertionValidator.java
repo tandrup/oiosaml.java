@@ -25,7 +25,6 @@ package dk.itst.oiosaml.sp.model.validation;
 
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.AuthnStatement;
 
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
@@ -58,13 +57,6 @@ public class BasicAssertionValidator implements AssertionValidator {
     	DateTime conditionTime = assertion.getConditionTime();
     	if (conditionTime == null || !conditionTime.isAfterNow()) {
     		throw new ValidationException("Condition NotOnOrAfter is after now: " + conditionTime);
-    	}
-    	
-    	// Session must not have expired
-    	AuthnStatement authnStatement = (AuthnStatement) a.getAuthnStatements().get(0);
-    	if (authnStatement.getSessionNotOnOrAfter() != null &&
-    		!authnStatement.getSessionNotOnOrAfter().isAfterNow()) {  
-    		throw new ValidationException("The assertion must have a AuthnStatement@SessionNotOnOrAfter and it must not have expired. SessionNotOnOrAfter: " + authnStatement.getSessionNotOnOrAfter());
     	}
 	}
 

@@ -87,6 +87,12 @@ public class OIOSAMLAssertionValidator extends BasicAssertionValidator {
     	if (!assertion.checkRecipient(spAssertionConsumerURL)) {
     		throw new ValidationException("The assertion must contain the recipient "+ spAssertionConsumerURL);
     	}
+    	
+    	// Session must not have expired
+    	if (authnStatement.getSessionNotOnOrAfter() != null &&
+    		!authnStatement.getSessionNotOnOrAfter().isAfterNow()) {  
+    		throw new ValidationException("The assertion must have a AuthnStatement@SessionNotOnOrAfter and it must not have expired. SessionNotOnOrAfter: " + authnStatement.getSessionNotOnOrAfter());
+    	}
 	}
 
 }
