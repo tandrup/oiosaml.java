@@ -25,10 +25,7 @@ package dk.itst.oiosaml.sp.model.validation;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
@@ -39,51 +36,15 @@ import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.sp.model.AssuranceLevel;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
-public class OIOSAMLAssertionValidator implements AssertionValidator {
+public class OIOSAMLAssertionValidator extends BasicAssertionValidator {
 	private static final Logger log = Logger.getLogger(OIOSAMLAssertionValidator.class);
 
 	public void validate(OIOAssertion assertion, String spEntityId, String spAssertionConsumerURL) throws ValidationException {
+		super.validate(assertion, spEntityId, spAssertionConsumerURL);
+		
 		Assertion a = assertion.getAssertion();
-    	try {
-			a.validate(false);
-		} catch (org.opensaml.xml.validation.ValidationException e) {
-			throw new ValidationException(e);
-		}
-    	// There must be an ID
-    	if (a.getID() == null) {  
-    		throw new ValidationException("The assertion must contain a ID");
-    	}
-    	// There must be an IssueInstant
-    	if (a.getIssueInstant() == null) {  
-    		throw new ValidationException("The assertion must contain a IssueInstant");
-    	}
-
-    	// The SAML versioni must be 2.0
-    	if (!SAMLVersion.VERSION_20.equals(a.getVersion())) {  
-    		throw new ValidationException("The assertion must be version 2.0. Was " + a.getVersion());
-    	}
-
-    	// There must be an Issuer
-    	if (a.getIssuer() == null ||
-    		a.getIssuer().getValue() == null) {  
-    		throw new ValidationException("The assertion must contain an Issuer");
-    	}
-
-    	// There must be a Subject/NameID
-    	if (assertion.getSubjectNameIDValue() == null) {  
-    		throw new ValidationException("The assertion must contain a Subject/NameID");
-    	}
-    	// There must be a valid recipient
-    	if (!assertion.checkRecipient(spAssertionConsumerURL)) {
-    		throw new ValidationException("The assertion must contain the recipient "+ spAssertionConsumerURL);
-    	}
     	checkConfirmationTime(a);
-    	checkConditionTime(a);
 
-    	// There must be a valid audience
-    	if (!checkAudience(spEntityId, a)) {
-    		throw new ValidationException("The assertion must contain the service provider "+spEntityId+" within the Audience");
-    	}
     	// There must be only be one AuthnStatement within the assertion
     	if (a.getAuthnStatements().size() != 1) {  
     		throw new ValidationException("The assertion must contain exactly one AuthnStatement. Was " + a.getAuthnStatements().size());
@@ -110,11 +71,6 @@ public class OIOSAMLAssertionValidator implements AssertionValidator {
     	// There must be a SessionIndex
     	if (assertion.getSessionIndex() == null) {  
     		throw new ValidationException("The assertion must contain a AuthnStatement@SessionIndex");
-    	}
-    	// Session must not have expired
-    	if (authnStatement.getSessionNotOnOrAfter() != null &&
-    		!authnStatement.getSessionNotOnOrAfter().isAfterNow()) {  
-    		throw new ValidationException("The assertion must have a AuthnStatement@SessionNotOnOrAfter and it must not have expired. SessionNotOnOrAfter: " + authnStatement.getSessionNotOnOrAfter());
     	}
     	// There must be exactly one AttributeStatement within the assertion
     	if (a.getAttributeStatements().size() != 1) {  
@@ -145,38 +101,4 @@ public class OIOSAMLAssertionValidator implements AssertionValidator {
 		}
 	}
 
-	public void checkConditionTime(Assertion assertion) {
-		if (assertion.getConditions() == null) throw new ValidationException("No conditions");
-		DateTime notOnOrAfter = assertion.getConditions().getNotOnOrAfter();
-		if (notOnOrAfter == null) throw new ValidationException("No NotOnOrAfter time");
-		if (!notOnOrAfter.isAfterNow()) {
-			throw new ValidationException("Condition NotOnOrAfter is after now: " + notOnOrAfter);
-		}
-	}
-
-	/**
-	 * Check whether an assertion has a given serviceProviderEntityID as
-	 * Audience
-	 * 
-	 * @param serviceProviderEntityID
-	 *            The entityID of the service provider which has to appear as
-	 *            Audience
-	 * @return <code>true</code>, if the assertion contains the
-	 *         serviceProviderEntityID as Audience. <code>false</code>
-	 *         otherwise.
-	 */
-	public boolean checkAudience(String serviceProviderEntityID, Assertion assertion) {
-		if (serviceProviderEntityID == null) return false;
-		if (assertion.getConditions() == null) return false;
-		
-		for (AudienceRestriction audienceRestriction : assertion.getConditions().getAudienceRestrictions()) {
-			for (Audience audience : audienceRestriction.getAudiences()) {
-				if (serviceProviderEntityID.equals(audience.getAudienceURI())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 }
