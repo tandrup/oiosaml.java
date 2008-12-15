@@ -2,6 +2,8 @@ package dk.itst.oiosaml.sp.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -20,9 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
+import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Subject;
@@ -35,9 +40,12 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.util.AssertionStubImpl;
+import dk.itst.oiosaml.sp.util.AudienceRestrictionStubImpl;
+import dk.itst.oiosaml.sp.util.AudienceStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnContextClassRefStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnContextStubImpl;
 import dk.itst.oiosaml.sp.util.AuthnStatementStubImpl;
+import dk.itst.oiosaml.sp.util.ConditionsStubImpl;
 import dk.itst.oiosaml.sp.util.NameIDStubImpl;
 import dk.itst.oiosaml.sp.util.SubjectConfirmationDataStubImpl;
 import dk.itst.oiosaml.sp.util.SubjectConfirmationStubImpl;
@@ -321,6 +329,78 @@ public class OIOAssertionTest extends AbstractTests {
 		assertEquals(0, assertion.getAssuranceLevel());
 	}
 	
+
+	@Test
+	public void checkConfirmationTimeFailOnNoSubject() {
+		assertion.getAssertion().setSubject(null);
+		assertNull(assertion.getConfirmationTime());
+	}
+	
+	@Test
+	public void checkConfirmationTimeFailOnNoSubjectConfirmation() {
+		assertion.getAssertion().getSubject().getSubjectConfirmations().clear();
+		assertNull(assertion.getConfirmationTime());
+	}
+	
+	@Test
+	public void checkConfirmationTimeFailOnNoDate() {
+		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(null);
+		assertNull(assertion.getConfirmationTime());
+	}
+
+	@Test
+	public void testCheckConfirmationTime() {
+		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(new DateTime().plus(10000));
+		assertNotNull(assertion.getConfirmationTime());
+	}
+	
+	@Test
+	public void testCheckConditionTime() {
+		assertion.getAssertion().getConditions().setNotOnOrAfter(new DateTime().plus(10000));
+		assertNotNull(assertion.getConditionTime());
+	}
+
+	@Test
+	public void checkConditionTimeFailOnNoTime() {
+		assertion.getAssertion().getConditions().setNotOnOrAfter(null);
+		assertNull(assertion.getConditionTime());
+	}
+	
+	@Test
+	public void checkConditionTimeFailOnNoConditions() {
+		assertion.getAssertion().setConditions(null);
+		assertNull(assertion.getConditionTime());
+	}
+
+	@Test
+	public void testGetAudience() {
+		String expectedServiceProviderEntityID = "someString";
+
+		Audience audience = new AudienceStubImpl();
+		audience.setAudienceURI(expectedServiceProviderEntityID);
+
+		List<Audience> audiences = new ArrayList<Audience>();
+		audiences.add(audience);
+
+		AudienceRestriction audienceRestriction = new AudienceRestrictionStubImpl(audiences);
+
+		List<AudienceRestriction> audienceRestrictions = new ArrayList<AudienceRestriction>();
+		audienceRestrictions.add(audienceRestriction);
+
+		Conditions conditions = new ConditionsStubImpl(audienceRestrictions);
+
+		Assertion localAssertion = new AssertionStubImpl();
+		localAssertion.setConditions(conditions);
+		OIOAssertion la = new OIOAssertion(localAssertion);
+
+		assertTrue(la.getAudience().contains(expectedServiceProviderEntityID));
+
+		audience.setAudienceURI("unexpected string");
+		assertFalse(la.getAudience().contains(expectedServiceProviderEntityID));
+
+		assertTrue(assertion.getAudience().contains(serviceProviderEntityId));
+	}
+
 
 	private Assertion getProxiedAssertion(InvocationHandler handler) {
 		return (Assertion)Proxy.newProxyInstance(

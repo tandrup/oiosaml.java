@@ -23,11 +23,18 @@
  */
 package dk.itst.oiosaml.sp.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
@@ -101,6 +108,22 @@ public class OIOAssertion extends OIOSamlObject {
 		}
 		return false;
 	}
+
+	public DateTime getConfirmationTime() {
+		if (assertion.getSubject() == null) return null;
+		if (assertion.getSubject().getSubjectConfirmations() == null || 
+				assertion.getSubject().getSubjectConfirmations().isEmpty()) return null;
+
+		for (SubjectConfirmation subjectConfirmation : assertion.getSubject().getSubjectConfirmations()) {
+			SubjectConfirmationData data = subjectConfirmation.getSubjectConfirmationData();
+
+			if (data != null && data.getNotOnOrAfter() != null) {
+				return data.getNotOnOrAfter();
+			}
+		}
+		return null;
+	}
+
 	
 	/**
 	 * Return the value of the /AuthnStatement@SessionIndex element in an assertion
@@ -223,5 +246,28 @@ public class OIOAssertion extends OIOSamlObject {
 		
 		return OIOSAMLConstants.METHOD_HOK.equals(assertion.getSubject().getSubjectConfirmations().get(0).getMethod());
 	}
+	
+	public Collection<String> getAudience() {
+		List<String> audiences = new ArrayList<String>();
+		
+		if (assertion.getConditions() == null) return audiences;
+		
+		for (AudienceRestriction audienceRestriction : assertion.getConditions().getAudienceRestrictions()) {
+			for (Audience audience : audienceRestriction.getAudiences()) {
+				audiences.add(audience.getAudienceURI());
+			}
+		}
+		
+		return audiences;
+	}
+
+	public DateTime getConditionTime() {
+		if (assertion.getConditions() == null) return null;
+		
+		DateTime notOnOrAfter = assertion.getConditions().getNotOnOrAfter();
+		return notOnOrAfter;
+	}
+
+	
 
 }

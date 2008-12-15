@@ -25,8 +25,6 @@ package dk.itst.oiosaml.sp.model.validation;
 
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.AuthnStatement;
 
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -51,17 +49,16 @@ public class BasicAssertionValidator implements AssertionValidator {
     	if (assertion.getSubjectNameIDValue() == null) {  
     		throw new ValidationException("The assertion must contain a Subject/NameID");
     	}
-    	// There must be a valid recipient
-    	if (!assertion.checkRecipient(spAssertionConsumerURL)) {
-    		throw new ValidationException("The assertion must contain the recipient "+ spAssertionConsumerURL);
-    	}
 		
     	// There must be a valid audience
-    	if (!checkAudience(spEntityId, a)) {
-    		throw new ValidationException("The assertion must contain the service provider "+spEntityId+" within the Audience");
+    	if (!assertion.getAudience().contains(spEntityId)) {
+    		throw new ValidationException("The assertion must contain the service provider "+spEntityId+" within the Audience list: " + assertion.getAudience());
     	}
 
-    	checkConditionTime(a);
+    	DateTime conditionTime = assertion.getConditionTime();
+    	if (conditionTime == null || !conditionTime.isAfterNow()) {
+    		throw new ValidationException("Condition NotOnOrAfter is after now: " + conditionTime);
+    	}
     	
     	// Session must not have expired
     	AuthnStatement authnStatement = (AuthnStatement) a.getAuthnStatements().get(0);
@@ -70,42 +67,6 @@ public class BasicAssertionValidator implements AssertionValidator {
     		throw new ValidationException("The assertion must have a AuthnStatement@SessionNotOnOrAfter and it must not have expired. SessionNotOnOrAfter: " + authnStatement.getSessionNotOnOrAfter());
     	}
 	}
-
-	/**
-	 * Check whether an assertion has a given serviceProviderEntityID as
-	 * Audience
-	 * 
-	 * @param serviceProviderEntityID
-	 *            The entityID of the service provider which has to appear as
-	 *            Audience
-	 * @return <code>true</code>, if the assertion contains the
-	 *         serviceProviderEntityID as Audience. <code>false</code>
-	 *         otherwise.
-	 */
-	public boolean checkAudience(String serviceProviderEntityID, Assertion assertion) {
-		if (serviceProviderEntityID == null) return false;
-		if (assertion.getConditions() == null) return false;
-		
-		for (AudienceRestriction audienceRestriction : assertion.getConditions().getAudienceRestrictions()) {
-			for (Audience audience : audienceRestriction.getAudiences()) {
-				if (serviceProviderEntityID.equals(audience.getAudienceURI())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public void checkConditionTime(Assertion assertion) {
-		if (assertion.getConditions() == null) throw new ValidationException("No conditions");
-		DateTime notOnOrAfter = assertion.getConditions().getNotOnOrAfter();
-		if (notOnOrAfter == null) throw new ValidationException("No NotOnOrAfter time");
-		if (!notOnOrAfter.isAfterNow()) {
-			throw new ValidationException("Condition NotOnOrAfter is after now: " + notOnOrAfter);
-		}
-	}
-
-	
 
 }
 

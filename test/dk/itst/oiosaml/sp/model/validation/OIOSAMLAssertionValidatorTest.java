@@ -23,12 +23,7 @@
  */
 package dk.itst.oiosaml.sp.model.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -36,9 +31,6 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
-import org.opensaml.saml2.core.Conditions;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.xml.sax.SAXException;
 
@@ -46,13 +38,10 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOAssertionTest;
-import dk.itst.oiosaml.sp.util.AssertionStubImpl;
-import dk.itst.oiosaml.sp.util.AudienceRestrictionStubImpl;
-import dk.itst.oiosaml.sp.util.AudienceStubImpl;
-import dk.itst.oiosaml.sp.util.ConditionsStubImpl;
 
 public class OIOSAMLAssertionValidatorTest extends AbstractTests {
 	private static final String serviceProviderEntityId = "poc3.eogs.capgemini.dk.spref";
+	private static final String assertionConsumerURL = "http://jre-mac.trifork.com:8080/saml/SAMLAssertionConsumer";
 
 	private OIOAssertion assertion;
 	private OIOSAMLAssertionValidator validator;
@@ -69,89 +58,9 @@ public class OIOSAMLAssertionValidatorTest extends AbstractTests {
 		validator = new OIOSAMLAssertionValidator();
 	}
 
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnNoSubject() {
-		assertion.getAssertion().setSubject(null);
-		validator.checkConfirmationTime(assertion.getAssertion());
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnNoSubjectConfirmation() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().clear();
-		validator.checkConfirmationTime(assertion.getAssertion());
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnExpired() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(new DateTime().minus(1000));
-		validator.checkConfirmationTime(assertion.getAssertion());
-	}
-
-	@Test(expected=ValidationException.class)
-	public void checkConfirmationTimeFailOnNoDate() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(null);
-		validator.checkConfirmationTime(assertion.getAssertion());
-	}
-
 	@Test
-	public void testCheckConfirmationTime() {
-		assertion.getAssertion().getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setNotOnOrAfter(new DateTime().plus(10000));
-		validator.checkConfirmationTime(assertion.getAssertion());
+	public void testValidate() {
+		assertion.validateAssertion(validator, serviceProviderEntityId, assertionConsumerURL);
 	}
-	
-	@Test
-	public void testCheckConditionTime() {
-		assertion.getAssertion().getConditions().setNotOnOrAfter(new DateTime().plus(10000));
-		validator.checkConditionTime(assertion.getAssertion());
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConditionTimeFailOnNoTime() {
-		assertion.getAssertion().getConditions().setNotOnOrAfter(null);
-		validator.checkConditionTime(assertion.getAssertion());
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConditionTimeFailOnExpired() {
-		assertion.getAssertion().getConditions().setNotOnOrAfter(new DateTime().minus(1000));
-		validator.checkConditionTime(assertion.getAssertion());
-	}
-	
-	@Test(expected=ValidationException.class)
-	public void checkConditionTimeFailOnNoConditions() {
-		assertion.getAssertion().setConditions(null);
-		validator.checkConditionTime(assertion.getAssertion());
-	}
-
-	@Test
-	public void checkAudience() {
-		String expectedServiceProviderEntityID = "someString";
-
-		Audience audience = new AudienceStubImpl();
-		audience.setAudienceURI(expectedServiceProviderEntityID);
-
-		List<Audience> audiences = new ArrayList<Audience>();
-		audiences.add(audience);
-
-		AudienceRestriction audienceRestriction = new AudienceRestrictionStubImpl(audiences);
-
-		List<AudienceRestriction> audienceRestrictions = new ArrayList<AudienceRestriction>();
-		audienceRestrictions.add(audienceRestriction);
-
-		Conditions conditions = new ConditionsStubImpl(audienceRestrictions);
-
-		Assertion localAssertion = new AssertionStubImpl();
-		localAssertion.setConditions(conditions);
-
-		assertTrue(validator.checkAudience(expectedServiceProviderEntityID, localAssertion));
-
-		audience.setAudienceURI("unexpected string");
-		assertFalse(validator.checkAudience(expectedServiceProviderEntityID, localAssertion));
-
-		assertFalse(validator.checkAudience(null, localAssertion));
-
-		assertTrue(validator.checkAudience(serviceProviderEntityId, assertion.getAssertion()));
-	}
-
 
 }

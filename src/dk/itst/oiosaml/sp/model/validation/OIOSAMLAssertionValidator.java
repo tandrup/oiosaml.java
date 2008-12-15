@@ -29,8 +29,6 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
-import org.opensaml.saml2.core.SubjectConfirmation;
-import org.opensaml.saml2.core.SubjectConfirmationData;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.sp.model.AssuranceLevel;
@@ -43,7 +41,11 @@ public class OIOSAMLAssertionValidator extends BasicAssertionValidator {
 		super.validate(assertion, spEntityId, spAssertionConsumerURL);
 		
 		Assertion a = assertion.getAssertion();
-    	checkConfirmationTime(a);
+		
+		DateTime confirmationTime = assertion.getConfirmationTime();
+		if (confirmationTime == null || !confirmationTime.isAfterNow()) {
+			throw new ValidationException("Subject Confirmation Data is expired: " + confirmationTime + " before " + new DateTime());
+		}
 
     	// There must be only be one AuthnStatement within the assertion
     	if (a.getAuthnStatements().size() != 1) {  
@@ -81,24 +83,10 @@ public class OIOSAMLAssertionValidator extends BasicAssertionValidator {
     		throw new ValidationException("The assertion must not contain a AuthzDecisionStatement. Contains " + a.getAuthzDecisionStatements().size());
     	}
 
-	}
-
-	public void checkConfirmationTime(Assertion assertion) throws ValidationException {
-		if (assertion.getSubject() == null) throw new ValidationException("No subject");
-		if (assertion.getSubject().getSubjectConfirmations() == null || 
-				assertion.getSubject().getSubjectConfirmations().isEmpty()) throw new ValidationException("No subject confirmations");
-		
-		for (SubjectConfirmation subjectConfirmation : assertion.getSubject().getSubjectConfirmations()) {
-			SubjectConfirmationData data = subjectConfirmation.getSubjectConfirmationData();
-			
-			if (data != null && data.getNotOnOrAfter() != null) {
-				if (!data.getNotOnOrAfter().isAfterNow()) {
-					throw new ValidationException("Subject Confirmation Data is expired: " + data.getNotOnOrAfter() + " before " + new DateTime());
-				}
-			} else {
-				throw new ValidationException("No Subject Confirmation Date");
-			}
-		}
+    	// There must be a valid recipient
+    	if (!assertion.checkRecipient(spAssertionConsumerURL)) {
+    		throw new ValidationException("The assertion must contain the recipient "+ spAssertionConsumerURL);
+    	}
 	}
 
 }
