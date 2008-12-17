@@ -27,6 +27,7 @@ import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLConstants;
+import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -347,6 +348,21 @@ public class UserAssertionImplTest {
 		assertEquals(as.getID(), new UserAssertionImpl(assertion).getAssertionId());
 	}
 	
+	@Test
+	public void testAttributeWithXMLValue() {
+		String xml = "<saml:Attribute xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"test\"><saml:AttributeValue>";
+		String value = XMLHelper.nodeToString(SAMLUtil.marshallObject(as));
+		xml += value.substring(39);
+		xml += "</saml:AttributeValue></saml:Attribute>";
+		System.out.println(xml);
+		
+		Attribute attr = (Attribute) SAMLUtil.unmarshallElementFromString(xml);
+		as.getAttributeStatements().get(0).getAttributes().add(attr);
+		
+		UserAttribute a = new UserAssertionImpl(assertion).getAttribute("test");
+		assertNotNull(a);
+		assertEquals(value, a.getValue());
+	}
 	
 	private Assertion createAssertion() {
 		return SAMLUtil.buildXMLObject(Assertion.class);
