@@ -116,5 +116,12 @@ the logic from SPFilter must be duplicated. This is quite simple: SPFilter handl
 </ul>
 <p>If SPFilter is disabled, it is also necessary to start cleanup tasks manually. The tasks in question are the CRLChecker and LoggedInHandler#scheduleCleanupTasks().</p>
 
+<h3>Assertion Validation</h3>
+<p>When assertions are received, they are automatically validated according to the OIOSAML specification. The validation code can be controlled by implementing the 
+dk.itst.oiosaml.sp.model.validation.AssertionValidator interface and injecting the class into the system using a <a href="configuration.html">configuration property</a>.</p>
+
+ 
+
+
 </body>
 </html>
