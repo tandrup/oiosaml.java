@@ -352,7 +352,11 @@ public class UserAssertionImplTest {
 	public void testAttributeWithXMLValue() {
 		String xml = "<saml:Attribute xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"test\"><saml:AttributeValue>";
 		String value = XMLHelper.nodeToString(SAMLUtil.marshallObject(as));
-		xml += value.substring(39);
+		if (value.indexOf("<?xml") == 0) {
+			xml += value.substring(39);
+		} else {
+			xml += value;
+		}
 		xml += "</saml:AttributeValue></saml:Attribute>";
 		System.out.println(xml);
 		
