@@ -350,7 +350,7 @@ public class UserAssertionImplTest {
 	@Test
 	public void testAttributeWithXMLValue() {
 		String xml = "<saml:Attribute xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" NameFormat=\"urn:oasis:names:tc:SAML:2.0:attrname-format:basic\" Name=\"test\"><saml:AttributeValue>";
-		String value = "<saml:Assertion Version=\"2.0\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"><saml:AttributeStatement/></saml:Assertion>";
+		String value = "<saml:Assertion xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" Version=\"2.0\"><saml:AttributeStatement/></saml:Assertion>";
 		xml += value;
 		xml += "</saml:AttributeValue></saml:Attribute>";
 		System.out.println(xml);
