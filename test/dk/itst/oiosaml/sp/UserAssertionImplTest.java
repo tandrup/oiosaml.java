@@ -360,7 +360,7 @@ public class UserAssertionImplTest {
 		
 		UserAttribute a = new UserAssertionImpl(assertion).getAttribute("test");
 		assertNotNull(a);
-		assertTrue(a.getValue().endsWith(value));
+		assertTrue("input: " + value + ", out: " + a.getValue(), a.getValue().endsWith(value));
 	}
 	
 	private Assertion createAssertion() {
