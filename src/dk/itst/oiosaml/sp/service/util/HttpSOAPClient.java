@@ -122,8 +122,8 @@ public class HttpSOAPClient implements SOAPClient {
 			String result = IOUtils.toString(inputStream, "UTF-8");
 			inputStream.close();
 			
-			XMLObject res = SAMLUtil.unmarshallElementFromString(result);
 			if (log.isDebugEnabled()) log.debug("Server SOAP response: " + result);
+			XMLObject res = SAMLUtil.unmarshallElementFromString(result);
 			
 			Envelope envelope = (Envelope) res;
 			if (SAMLUtil.getFirstElement(envelope.getBody(), Fault.class) != null) {
