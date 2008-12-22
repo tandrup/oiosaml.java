@@ -24,6 +24,7 @@ import org.opensaml.xml.encryption.EncryptionParameters;
 import org.opensaml.xml.encryption.KeyEncryptionParameters;
 import org.opensaml.xml.security.SecurityTestHelper;
 import org.opensaml.xml.security.credential.Credential;
+import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
@@ -177,10 +178,12 @@ public class OIOResponseTest extends AbstractTests {
 	
 	@Test
 	public void testGetEncryptedAssertion() throws Exception {
-        EncryptedAssertion encrypted = encryptAssertion();
+        EncryptedAssertion encrypted = encryptAssertion(true);
         srt.getEncryptedAssertions().add(encrypted);
         
         srt.getAssertions().clear();
+        
+        response = new OIOResponse((Response) SAMLUtil.unmarshallElementFromString(response.toXML()));
 
         try {
         	response.getAssertion();
@@ -196,12 +199,24 @@ public class OIOResponseTest extends AbstractTests {
 	        fail("Should fail, trying with wrong key");
         } catch (ValidationException e) {}
 	}
+	
+	@Test
+	public void testEncryptedAssertionWithRetrievalMethod() throws Exception {
+        EncryptedAssertion encrypted = encryptAssertion(false);
+        srt.getEncryptedAssertions().add(encrypted);
+        
+        srt.getAssertions().clear();
+        System.out.println(XMLHelper.nodeToString(SAMLUtil.marshallObject(encrypted)));
+
+        response.decryptAssertion(credential, false);
+        assertNotNull(response.getAssertion());
+	}
 
 	@Test
 	public void testValidateSignatureAfterDecryption() throws Exception {
 		response.getAssertion().sign(credential);
 		
-		EncryptedAssertion encrypted = encryptAssertion();
+		EncryptedAssertion encrypted = encryptAssertion(true);
         srt.getEncryptedAssertions().add(encrypted);
         
         srt.getAssertions().clear();
@@ -210,9 +225,7 @@ public class OIOResponseTest extends AbstractTests {
 		assertTrue(response.getAssertion().verifySignature(credential.getPublicKey()));
 	}
 
-	private EncryptedAssertion encryptAssertion()
-			throws NoSuchAlgorithmException, NoSuchProviderException,
-			EncryptionException {
+	private EncryptedAssertion encryptAssertion(boolean inline) throws NoSuchAlgorithmException, NoSuchProviderException, EncryptionException {
 		Credential symmetricCredential = SecurityTestHelper.generateKeyAndCredential(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128);
         assertNotNull(symmetricCredential.getSecretKey());
 		
@@ -227,7 +240,11 @@ public class OIOResponseTest extends AbstractTests {
         
         
         Encrypter encrypter = new Encrypter(encParams, kek);
-        encrypter.setKeyPlacement(KeyPlacement.INLINE);
+        if (inline) {
+        	encrypter.setKeyPlacement(KeyPlacement.INLINE);
+        } else {
+        	encrypter.setKeyPlacement(KeyPlacement.PEER);
+        }
         
         EncryptedAssertion encrypted = encrypter.encrypt(response.getAssertion().getAssertion());
 		return encrypted;

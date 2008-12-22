@@ -52,6 +52,8 @@ public interface OIOSAMLConstants {
 	public static final String METHOD_BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
 	public static final String METHOD_HOK = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
 	
+	public static final String RETRIEVAL_METHOD_ENCRYPTED_KEY = "http://www.w3.org/2001/04/xmlenc#EncryptedKey";
+	
 	
 	/** Format of NameId */
 	public static final String PERSISTENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";

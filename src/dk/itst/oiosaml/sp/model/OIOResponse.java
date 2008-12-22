@@ -40,7 +40,11 @@ import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.RetrievalMethod;
+import org.w3c.dom.Element;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
@@ -118,7 +122,7 @@ public class OIOResponse extends OIOAbstractResponse {
 		if (response.getEncryptedAssertions().size() > 0) {
 			KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(credential);
 			EncryptedAssertion enc = response.getEncryptedAssertions().get(0);
-			EncryptedKey key = enc.getEncryptedData().getKeyInfo().getEncryptedKeys().get(0);
+			EncryptedKey key = getEncryptedKey(enc);
 			
 	        Decrypter decrypter = new Decrypter(null, keyResolver, null);
 
@@ -147,6 +151,23 @@ public class OIOResponse extends OIOAbstractResponse {
 				throw new ValidationException("Assertion is not encrypted");
 			}
 		}
+	}
+
+	private EncryptedKey getEncryptedKey(EncryptedAssertion enc) {
+		KeyInfo keyInfo = enc.getEncryptedData().getKeyInfo();
+		if (!keyInfo.getEncryptedKeys().isEmpty()) {
+			return keyInfo.getEncryptedKeys().get(0);
+		} else if (!keyInfo.getRetrievalMethods().isEmpty()) {
+			RetrievalMethod rm = keyInfo.getRetrievalMethods().get(0);
+
+			if (!OIOSAMLConstants.RETRIEVAL_METHOD_ENCRYPTED_KEY.equals(rm.getType())) {
+				throw new UnsupportedOperationException("Retrieval type " + rm.getType() + " is not supported");
+			}
+			Element key = enc.getDOM().getOwnerDocument().getElementById(rm.getURI().substring(1));
+			return (EncryptedKey) SAMLUtil.unmarshallElement(key);
+		}
+		
+		throw new RuntimeException("No supported EncryptedKeys found");
 	}
 	
 	public Response getResponse() {
