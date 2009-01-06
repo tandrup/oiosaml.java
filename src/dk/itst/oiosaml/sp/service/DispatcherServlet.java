@@ -46,9 +46,11 @@ import dk.itst.oiosaml.sp.bindings.DefaultBindingHandlerFactory;
 import dk.itst.oiosaml.sp.configuration.ConfigurationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
@@ -109,7 +111,7 @@ public class DispatcherServlet extends HttpServlet {
 				setSPMetadata(SPMetadata.getInstance());
 				setCredential(new CredentialRepository().getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
-				LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
+				SessionHandlerFactory.newInstance(configuration).resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
 				AssertionValidator validator = (AssertionValidator) Utils.newInstance(configuration, Constants.PROP_VALIDATOR);
@@ -133,7 +135,8 @@ public class DispatcherServlet extends HttpServlet {
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req)); 
+				SessionHandler sessionHandler = SessionHandlerFactory.newInstance(configuration);
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler); 
 				handler.handleGet(context);
 			} catch (Exception e) {
 				handleError(req, res, e);
@@ -149,7 +152,8 @@ public class DispatcherServlet extends HttpServlet {
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req)); 
+				SessionHandler sessionHandler = SessionHandlerFactory.newInstance(configuration);
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler); 
 				handler.handlePost(context);
 			} catch (Exception e) {
 				handleError(req, res, e);
@@ -159,8 +163,9 @@ public class DispatcherServlet extends HttpServlet {
 		}
 	}
 	
-	private LogUtil getLogutil(String action, SAMLHandler handler, HttpServletRequest req) {
-		return new LogUtil(handler.getClass(), null, action, LoggedInHandler.getInstance().getNameIdFromAssertion(req.getSession().getId()));
+	private LogUtil getLogutil(String action, SAMLHandler handler, HttpServletRequest req, SessionHandler sessionHandler) {
+		OIOAssertion assertion = sessionHandler.getAssertion(req.getSession().getId());
+		return new LogUtil(handler.getClass(), null, action, assertion == null ? null : assertion.getSubjectNameIDValue());
 	}
 	
 	public void setInitialized(boolean b) {

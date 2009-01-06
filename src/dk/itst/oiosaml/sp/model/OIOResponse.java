@@ -47,7 +47,7 @@ import org.w3c.dom.Element;
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
 
 /**
  * Base class for all SAML responses.
@@ -73,7 +73,7 @@ public class OIOResponse extends OIOAbstractResponse {
 	 * 
 	 * @throws ValidationException If the response is unsolicited and does not contain an issuer.
 	 */
-	public String getOriginatingIdpEntityId(LoggedInHandler handler) {
+	public String getOriginatingIdpEntityId(SessionHandler handler) {
 		if (response.getInResponseTo() == null) {
 			Issuer issuer = null;
 			if (!response.getAssertions().isEmpty()) {

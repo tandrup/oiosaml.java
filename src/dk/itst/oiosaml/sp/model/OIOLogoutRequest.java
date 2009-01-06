@@ -53,7 +53,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
@@ -143,10 +143,10 @@ public class OIOLogoutRequest extends OIORequest {
 	 * @param logoutServiceLocation Destination for the logout request.
 	 * @param issuerEntityId Entity ID of the issuing entity.
 	 */
-	public static OIOLogoutRequest buildLogoutRequest(HttpSession session, LogUtil lu, String logoutServiceLocation, String issuerEntityId) {
+	public static OIOLogoutRequest buildLogoutRequest(HttpSession session, String logoutServiceLocation, String issuerEntityId, SessionHandler handler) {
 		LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
 
-		logoutRequest.setID(LoggedInHandler.getInstance().getID(session, lu));
+		logoutRequest.setID(handler.getID(session));
 		logoutRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		logoutRequest.addNamespace(OIOSAMLConstants.SAML20_NAMESPACE);
 		logoutRequest.setDestination(logoutServiceLocation);
@@ -154,15 +154,15 @@ public class OIOLogoutRequest extends OIORequest {
 
 		logoutRequest.setIssuer(SAMLUtil.createIssuer(issuerEntityId));
 
-		SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
-		sessionIndex.setSessionIndex(LoggedInHandler.getInstance().getSessionIndexFromAssertion(session.getId()));
-		logoutRequest.getSessionIndexes().add(sessionIndex);
 
-		OIOAssertion assertion = LoggedInHandler.getInstance().getAssertion(session.getId());
+		OIOAssertion assertion = handler.getAssertion(session.getId());
 		if (assertion != null) {
 			NameID nameID = SAMLUtil.createNameID(assertion.getSubjectNameIDValue());
 			nameID.setFormat(assertion.getAssertion().getSubject().getNameID().getFormat());
 			logoutRequest.setNameID(nameID);
+			SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
+			logoutRequest.getSessionIndexes().add(sessionIndex);
+			sessionIndex.setSessionIndex(assertion.getSessionIndex());
 		}
 
 		try {

@@ -32,7 +32,6 @@ import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class LogoutHandler implements SAMLHandler{
@@ -50,19 +49,20 @@ public class LogoutHandler implements SAMLHandler{
 		context.getLogUtil().audit("sessionId", session.getId());
 
 		// Check that user is logged in...
-		if (!LoggedInHandler.getInstance().isLoggedIn(session)) {
+		if (!context.getSessionHandler().isLoggedIn(session.getId())) {
 			String homeUrl = context.getConfiguration().getString(Constants.PROP_HOME, context.getRequest().getContextPath());
 			context.getResponse().sendRedirect(homeUrl);
 			return;
 		}
-		String entityID = LoggedInHandler.getInstance().getAuthenticatingEntityID(session.getId());
+		
+		String entityID = context.getSessionHandler().getAssertion(session.getId()).getAssertion().getIssuer().getValue();
 		Metadata metadata = context.getIdpMetadata().getMetadata(entityID);
 
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, context.getLogUtil(), metadata.getSingleLogoutServiceLocation(), context.getSpMetadata().getEntityID());
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, metadata.getSingleLogoutServiceLocation(), context.getSpMetadata().getEntityID(), context.getSessionHandler());
 		String redirectURL = lr.getRedirectRequestURL(context.getCredential(), context.getLogUtil());
 
-		LoggedInHandler.getInstance().registerRequest(lr.getID(), metadata.getEntityID());
-		LoggedInHandler.getInstance().logOut(session);
+		context.getSessionHandler().registerRequest(lr.getID(), metadata.getEntityID());
+		context.getSessionHandler().logOut(session);
 
 		if (log.isDebugEnabled()) log.debug("Redirect to..:" + redirectURL);
 		context.getLogUtil().audit("User logged out locally");

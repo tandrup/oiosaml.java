@@ -12,7 +12,6 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.w3c.dom.Document;
 
 import dk.itst.oiosaml.sp.service.LogoutHandler;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class LogoutHandlerTest extends AbstractServiceTests {
@@ -33,7 +32,7 @@ public class LogoutHandlerTest extends AbstractServiceTests {
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 			allowing(req).getContextPath(); will(returnValue("/"));
 		}});
-		RequestContext ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil);
+		RequestContext ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler);
 		servlet.handleGet(ctx);
 
 		setHandler();
@@ -49,6 +48,6 @@ public class LogoutHandlerTest extends AbstractServiceTests {
 		Document doc = TestHelper.parseBase64Encoded(req, true);
 		LogoutRequest lr = (LogoutRequest) org.opensaml.xml.Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
 		
-		assertEquals(idpMetadata.getFirstMetadata().getEntityID(), LoggedInHandler.getInstance().removeEntityIdForRequest(lr.getID()));
+		assertEquals(idpMetadata.getFirstMetadata().getEntityID(), handler.removeEntityIdForRequest(lr.getID()));
 	}
 }

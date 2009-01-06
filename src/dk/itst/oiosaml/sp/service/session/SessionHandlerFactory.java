@@ -13,7 +13,7 @@
  * The Original Code is OIOSAML Java Service Provider.
  * 
  * The Initial Developer of the Original Code is Trifork A/S. Portions 
- * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
+ * created by Trifork A/S are Copyright (C) 2009 Danish National IT 
  * and Telecom Agency (http://www.itst.dk). All Rights Reserved.
  * 
  * Contributor(s):
@@ -23,31 +23,20 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
-import java.util.Map;
-import java.util.TimerTask;
-
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
-public class CleanupTimerTask<E, T> extends TimerTask {
-	private static final Logger log = Logger.getLogger(CleanupTimerTask.class);
-	
-	private final Map<E, TimeOutWrapper<T>> map;
-	private final long cleanupDelay;
-	
-	public CleanupTimerTask(Map<E, TimeOutWrapper<T>> map, long cleanupDelay) {
-		this.map = map;
-		this.cleanupDelay = cleanupDelay;
-	}
+import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
-	@Override
-	public void run() {
-		if (log.isDebugEnabled()) log.debug(hashCode() +  " Running cleanup timer on " + map);
-		for (E key : map.keySet()) {
-			TimeOutWrapper<T> tow = map.get(key);
-			if (tow.isExpired(cleanupDelay)) {
-				log.debug("Expiring " + tow);
-				map.remove(key);
-			}
-		}
+public class SessionHandlerFactory {
+	private static final Logger log = Logger.getLogger(SessionHandlerFactory.class);
+
+	public static SessionHandler newInstance(Configuration configuration) {
+		String name = configuration.getString(Constants.PROP_SESSION_HANDLER);
+		if (log.isDebugEnabled()) log.debug("Using session handler class: " + name);
+		
+		SessionHandler handler = (SessionHandler) Utils.newInstance(configuration, Constants.PROP_SESSION_HANDLER);
+		return handler;
 	}
 }

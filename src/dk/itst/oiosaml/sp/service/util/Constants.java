@@ -26,6 +26,7 @@ package dk.itst.oiosaml.sp.service.util;
 import org.opensaml.xml.signature.Signature;
 
 import dk.itst.oiosaml.sp.UserAssertion;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
 
 /**
  * Basic constants used within the library.
@@ -74,6 +75,11 @@ public interface Constants {
 	static final String PROP_NAMEID_POLICY_ALLOW_CREATE = "oiosaml-sp.nameid.allowcreate";
 	
 	static final String PROP_ERROR_SERVLET = "oiosaml-sp.errors";
+	
+	/**
+	 * Property pointing to a class which implements {@link SessionHandler}.
+	 */
+	static final String PROP_SESSION_HANDLER = "oiosaml-sp.sessionhandler";
 	
 	/**
 	 * Property indicating if IsPassive should be set to true or false.

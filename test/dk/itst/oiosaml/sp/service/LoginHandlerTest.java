@@ -62,20 +62,19 @@ import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 
 public class LoginHandlerTest extends AbstractServiceTests {
 	
 	private BindingHandlerFactory handlerFactory;
-	private LoginHandler handler;
+	private LoginHandler lh;
 	private Map<String, String> conf;
 
 	@Before
 	public void setUp() {
 		handlerFactory = context.mock(BindingHandlerFactory.class);
-		handler = new LoginHandler(handlerFactory);
+		lh = new LoginHandler(handlerFactory);
 		conf = new HashMap<String, String>();
 		conf.put(Constants.PROP_SUPPORTED_BINDINGS, "artifact");
 		context.checking(new Expectations() {{
@@ -98,7 +97,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 			one(res).setContentType("text/html");
 		}});
-		handler.handleGet(getContext(md));
+		lh.handleGet(getContext(md));
 		
 		assertTrue(sw.toString().contains("0;url=http://discovery?r=" + URLEncoder.encode("http://test", "UTF-8")));
 	}
@@ -111,7 +110,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(enc));
 		}});
-		handler.handleGet(getContext(md));
+		lh.handleGet(getContext(md));
 	}
 
 	@Test
@@ -130,7 +129,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			one(bHandler).handle(with(equal(req)), with(equal(res)), with(equal(credential)), with(any(OIOAuthnRequest.class)), with(any(LogUtil.class)));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
-		handler.handleGet(getContext(md));
+		lh.handleGet(getContext(md));
 	}
 
 	@Test
@@ -166,7 +165,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_NAMEID_POLICY, "persistent");
 		conf.put(Constants.PROP_NAMEID_POLICY_ALLOW_CREATE, "true");
 
-		handler.handleGet(getContext(idpMetadata));
+		lh.handleGet(getContext(idpMetadata));
 	}
 
 	@Test
@@ -189,7 +188,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		}});
 		
 		conf.put(Constants.PROP_FORCE_AUTHN_URLS, "nothere, /te.*");
-		handler.handleGet(getContext(idpMetadata));
+		lh.handleGet(getContext(idpMetadata));
 	}
 	
 	@Test
@@ -212,7 +211,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		}});
 
 		conf.put(Constants.PROP_PASSIVE, "true");
-		handler.handleGet(getContext(idpMetadata));
+		lh.handleGet(getContext(idpMetadata));
 	}
 	
 	@Test
@@ -237,9 +236,9 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			}), with(any(LogUtil.class)));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
-		handler.handleGet(getContext(idpMetadata));
+		lh.handleGet(getContext(idpMetadata));
 		assertNull(UserAssertionHolder.get());
-		assertEquals(idpEntityId, LoggedInHandler.getInstance().removeEntityIdForRequest(holder.getValue()));
+		assertEquals(idpEntityId, handler.removeEntityIdForRequest(holder.getValue()));
 	}
 
 	private IdpMetadata getDiscoveryMetadata() {
@@ -251,7 +250,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 	}
 
 	private RequestContext getContext(IdpMetadata md) {
-		return new RequestContext(req, res, md, spMetadata, credential, TestHelper.buildConfiguration(conf), logUtil);		
+		return new RequestContext(req, res, md, spMetadata, credential, TestHelper.buildConfiguration(conf), logUtil, handler);		
 	}
 
 }

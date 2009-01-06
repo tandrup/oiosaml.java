@@ -22,7 +22,7 @@ import dk.itst.oiosaml.sp.service.StringValueHolder;
 public class PostBindingHandlerTest extends AbstractServiceTests{
 
 	private String dispatchPath;
-	private PostBindingHandler handler;
+	private PostBindingHandler ph;
 	private StringValueHolder samlRequestBase64Encoded;
 	String serviceLocation;
 	private String entityId;
@@ -32,11 +32,11 @@ public class PostBindingHandlerTest extends AbstractServiceTests{
 	@Before
 	public void setUp() throws Exception {
 		dispatchPath = "testDispatchPath";
-		handler = new PostBindingHandler(dispatchPath);
+		ph = new PostBindingHandler(dispatchPath);
 		samlRequestBase64Encoded = new StringValueHolder();
 		serviceLocation = "http://sso.url";
 		entityId = "SPEntityId";
-		request = OIOAuthnRequest.buildAuthnRequest(serviceLocation, entityId, SAMLConstants.SAML2_POST_BINDING_URI, session, logUtil);
+		request = OIOAuthnRequest.buildAuthnRequest(serviceLocation, entityId, SAMLConstants.SAML2_POST_BINDING_URI, session, handler);
 	}
 
 	@Test
@@ -54,13 +54,13 @@ public class PostBindingHandlerTest extends AbstractServiceTests{
 			one(req).setAttribute(with(equal("RelayState")), with(any(String.class)));
 			one(req).setAttribute("action", serviceLocation);
 		}});
-		handler.handle(req, res, credential, request, logUtil);
+		ph.handle(req, res, credential, request, logUtil);
 		Document samlRequest = parseBase64Encoded(samlRequestBase64Encoded.getValue(), false);
 		AuthnRequest authnRequest = (AuthnRequest)Configuration.getUnmarshallerFactory().getUnmarshaller(samlRequest.getDocumentElement()).unmarshall(samlRequest.getDocumentElement());
 		assertEquals(entityId, authnRequest.getIssuer().getValue());
 		assertNotNull(authnRequest.getSignature());
 		assertTrue(authnRequest.getIssueInstant().isBeforeNow());
-		assertEquals(handler.getBindingURI(), authnRequest.getProtocolBinding());
+		assertEquals(ph.getBindingURI(), authnRequest.getProtocolBinding());
 		assertEquals(serviceLocation, authnRequest.getDestination());
 	}
 	
@@ -72,6 +72,6 @@ public class PostBindingHandlerTest extends AbstractServiceTests{
 			one(req).setAttribute(with(equal("RelayState")), with(any(String.class)));
 			one(req).setAttribute("action", serviceLocation);
 		}});
-		handler.handle(req, res, credential, request, logUtil);		
+		ph.handle(req, res, credential, request, logUtil);		
 	}
 }

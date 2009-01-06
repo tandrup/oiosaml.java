@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
+import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class DispatcherServletTest extends AbstractServiceTests {
@@ -30,6 +31,7 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		servlet = new DispatcherServlet();
 		conf = new HashMap<String, String>() {{
 			put(SAMLUtil.OIOSAML_HOME, "/test");
+			put(Constants.PROP_SESSION_HANDLER, SingleVMSessionHandler.class.getName());
 		}};
 		configuration = TestHelper.buildConfiguration(conf);
 		servlet.setConfiguration(configuration);

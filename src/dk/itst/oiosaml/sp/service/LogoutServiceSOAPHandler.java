@@ -46,9 +46,9 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
@@ -99,8 +99,13 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 			ctx.getLogUtil().audit(Constants.SERVICE_LOGOUT_RESPONSE, logoutRequest.toXML());
 
 			String sessionIndex = logoutRequest.getSessionIndex();
-			String sessionId = LoggedInHandler.getInstance().getRelatedSessionId(sessionIndex);
-			String idpEntityId = LoggedInHandler.getInstance().getAuthenticatingEntityID(sessionId);
+			String sessionId = ctx.getSessionHandler().getRelatedSessionId(sessionIndex);
+			
+			OIOAssertion assertion = ctx.getSessionHandler().getAssertion(sessionId);
+			String idpEntityId = null;
+			if (assertion != null) {
+				idpEntityId = assertion.getIssuer();
+			}
 			if (idpEntityId == null) {
 				log.warn("LogoutRequest received over SOAP for unknown user");
 				statusCode = StatusCode.NO_SUPPORTED_IDP_URI;
@@ -110,7 +115,7 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 
 					Certificate idpCertificate = metadata.getCertificate();
 					logoutRequest.validateRequest(null, null, idpCertificate != null ? idpCertificate.getPublicKey() : null, ctx.getSpMetadata().getSingleLogoutServiceSOAPLocation(), metadata.getEntityID());
-					LoggedInHandler.getInstance().logOut(sessionId);
+					ctx.getSessionHandler().logOut(sessionId);
 				} catch (LogoutRequestValidationException e) {
 					consent = e.getMessage();
 					statusCode = StatusCode.AUTHN_FAILED_URI;

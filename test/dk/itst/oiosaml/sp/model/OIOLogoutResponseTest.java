@@ -31,7 +31,7 @@ public class OIOLogoutResponseTest extends AbstractServiceTests {
 
 	@Before
 	public void setUp() {
-		request = OIOLogoutRequest.buildLogoutRequest(session, logUtil, "http://logout", "entityId");
+		request = OIOLogoutRequest.buildLogoutRequest(session, "http://logout", "entityId", handler);
 		response = OIOLogoutResponse.fromRequest(request, "status", "consent", "entityId", "http://destination");
 	}
 

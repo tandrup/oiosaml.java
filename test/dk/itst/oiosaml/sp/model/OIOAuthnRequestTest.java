@@ -60,7 +60,7 @@ public class OIOAuthnRequestTest extends AbstractServiceTests {
 
 	@Test
 	public void getRedirectUrl() throws NoSuchAlgorithmException, NoSuchProviderException, URISyntaxException, DataFormatException, IOException, ParserConfigurationException, SAXException, UnmarshallingException, InvalidKeyException, SignatureException {
-		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, session, logUtil);
+		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, session, handler);
 		String url = request.getRedirectURL(credential, logUtil);
 		
 		URI u = new URI(url);

@@ -44,14 +44,13 @@ import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 
 public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 
-	private SAMLAssertionConsumerHandler handler;
+	private SAMLAssertionConsumerHandler sh;
 	private Configuration configuration;
 	private RequestContext ctx;
 	private HashMap<String, String> conf;
@@ -64,12 +63,12 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getRequestURI(); will(returnValue("http://test"));
 			allowing(req).getQueryString(); will(returnValue(""));
 		}});
-		handler = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
+		sh = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
 		conf = new HashMap<String, String>() {{
 			put(Constants.PROP_IGNORE_CERTPATH, "false");
 		}};
 		configuration = TestHelper.buildConfiguration(conf);
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler);
 	}
 	
 	@Test
@@ -78,7 +77,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getParameter(with(any(String.class))); will(returnValue(null));
 		}});
 		try {
-			handler.handleGet(ctx);
+			sh.handleGet(ctx);
 			fail("SAMLArt not set");
 		} catch (IllegalArgumentException e) {}
 	}
@@ -101,9 +100,9 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 				}
 			});
 		}});
-		handler.setSoapClient(client);
+		sh.setSoapClient(client);
 		try {
-			handler.handleGet(ctx);
+			sh.handleGet(ctx);
 			fail("RelayState not set");
 		} catch (IllegalArgumentException e) {}
 	}
@@ -116,7 +115,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
-			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(LoggedInHandler.getInstance().getID(session, new LogUtil(getClass(), "test"))));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.getID(session)));
 
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 //			one(ar).artifactResolve(with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(equal(new Boolean(false))), with(aNull(String.class)), with(aNull(String.class)), with(any(String.class)));
@@ -129,10 +128,10 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 				}
 			});
 		}});
-		handler.setSoapClient(client);
+		sh.setSoapClient(client);
 		
 		try {
-			handler.handleGet(ctx);
+			sh.handleGet(ctx);
 			fail("Response is not signed");
 		} catch (RuntimeException e) {}
 		
@@ -147,7 +146,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
-			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(LoggedInHandler.getInstance().getID(session, new LogUtil(getClass(), "test"))));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.getID(session)));
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
@@ -162,9 +161,9 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
 		}});
-		handler.setSoapClient(client);
+		sh.setSoapClient(client);
 		
-		handler.handleGet(ctx);
+		sh.handleGet(ctx);
 	}
 	
 	@Test
@@ -174,13 +173,13 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 
 		conf.put(Constants.PROP_PASSIVE, "true");
 		conf.put(Constants.PROP_PASSIVE_USER_ID, "passive");
-		final String reqId = LoggedInHandler.getInstance().getID(session, new LogUtil(getClass(), "test"));
-		LoggedInHandler.getInstance().registerRequest(reqId, idpEntityId);
+		final String reqId = handler.getID(session);
+		handler.registerRequest(reqId, idpEntityId);
 		
 		context.checking(new Expectations() {{
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
-			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(LoggedInHandler.getInstance().getID(session, new LogUtil(getClass(), "test"))));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.getID(session)));
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
@@ -195,9 +194,9 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(PassiveUserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
 		}});
-		handler.setSoapClient(client);
+		sh.setSoapClient(client);
 		
-		handler.handleGet(ctx);
+		sh.handleGet(ctx);
 	}
 		
 	private Envelope buildResponse(String id, boolean sign, boolean passive, String reqId) throws Exception {

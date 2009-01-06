@@ -45,7 +45,6 @@ import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 
@@ -106,7 +105,7 @@ public class LoginHandler implements SAMLHandler {
 		UserAssertionHolder.set(null);
 
 		LogUtil lu = new LogUtil(getClass(), "", "Authn");
-		OIOAuthnRequest authnRequest = OIOAuthnRequest.buildAuthnRequest(signonLocation.getLocation(), context.getSpMetadata().getEntityID(), context.getSpMetadata().getDefaultAssertionConsumerService().getBinding(), session, lu);
+		OIOAuthnRequest authnRequest = OIOAuthnRequest.buildAuthnRequest(signonLocation.getLocation(), context.getSpMetadata().getEntityID(), context.getSpMetadata().getDefaultAssertionConsumerService().getBinding(), session, context.getSessionHandler());
 		authnRequest.setNameIDPolicy(conf.getString(Constants.PROP_NAMEID_POLICY, null), conf.getBoolean(Constants.PROP_NAMEID_POLICY_ALLOW_CREATE, false));
 		authnRequest.setForceAuthn(isForceAuthnEnabled(request, conf));
 
@@ -117,7 +116,7 @@ public class LoginHandler implements SAMLHandler {
 		lu.audit(Constants.SERVICE_AUTHN_REQUEST, authnRequest.toXML());
 
 		bindingHandler.handle(request, response, context.getCredential(), authnRequest, lu);
-		LoggedInHandler.getInstance().registerRequest(authnRequest.getID(), metadata.getEntityID());
+		context.getSessionHandler().registerRequest(authnRequest.getID(), metadata.getEntityID());
 	}
 
 	public void handlePost(RequestContext context) throws ServletException, IOException {

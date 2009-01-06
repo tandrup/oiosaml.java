@@ -43,7 +43,7 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(res).getOutputStream(); will(returnValue(TestHelper.createOutputStream(bos)));
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler);
 	}
 	
 	@Test
@@ -78,7 +78,7 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 	@Test
 	public void testSoapRequest() throws Exception {
 		setHandler();
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, logUtil, spMetadata.getSingleLogoutServiceSOAPLocation(), idpEntityId);
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceSOAPLocation(), idpEntityId, handler);
 		
 		final String xml = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body>" + lr.toXML().substring(38) + "</soapenv:Body></soapenv:Envelope>";
 		context.checking(new Expectations() {{
@@ -102,7 +102,7 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 	@Test
 	public void testSoapRequestWithSignature() throws Exception {
 		setHandler();
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, logUtil, spMetadata.getSingleLogoutServiceSOAPLocation(), idpEntityId);
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceSOAPLocation(), idpEntityId, handler);
 		lr.sign(credential);
 		
 

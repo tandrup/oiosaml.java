@@ -23,16 +23,16 @@ public class RedirectBindingHandlerTest extends AbstractServiceTests {
 	
 	@Test
 	public void testHandle() throws Exception {
-		RedirectBindingHandler handler = new RedirectBindingHandler();
+		RedirectBindingHandler rh = new RedirectBindingHandler();
 		
 		final StringWriter sw = new StringWriter();
 		context.checking(new Expectations() {{
 			one(res).setContentType("text/html");
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 		}});
-		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, session, logUtil);
+		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, session, handler);
 
-		handler.handle(req, res, credential, request, logUtil);
+		rh.handle(req, res, credential, request, logUtil);
 		
 		String url = sw.toString().substring(sw.toString().indexOf("url=") + 4, sw.toString().indexOf(">", sw.toString().indexOf("url=")) - 1);
 		String r = TestHelper.getParameter("SAMLRequest", url);

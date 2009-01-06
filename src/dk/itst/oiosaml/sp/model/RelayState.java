@@ -26,15 +26,10 @@ package dk.itst.oiosaml.sp.model;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
-
-import dk.itst.oiosaml.logging.LogUtil;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class RelayState {
-	private static final Logger log = Logger.getLogger(RelayState.class);
-	
 	private final String relayState;
 
 	public RelayState(String relayState) {
@@ -51,13 +46,7 @@ public class RelayState {
 		return "RelayState: " + relayState;
 	}
 
-	public void finished(HttpSession session) {
-		// Find the timer object stored when the <AuthnRequest> was sent
-		LogUtil requestLogUtil = LoggedInHandler.getInstance().removeID(session, relayState);
-		if (requestLogUtil != null) {
-			requestLogUtil.afterService(Constants.SERVICE_AUTHN_REQUEST);
-		} else {
-			log.warn("No id found in session for relaystate: " + relayState);
-		}
+	public void finished(HttpSession session, SessionHandler handler) {
+		handler.removeID(session, relayState);
 	}
 }

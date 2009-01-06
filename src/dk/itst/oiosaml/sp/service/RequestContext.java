@@ -33,6 +33,7 @@ import org.opensaml.xml.security.credential.Credential;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
 
 public class RequestContext {
 	private final HttpServletRequest request;
@@ -42,8 +43,9 @@ public class RequestContext {
 	private final Credential credential;
 	private final Configuration configuration;
 	private final LogUtil lu;
+	private final SessionHandler sessionHandler;
 
-	public RequestContext(HttpServletRequest request, HttpServletResponse response, IdpMetadata idpMetadata, SPMetadata spMetadata, Credential credential, Configuration configuration, LogUtil lu) {
+	public RequestContext(HttpServletRequest request, HttpServletResponse response, IdpMetadata idpMetadata, SPMetadata spMetadata, Credential credential, Configuration configuration, LogUtil lu, SessionHandler sessionHandler) {
 		this.request = request;
 		this.response = response;
 		this.idpMetadata = idpMetadata;
@@ -51,6 +53,7 @@ public class RequestContext {
 		this.credential = credential;
 		this.configuration = configuration;
 		this.lu = lu;
+		this.sessionHandler = sessionHandler;
 	}
 
 	public HttpServletRequest getRequest() {
@@ -83,5 +86,9 @@ public class RequestContext {
 
 	public HttpSession getSession() {
 		return request.getSession();
+	}
+	
+	public SessionHandler getSessionHandler() {
+		return sessionHandler;
 	}
 }

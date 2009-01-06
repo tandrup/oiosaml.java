@@ -39,7 +39,7 @@ import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class OIOAuthnRequest extends OIORequest {
@@ -53,11 +53,11 @@ public class OIOAuthnRequest extends OIORequest {
 	}
 	
 	
-	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, HttpSession session, LogUtil logUtil) {
+	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, HttpSession session, SessionHandler handler) {
 		AuthnRequest authnRequest = SAMLUtil.buildXMLObject(AuthnRequest.class);
 
 		authnRequest.setIssuer(SAMLUtil.createIssuer(spEntityId));
-		authnRequest.setID(LoggedInHandler.getInstance().getID(session, logUtil));
+		authnRequest.setID(handler.getID(session));
 		authnRequest.setForceAuthn(Boolean.FALSE);
 		authnRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		authnRequest.setProtocolBinding(protocolBinding);

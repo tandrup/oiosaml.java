@@ -21,21 +21,21 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class PostBindingResponseTest extends AbstractServiceTests {
 	
-	private SAMLAssertionConsumerHandler handler;
+	private SAMLAssertionConsumerHandler sh;
 	private Response response;
 	private RequestContext ctx;
 
 	@Before
 	public void setUp() throws Exception {
 		
-		handler = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
+		sh = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
 
 		response = SAMLUtil.buildXMLObject(Response.class);
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("uri"));
 			allowing(req).getQueryString(); will(returnValue("query"));
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, buildConfiguration(new HashMap<String, String>()), logUtil);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, buildConfiguration(new HashMap<String, String>()), logUtil, handler);
 	}
 
 	@Test(expected=RuntimeException.class)
@@ -48,7 +48,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 			allowing(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(""));
 		}});
 		
-		handler.handlePost(ctx);
+		sh.handlePost(ctx);
 	}
 
 	
@@ -63,7 +63,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 		}});
 		
 		try {
-			handler.handlePost(ctx);
+			sh.handlePost(ctx);
 			fail("No assertions in response");
 		} catch (RuntimeException e) {}
 	}
@@ -86,7 +86,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 			one(res).sendRedirect("uri?query");
 		}});
 		
-		handler.handlePost(ctx);
+		sh.handlePost(ctx);
 	}
 	
 	@Test
@@ -103,7 +103,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 		}});
 		
 		try {
-			handler.handlePost(ctx);
+			sh.handlePost(ctx);
 			fail("Wrong destination, should  fail");
 		} catch (RuntimeException e) {}
 	}

@@ -33,9 +33,9 @@ import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.StatusCode;
 
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
@@ -74,7 +74,11 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 		String statusCode = StatusCode.SUCCESS_URI;
 		String consent = null;
 
-		String idpEntityId = LoggedInHandler.getInstance().getAuthenticatingEntityID(session.getId());
+		OIOAssertion assertion = ctx.getSessionHandler().getAssertion(session.getId());
+		String idpEntityId = null;
+		if (assertion != null) {
+			idpEntityId = assertion.getIssuer();
+		}
 		if (idpEntityId == null) {
 			log.warn("LogoutRequest received but user is not logged in");
 			idpEntityId = logoutRequest.getIssuer();
@@ -91,8 +95,12 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 				logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getCertificate().getPublicKey(), ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectLocation(), metadata.getEntityID());
 
 				// Logging out
-				log.info("Logging user out via SLO HTTP Redirect: " + LoggedInHandler.getInstance().getNameIdFromAssertion(session.getId()));
-				LoggedInHandler.getInstance().logOut(session);
+				if (assertion != null) {
+					log.info("Logging user out via SLO HTTP Redirect: " + assertion.getSubjectNameIDValue());
+				} else {
+					log.info("Logging user out via SLO HTTP Redirect without active session");
+				}
+				ctx.getSessionHandler().logOut(session);
 			} catch (LogoutRequestValidationException e1) {
 				consent = e1.getMessage();
 				statusCode = StatusCode.AUTHN_FAILED_URI;

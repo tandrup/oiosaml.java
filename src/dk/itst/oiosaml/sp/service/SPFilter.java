@@ -52,7 +52,9 @@ import dk.itst.oiosaml.sp.bindings.BindingHandler;
 import dk.itst.oiosaml.sp.metadata.CRLChecker;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionCleaner;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
@@ -98,7 +100,7 @@ public class SPFilter implements Filter {
 	}
 
 	public void destroy() {
-		LoggedInHandler.getInstance().stopCleanup();
+		SessionCleaner.stopCleaner();
 		crlChecker.stopChecker();
 	}
 
@@ -128,9 +130,10 @@ public class SPFilter implements Filter {
 				request.getRequestDispatcher("/saml/configure").forward(request, response);
 				return;
 			}
-			LoggedInHandler.getInstance().scheduleCleanupTasks(((HttpServletRequest)request).getSession().getMaxInactiveInterval());
+			SessionCleaner.startCleaner(SessionHandlerFactory.newInstance(conf), 30, ((HttpServletRequest)request).getSession().getMaxInactiveInterval());
 		}
 		HttpServletRequest servletRequest = ((HttpServletRequest) request);
+		SessionHandler sessionHandler = SessionHandlerFactory.newInstance(conf);
 		
 		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
 			log.debug("Request to SAML servlet, access granted");
@@ -143,11 +146,11 @@ public class SPFilter implements Filter {
 			log.debug("sessionId....:" + session.getId());
 
 		// Is the user logged in?
-		if (LoggedInHandler.getInstance().isLoggedIn(session)) {
-			int actualAssuranceLevel = LoggedInHandler.getInstance().getAssuranceLevel(session.getId());
+		if (sessionHandler.isLoggedIn(session.getId())) {
+			int actualAssuranceLevel = sessionHandler.getAssertion(session.getId()).getAssuranceLevel();
 			int assuranceLevel = conf.getInt(Constants.PROP_ASSURANCE_LEVEL);
 			if (actualAssuranceLevel < assuranceLevel) {
-				LoggedInHandler.getInstance().logOut(session);
+				sessionHandler.logOut(session);
 				log.warn("Assurance level too low: " + actualAssuranceLevel + ", required: " + assuranceLevel);
 				throw new RuntimeException("Assurance level too low: " + actualAssuranceLevel + ", required: " + assuranceLevel);
 			}
@@ -214,7 +217,7 @@ public class SPFilter implements Filter {
 			}
 		}
 		setHostname();
-		LoggedInHandler.getInstance().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
+		SessionHandlerFactory.newInstance(conf).resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 
 		log.info("Home url: " + conf.getString(Constants.PROP_HOME));
 		log.info("Assurance leve: " + conf.getInt(Constants.PROP_ASSURANCE_LEVEL));

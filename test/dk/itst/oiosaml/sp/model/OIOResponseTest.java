@@ -30,7 +30,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
 
 public class OIOResponseTest extends AbstractTests {
 
@@ -75,17 +75,18 @@ public class OIOResponseTest extends AbstractTests {
 		srt.setInResponseTo(null);
 		srt.setIssuer(null);
 		
-		assertEquals(srt.getAssertions().get(0).getIssuer().getValue(), response.getOriginatingIdpEntityId(LoggedInHandler.getInstance()));
+		SingleVMSessionHandler handler = new SingleVMSessionHandler();
+		assertEquals(srt.getAssertions().get(0).getIssuer().getValue(), response.getOriginatingIdpEntityId(handler));
 
 		srt.getAssertions().get(0).setIssuer(null);
 		try {
-			response.getOriginatingIdpEntityId(LoggedInHandler.getInstance());
+			response.getOriginatingIdpEntityId(handler);
 			fail("No issuer in assertion");
 		} catch (ValidationException e) {}
 		
 		srt.setInResponseTo("testid");
-		LoggedInHandler.getInstance().registerRequest("testid", "issuer");
-		assertEquals("issuer", response.getOriginatingIdpEntityId(LoggedInHandler.getInstance()));
+		handler.registerRequest("testid", "issuer");
+		assertEquals("issuer", response.getOriginatingIdpEntityId(handler));
 		
 	}
 	
@@ -94,7 +95,7 @@ public class OIOResponseTest extends AbstractTests {
 		srt.getAssertions().clear();
 		srt.setInResponseTo(null);
 		srt.setIssuer(null);
-		response.getOriginatingIdpEntityId(LoggedInHandler.getInstance());
+		response.getOriginatingIdpEntityId(new SingleVMSessionHandler());
 	}
 	
 	@Test

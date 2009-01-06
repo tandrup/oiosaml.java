@@ -268,6 +268,9 @@ public class OIOAssertion extends OIOSamlObject {
 		return notOnOrAfter;
 	}
 
+	public String getIssuer() {
+		return assertion.getIssuer().getValue();
+	}
 	
 
 }

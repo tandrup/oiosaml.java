@@ -40,7 +40,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Before
 	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException {
 		logoutServiceHttpRedirectHandler = new LogoutServiceHTTPRedirectHandler();
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, logUtil);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, logUtil, handler);
 	}
 
 	@Test
@@ -66,8 +66,8 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Test
 	public void testRedirect() throws Exception {
 		setHandler();
-		assertTrue(handler.isLoggedIn(session));
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, logUtil, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), idpEntityId);
+		assertTrue(handler.isLoggedIn(session.getId()));
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), idpEntityId, handler);
 		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
 		
 		context.checking(new Expectations() {{
@@ -84,14 +84,14 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 		
 		logoutServiceHttpRedirectHandler.handleGet(ctx);
 		
-		assertFalse(handler.isLoggedIn(session));
+		assertFalse(handler.isLoggedIn(session.getId()));
 		LogoutResponse lresp = parseResponse();
 		assertEquals(StatusCode.SUCCESS_URI, lresp.getStatus().getStatusCode().getValue());
 	}
 
 	@Test
 	public void failWhenInvalidSignature() throws Exception {
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, logUtil, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), idpEntityId);
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), idpEntityId, handler);
 		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
 		
 		context.checking(new Expectations() {{
@@ -115,7 +115,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testFailWhenIssuerIsWrong() throws Exception {
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, logUtil, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), "entityID");
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), "entityID", handler);
 		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
 		
 		context.checking(new Expectations() {{
@@ -133,7 +133,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	
 	@Test(expected=RuntimeException.class)
 	public void failWhenNoIssuer() throws Exception {
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, logUtil, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), null);
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), null, handler);
 		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
 		
 		context.checking(new Expectations() {{

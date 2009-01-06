@@ -62,7 +62,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 	public void testValidateLogoutRequest() throws Exception {
 		String location = "http://logoutServiceLocation";
 		String issuer = "entityId";
-		String url = OIOLogoutRequest.buildLogoutRequest(session, logUtil, location, issuer).getRedirectRequestURL(credential, logUtil);
+		String url = OIOLogoutRequest.buildLogoutRequest(session, location, issuer, handler).getRedirectRequestURL(credential, logUtil);
 		
 		Document doc = parseBase64Encoded(getParameter("SAMLRequest", url));
 		LogoutRequest lr = (LogoutRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
@@ -120,7 +120,8 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 	
 	@Test
 	public void testBuildLogoutRequest() throws Exception {
-		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, new LogUtil(getClass(), ""), "http://logout", "issuer");
+		setHandler();
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, "http://logout", "issuer", handler);
 		
 		assertEquals(1, ids.size());
 		assertEquals("issuer", lr.getIssuer());

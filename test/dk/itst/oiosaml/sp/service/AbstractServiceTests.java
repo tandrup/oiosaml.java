@@ -18,7 +18,8 @@ import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandler;
+import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
 
@@ -28,7 +29,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 	protected HttpServletResponse res;
 	protected HttpSession session;
 	protected Assertion assertion;
-	protected LoggedInHandler handler;
+	protected SessionHandler handler;
 	protected HashMap<String, LogId> ids;
 
 	protected Credential credential;
@@ -55,7 +56,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 		}});
 		assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/dk/itst/oiosaml/sp/model/assertion.xml"));
 
-		handler = LoggedInHandler.getInstance();
+		handler = new SingleVMSessionHandler();
 		handler.resetReplayProtection(10);
 		
 		idpMetadata = new IdpMetadata(TestHelper.buildEntityDescriptor(credential));
@@ -65,7 +66,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 
 
 	protected void setHandler() {
-		handler.setAssertion(session, new OIOAssertion(assertion));
+		handler.setAssertion(session.getId(), new OIOAssertion(assertion));
 	}
 
 }

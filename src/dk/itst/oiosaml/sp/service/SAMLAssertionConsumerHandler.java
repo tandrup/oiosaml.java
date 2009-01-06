@@ -40,7 +40,6 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.model.RelayState;
 import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.ArtifactExtractor;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
@@ -116,9 +115,9 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 
 		RelayState relayState = RelayState.fromRequest(ctx.getRequest());
 		if (log.isDebugEnabled()) log.debug("Got relayState..:" + relayState);
-		relayState.finished(session);
+		relayState.finished(session, ctx.getSessionHandler());
 
-		String idpEntityId = response.getOriginatingIdpEntityId(LoggedInHandler.getInstance());
+		String idpEntityId = response.getOriginatingIdpEntityId(ctx.getSessionHandler());
 		if (log.isDebugEnabled()) log.debug("Received SAML Response from " + idpEntityId + ": " + response.toXML());
 		
 		boolean allowPassive = ctx.getConfiguration().getBoolean(Constants.PROP_PASSIVE, false);
@@ -129,7 +128,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			log.debug("Received passive response, setting passive userassertion");
 			Assertion assertion = SAMLUtil.buildXMLObject(Assertion.class);
 			assertion.setID("" + System.currentTimeMillis());
-			LoggedInHandler.getInstance().setAssertion(session, new OIOAssertion(assertion));
+			ctx.getSessionHandler().setAssertion(session.getId(), new OIOAssertion(assertion));
 			session.setAttribute(Constants.SESSION_USER_ASSERTION, new PassiveUserAssertion(ctx.getConfiguration().getString(Constants.PROP_PASSIVE_USER_ID)));
 		} else {
 			OIOAssertion assertion = response.getAssertion();
@@ -139,7 +138,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			new LogUtil(getClass(), VERSION, NAME, assertion.getSubjectNameIDValue()).audit("Received assertion " + assertion.getID());
 	
 			// Store the assertion in the session store
-			LoggedInHandler.getInstance().setAssertion(session, assertion);
+			ctx.getSessionHandler().setAssertion(session.getId(), assertion);
 			session.setAttribute(Constants.SESSION_USER_ASSERTION, new UserAssertionImpl(assertion));
 		}
 

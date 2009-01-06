@@ -31,10 +31,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
-import dk.itst.oiosaml.sp.service.session.LoggedInHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
@@ -70,15 +68,12 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 		ctx.getLogUtil().setRequestId(logoutResponse.getID());
 		ctx.getLogUtil().audit(Constants.SERVICE_LOGOUT_RESPONSE, logoutResponse.toXML());
 
-		String idpEntityId = LoggedInHandler.getInstance().removeEntityIdForRequest(logoutResponse.getInResponseTo());
-		LogUtil logUtil = LoggedInHandler.getInstance().removeID(session, logoutResponse.getInResponseTo());
-		if (logUtil != null) {
-			logUtil.afterService(Constants.SERVICE_LOGOUT_REQUEST);
-		}
+		String idpEntityId = ctx.getSessionHandler().removeEntityIdForRequest(logoutResponse.getInResponseTo());
+		ctx.getSessionHandler().removeID(session, logoutResponse.getInResponseTo());
 		Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 		logoutResponse.validate(null, ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectResponseLocation(), request.getParameter(Constants.SAML_SIGNATURE), request.getQueryString(), metadata.getCertificate().getPublicKey());
 
-		LoggedInHandler.getInstance().logOut(session);
+		ctx.getSessionHandler().logOut(session);
 
 		String homeUrl = ctx.getConfiguration().getString(Constants.PROP_HOME);
 		if (log.isDebugEnabled()) {
