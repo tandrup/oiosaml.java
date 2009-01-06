@@ -29,10 +29,23 @@ import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
+/**
+ * Handle session state across requests and instances.
+ * 
+ * <p>Due to SOAP Logout, it is not possible to store all state in the HTTP session. Instead, implementations of this interface handle session state,
+ * primarily based on the HTTP session.<p> 
+ * 
+ * <p>Implementations are expected to be thread-safe, and should not store any instance state, as a new instance will be created for
+ * every request.</p>
+ * 
+ * @see SessionHandlerFactory
+ */
 public interface SessionHandler {
 
 	/**
-	 * Associate an assertion with a given session
+	 * Associate an assertion with a given session.
+	 * 
+	 * @throws IllegalArgumentException If the assertion is being replayed. Implementations must check that the assertion id has not been seen before.
 	 */
 	public void setAssertion(String sessionId, OIOAssertion assertion) throws IllegalArgumentException;
 
@@ -45,7 +58,7 @@ public interface SessionHandler {
 	
 	/**
 	 * Mark a given session as it has been logged out by removing it the
-	 * assertion
+	 * assertion from the session.
 	 */
 	public void logOut(HttpSession session);
 	
@@ -58,8 +71,9 @@ public interface SessionHandler {
 	public void logOut(String sessionId);
 	
 	/**
-	 * Generate a new id for a SAML request and add it to the SESSION_ID_LIST on
-	 * the current session
+	 * Generate a new id for a SAML request.
+	 * 
+	 *  Implementations must track the id to check that responses are actually responses to known requests.
 	 * 
 	 * @param session
 	 *            Reference to the session
@@ -80,7 +94,7 @@ public interface SessionHandler {
 	public void removeID(HttpSession session, String id);
 	
 	/**
-	 * @return The {@link Assertion} associated with the session
+	 * @return The {@link Assertion} associated with the session. <code>null</code> if there is no assertion.
 	 */
 	public OIOAssertion getAssertion(String sessionId);
 	

@@ -114,9 +114,6 @@ public class SingleVMSessionHandler implements SessionHandler {
 				throw new IllegalArgumentException("Assertion ID begin replayed: " + key);
 			}
 			usedAssertionIds.put(key, assertion);
-			if (null == assertion)
-				return;
-
 			sessionMap.put(sessionId, new TimeOutWrapper<OIOAssertion>(assertion));
 
 			String sessionIndex = assertion.getSessionIndex();

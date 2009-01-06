@@ -94,6 +94,7 @@ The servlet receives 3 attributes in the request: SAMLRequest, action, and Relay
 <li>oiosaml-sp.bindings: List of supported bindings to use. These will be matched against the IdP metadata to select the proper SingleSignonLocation.
 Defaults to artifact,post,redirect,soap.</li>
 <li>oiosaml-sp.assertion.validator: FQCN of a class which implements dk.itst.oiosaml.sp.model.validation.AssertionValidator. This class is then used to perform validation of received assertions.</li>
+<li>oiosaml-sp.sessionhandler: FQCN of a class which implements dk.itst.oiosaml.sp.service.session.SessionHandler. This class is responsible to handling session state across requests and instances.</li>
 </ul>
 
 <h3>Service Provider Metadata</h3>

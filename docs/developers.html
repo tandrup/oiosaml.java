@@ -121,6 +121,11 @@ the logic from SPFilter must be duplicated. This is quite simple: SPFilter handl
 dk.itst.oiosaml.sp.model.validation.AssertionValidator interface and injecting the class into the system using a <a href="configuration.html">configuration property</a>.</p>
 
  
+<h3>State management</h3>
+<p>Part of the state required for OIOSAML.java to work is stored in static variables by default. This means that the implementation is not
+cluster safe. However, the default implementation can be changed, so it is possible to implement a safe state storage instead. The
+relevant interface is dk.itst.oiosaml.sp.service.session.SessionHandler. The concrete type which is used at runtime is controlled by the
+configuration property oiosaml-sp.sessionhandler, which holds the class name of a class implementing the SessionHandler interface.</p>
 
 
 </body>
