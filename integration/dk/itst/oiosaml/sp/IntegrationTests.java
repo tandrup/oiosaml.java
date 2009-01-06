@@ -63,6 +63,7 @@ import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.service.TestHelper;
+import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 
@@ -112,6 +113,7 @@ public abstract class IntegrationTests {
 		props.setProperty(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		props.setProperty(Constants.PROP_LOG_FILE_NAME, "oiosaml-sp.log4j.xml");
 		props.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
+		props.setProperty(Constants.PROP_SESSION_HANDLER, SingleVMSessionHandler.class.getName());
 		
 		KeyStore ks = KeyStore.getInstance("JKS");
 		ks.load(null, null);

@@ -164,7 +164,7 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	private LogUtil getLogutil(String action, SAMLHandler handler, HttpServletRequest req, SessionHandler sessionHandler) {
-		OIOAssertion assertion = sessionHandler.getAssertion(req.getSession().getId());
+		OIOAssertion assertion = sessionHandler == null ? null : sessionHandler.getAssertion(req.getSession().getId());
 		return new LogUtil(handler.getClass(), null, action, assertion == null ? null : assertion.getSubjectNameIDValue());
 	}
 	
@@ -202,8 +202,11 @@ public class DispatcherServlet extends HttpServlet {
 	
 	private void handleError(HttpServletRequest request, HttpServletResponse response, Exception e) throws ServletException, IOException {
 		log.error("Unable to validate Response", e);
-		
-		String err = configuration.getString(Constants.PROP_ERROR_SERVLET, null);
+
+		String err = null;
+		if (configuration != null) {
+			err = configuration.getString(Constants.PROP_ERROR_SERVLET, null);
+		}
 		if (err != null) {
 			request.setAttribute(Constants.ATTRIBUTE_ERROR, e.getMessage());
 			request.setAttribute(Constants.ATTRIBUTE_EXCEPTION, e);

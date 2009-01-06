@@ -33,6 +33,8 @@ public class SessionHandlerFactory {
 	private static final Logger log = Logger.getLogger(SessionHandlerFactory.class);
 
 	public static SessionHandler newInstance(Configuration configuration) {
+		if (configuration == null) return null;
+		
 		String name = configuration.getString(Constants.PROP_SESSION_HANDLER);
 		if (log.isDebugEnabled()) log.debug("Using session handler class: " + name);
 		
