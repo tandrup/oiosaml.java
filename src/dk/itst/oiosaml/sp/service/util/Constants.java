@@ -63,7 +63,7 @@ public interface Constants {
 	/**
 	 * Property pointing to a class which implements {@link SessionHandler}.
 	 */
-	static final String PROP_SESSION_HANDLER = "oiosaml-sp.sessionhandler";
+	static final String PROP_SESSION_HANDLER_FACTORY = "oiosaml-sp.sessionhandler.factory";
 	
 	/**
 	 * Property indicating if IsPassive should be set to true or false.

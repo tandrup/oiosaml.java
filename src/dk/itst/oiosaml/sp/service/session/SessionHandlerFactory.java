@@ -29,16 +29,57 @@ import org.apache.log4j.Logger;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
-public class SessionHandlerFactory {
-	private static final Logger log = Logger.getLogger(SessionHandlerFactory.class);
+/**
+ * Factory for creating new session handlers.
+ * 
+ * Normally, only one instance of a factory is created (using {@link Factory}), so implementations must be thread safe.
+ */
+public interface SessionHandlerFactory {
 
-	public static SessionHandler newInstance(Configuration configuration) {
-		if (configuration == null) return null;
+	/**
+	 * Get a new session handler.
+	 */
+	public SessionHandler getHandler();
+	
+	/**
+	 * Close the factory. No calls to {@link #getHandler()} will be made after this call.
+	 * 
+	 * Be aware that this method might be called several times, and should not fail if this happens.
+	 */
+	public void close();
+
+	/**
+	 * Configure the factory. This will be called before any calls are made to {@link #getHandler()}.
+	 */
+	public void configure(Configuration config);
+
+	
+	public static class Factory {
+		private static final Logger log = Logger.getLogger(SessionHandlerFactory.class);
 		
-		String name = configuration.getString(Constants.PROP_SESSION_HANDLER);
-		if (log.isDebugEnabled()) log.debug("Using session handler class: " + name);
+		private static SessionHandlerFactory instance;
+
+		public static synchronized SessionHandlerFactory newInstance(Configuration configuration) {
+			if (log.isDebugEnabled()) log.debug("Creating new handler factory: " + instance + ", config: " + configuration);
+			
+			if (instance != null) return instance;
+			
+			if (configuration == null) return null;
+
+			String name = configuration.getString(Constants.PROP_SESSION_HANDLER_FACTORY);
+			if (log.isDebugEnabled()) log.debug("Using session handler factory class: " + name);
+
+			SessionHandlerFactory factory = (SessionHandlerFactory) Utils.newInstance(configuration, Constants.PROP_SESSION_HANDLER_FACTORY);
+			factory.configure(configuration);
+			
+			instance = factory;
+			
+			return factory;
+		}
 		
-		SessionHandler handler = (SessionHandler) Utils.newInstance(configuration, Constants.PROP_SESSION_HANDLER);
-		return handler;
+		public static void close() {
+			instance = null;
+		}
 	}
+	
 }

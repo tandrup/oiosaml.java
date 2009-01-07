@@ -85,6 +85,8 @@ public class DispatcherServlet extends HttpServlet {
 
 	private BindingHandlerFactory bindingHandlerFactory;
 
+	private SessionHandlerFactory sessionHandlerFactory;
+
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
 		setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
@@ -111,7 +113,9 @@ public class DispatcherServlet extends HttpServlet {
 				setSPMetadata(SPMetadata.getInstance());
 				setCredential(new CredentialRepository().getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
-				SessionHandlerFactory.newInstance(configuration).resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
+				
+				sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(configuration);
+				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
 				AssertionValidator validator = (AssertionValidator) Utils.newInstance(configuration, Constants.PROP_VALIDATOR);
@@ -135,7 +139,7 @@ public class DispatcherServlet extends HttpServlet {
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
-				SessionHandler sessionHandler = SessionHandlerFactory.newInstance(configuration);
+				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
 				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler); 
 				handler.handleGet(context);
 			} catch (Exception e) {
@@ -152,7 +156,7 @@ public class DispatcherServlet extends HttpServlet {
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
-				SessionHandler sessionHandler = SessionHandlerFactory.newInstance(configuration);
+				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
 				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler); 
 				handler.handlePost(context);
 			} catch (Exception e) {
@@ -200,6 +204,10 @@ public class DispatcherServlet extends HttpServlet {
 		this.bindingHandlerFactory = bindingHandlerFactory;
 	}
 	
+	public void setSessionHandlerFactory(SessionHandlerFactory sessionHandlerFactory) {
+		this.sessionHandlerFactory = sessionHandlerFactory;
+	}
+	
 	private void handleError(HttpServletRequest request, HttpServletResponse response, Exception e) throws ServletException, IOException {
 		log.error("Unable to validate Response", e);
 
@@ -228,5 +236,13 @@ public class DispatcherServlet extends HttpServlet {
 			}
 		}
 
+	}
+	
+	@Override
+	public void destroy() {
+		if (sessionHandlerFactory != null) {
+			sessionHandlerFactory.close();
+		}
+		SessionHandlerFactory.Factory.close();
 	}
 }

@@ -19,7 +19,9 @@ import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
-import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
+import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
+import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandlerFactory;
+import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
 
 public abstract class AbstractServiceTests extends AbstractTests {
@@ -39,6 +41,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 	protected LogUtil logUtil = new LogUtil(getClass(), "test");
 	
 	protected CredentialRepository credentialRepository = new CredentialRepository();
+	protected SessionHandlerFactory handlerFactory;
 
 	@Before
 	public void setUpTests() throws Exception {
@@ -53,7 +56,8 @@ public abstract class AbstractServiceTests extends AbstractTests {
 		}});
 		assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/dk/itst/oiosaml/sp/model/assertion.xml"));
 
-		handler = new SingleVMSessionHandler();
+		handlerFactory = SessionHandlerFactory.Factory.newInstance(TestHelper.buildConfiguration(new HashMap<String, String>() {{ put(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName()); }}));
+		handler = handlerFactory.getHandler();
 		handler.resetReplayProtection(10);
 		
 		idpMetadata = new IdpMetadata(TestHelper.buildEntityDescriptor(credential));

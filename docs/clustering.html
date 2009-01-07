@@ -19,13 +19,16 @@
 <p>Part of the state required for OIOSAML.java to work is stored in static variables by default. This means that the implementation is not
 cluster safe. However, the default implementation can be changed, so it is possible to implement a safe state storage instead. The
 relevant interface is dk.itst.oiosaml.sp.service.session.SessionHandler. The concrete type which is used at runtime is controlled by the
-configuration property oiosaml-sp.sessionhandler, which holds the class name of a class implementing the SessionHandler interface.</p>
+configuration property oiosaml-sp.sessionhandler.factory, which holds the class name of a class implementing the SessionHandlerFactory interface.
+Implementations of the Factory interface are responsible to creating new instances of SessionHandlers.
+</p>
 
 <p>The following SessionHandler implementations are available in the standard distribution:</p>
 
-<h2>SingleVMSessionHandler</h2>
+<h2>SingleVMSessionHandler &amp; SingleVMSessionHandlerFactory</h2>
 <p>This handler uses static maps to save all session state. This means that it is not suited for a distributed environment. However, it's fast and 
-efficient, and should be used whenever OIOSAML.java is installed on a single server.</p>
+efficient, and should be used whenever OIOSAML.java is installed on a single server. This is the default handler which is used if nothing else is configured.</p>
+
 
 </body>
 </html>

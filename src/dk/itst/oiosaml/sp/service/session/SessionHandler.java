@@ -23,8 +23,6 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpSession;
 
 import org.opensaml.saml2.core.Assertion;

@@ -35,7 +35,7 @@ import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
-import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
+import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class SPFilterTest extends AbstractServiceTests {
@@ -83,8 +83,9 @@ public class SPFilterTest extends AbstractServiceTests {
 		
 		filter = new SPFilter();
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "1");
-		conf.put(Constants.PROP_SESSION_HANDLER, SingleVMSessionHandler.class.getName());
+		conf.put(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
 		filter.setConfiguration(TestHelper.buildConfiguration(conf));
+		filter.setSessionHandlerFactory(handlerFactory);
 		filter.setFilterInitialized(true);
 		filter.setHostname("http://trifork.com:8888");
 	}

@@ -88,6 +88,7 @@ public class SPFilter implements Filter {
 	private boolean filterInitialized;
 	private Configuration conf;
 	private String hostname;
+	private SessionHandlerFactory sessionHandlerFactory;
 
 	/**
 	 * Static initializer for bootstrapping OpenSAML.
@@ -103,6 +104,10 @@ public class SPFilter implements Filter {
 	public void destroy() {
 		SessionCleaner.stopCleaner();
 		crlChecker.stopChecker();
+		if (sessionHandlerFactory != null) {
+			sessionHandlerFactory.close();
+		}
+		SessionHandlerFactory.Factory.close();
 	}
 
 	/**
@@ -131,10 +136,10 @@ public class SPFilter implements Filter {
 				request.getRequestDispatcher("/saml/configure").forward(request, response);
 				return;
 			}
-			SessionCleaner.startCleaner(SessionHandlerFactory.newInstance(conf), 30, ((HttpServletRequest)request).getSession().getMaxInactiveInterval());
+			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), 30, ((HttpServletRequest)request).getSession().getMaxInactiveInterval());
 		}
 		HttpServletRequest servletRequest = ((HttpServletRequest) request);
-		SessionHandler sessionHandler = SessionHandlerFactory.newInstance(conf);
+		SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
 		
 		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
 			log.debug("Request to SAML servlet, access granted");
@@ -213,7 +218,8 @@ public class SPFilter implements Filter {
 			}
 		}
 		setHostname();
-		SessionHandlerFactory.newInstance(conf).resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
+		sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(conf);
+		sessionHandlerFactory.getHandler().resetReplayProtection(conf.getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
 
 		log.info("Home url: " + conf.getString(Constants.PROP_HOME));
 		log.info("Assurance leve: " + conf.getInt(Constants.PROP_ASSURANCE_LEVEL));
@@ -248,6 +254,10 @@ public class SPFilter implements Filter {
 	
 	public void setConfiguration(Configuration configuration) {
 		conf = configuration;
+	}
+	
+	public void setSessionHandlerFactory(SessionHandlerFactory sessionHandlerFactory) {
+		this.sessionHandlerFactory = sessionHandlerFactory;
 	}
 
 }
