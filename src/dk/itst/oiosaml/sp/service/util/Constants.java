@@ -33,22 +33,6 @@ import dk.itst.oiosaml.sp.service.session.SessionHandler;
  * 
  */
 public interface Constants {
-	/**
-	 * Session attribute for storing the initial request uri.
-	 * The attribute is used for redirecting the browser to the initially requested page after login.
-	 */
-	static final String SESSION_REQUESTURI = "REQUESTURI";
-	
-	/**
-	 * Session attribute for storing the initial query string.
-	 * Used like {@link #SESSION_REQUESTURI}.
-	 */
-	static final String SESSION_QUERYSTRING = "QUERYSTRING";
-	
-	/**
-	 * The Map of generated assertion ids for the user.
-	 */
-	static final String SESSION_ID_LIST = "SESSION_ID_LIST";
 	
 	/**
 	 * Session attribute for holding the user's current assertion. The value of the
@@ -104,6 +88,11 @@ public interface Constants {
 	static final String PROP_SAML_SERVLET = "oiosaml-sp.servlet";
 	
 	static final String PROP_SUPPORTED_BINDINGS = "oiosaml-sp.bindings";
+	
+	/**
+	 * Path to a servlet handling re-posts after authentication.
+	 */
+	static final String PROP_REPOST_SERVLET = "oiosaml-sp.repost";
 
 	// Known SAML services
 	static final String SERVICE_AUTHN_REQUEST = "<AuthnRequest>";

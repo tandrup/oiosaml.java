@@ -52,6 +52,7 @@ import dk.itst.oiosaml.sp.bindings.BindingHandler;
 import dk.itst.oiosaml.sp.metadata.CRLChecker;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
+import dk.itst.oiosaml.sp.service.session.Request;
 import dk.itst.oiosaml.sp.service.session.SessionCleaner;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
@@ -137,7 +138,7 @@ public class SPFilter implements Filter {
 		
 		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
 			log.debug("Request to SAML servlet, access granted");
-			chain.doFilter(new SAMLHttpServletRequest(servletRequest, null, hostname), response);
+			chain.doFilter(new SAMLHttpServletRequest(servletRequest, hostname, null), response);
 			return;
 		}
 		
@@ -166,18 +167,13 @@ public class SPFilter implements Filter {
 			session.removeAttribute(Constants.SESSION_USER_ASSERTION);
 			UserAssertionHolder.set(null);
 
-			// Store the requested URI on the session
-			session.setAttribute(Constants.SESSION_REQUESTURI, servletRequest.getRequestURI());
-			if (log.isDebugEnabled()) log.debug("requestURI...:" + servletRequest.getRequestURI());
-
-			session.setAttribute(Constants.SESSION_QUERYSTRING, servletRequest.getQueryString());
-			if (log.isDebugEnabled()) log.debug("queryString..:" + servletRequest.getQueryString());
+			String relayState = sessionHandler.saveRequest(Request.fromHttpRequest(servletRequest));
 
 			String loginUrl = conf.getString(Constants.PROP_SAML_SERVLET, "/saml") + "/login";
 			if (log.isDebugEnabled()) log.debug("Redirecting to login handler at " + loginUrl);
 			
 			RequestDispatcher dispatch = servletRequest.getRequestDispatcher(loginUrl);
-			dispatch.forward(new SAMLHttpServletRequest(servletRequest, null, hostname), response);
+			dispatch.forward(new SAMLHttpServletRequest(servletRequest, hostname, relayState), response);
 		}
 	}
 

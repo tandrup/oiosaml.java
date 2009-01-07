@@ -6,7 +6,15 @@
 
 	<div style="text-align: center; float: left">
     <a href="sp/priv1.jsp">Page requiring login</a> · <a href="configure.jsp">Runtime configuration</a><br /><br />
-    
+
+<div>
+<p>Test form POST:</p>
+<form method="post" action="sp/post.jsp">
+<input type="text" name="testing" value="testingvalue" />
+<input type="submit" />
+</form>
+</div>    
+
     <img src="oiosaml.gif" alt="oiosaml.java" />
     </div>
   </body>

@@ -23,6 +23,8 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.opensaml.saml2.core.Assertion;
@@ -71,29 +73,6 @@ public interface SessionHandler {
 	public void logOut(String sessionId);
 	
 	/**
-	 * Generate a new id for a SAML request.
-	 * 
-	 *  Implementations must track the id to check that responses are actually responses to known requests.
-	 * 
-	 * @param session
-	 *            Reference to the session
-	 * @return The generated id
-	 */
-	public String getID(HttpSession session);
-	
-	
-	/**
-	 * Remove an existing id from a SAML request from the SESSION_ID_LIST on the
-	 * current session
-	 * 
-	 * @param session
-	 *            Reference to the session
-	 * @param id
-	 *            The id
-	 */
-	public void removeID(HttpSession session, String id);
-	
-	/**
 	 * @return The {@link Assertion} associated with the session. <code>null</code> if there is no assertion.
 	 */
 	public OIOAssertion getAssertion(String sessionId);
@@ -130,4 +109,20 @@ public interface SessionHandler {
 	 */
 	public void resetReplayProtection(int maxNum);
 
+	/**
+	 * Save information about a request.
+	 * 
+	 * The information saved can be retrieved later on using getRequest to replay the request after the user has been authenticated.
+	 * 
+	 * @return A unique opaque string, no more than 72 characters long.
+	 */
+	public String saveRequest(Request request);
+		
+	/**
+	 * Get the request for a state identifier.
+	 * 
+	 * @param state
+	 * @throws IllegalArgumentException If the state identifier is unknown.
+	 */
+	public Request getRequest(String state) throws IllegalArgumentException;
 }

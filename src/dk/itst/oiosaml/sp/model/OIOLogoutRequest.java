@@ -146,7 +146,7 @@ public class OIOLogoutRequest extends OIORequest {
 	public static OIOLogoutRequest buildLogoutRequest(HttpSession session, String logoutServiceLocation, String issuerEntityId, SessionHandler handler) {
 		LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
 
-		logoutRequest.setID(handler.getID(session));
+		logoutRequest.setID(Utils.generateUUID());
 		logoutRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		logoutRequest.addNamespace(OIOSAMLConstants.SAML20_NAMESPACE);
 		logoutRequest.setDestination(logoutServiceLocation);
@@ -197,7 +197,7 @@ public class OIOLogoutRequest extends OIORequest {
 		lu.beforeService("", request.getDestination(),Constants.SERVICE_LOGOUT_REQUEST, "ID=" + getID());
 
 		try {
-			return enc.buildRedirectURL(signingCredential);
+			return enc.buildRedirectURL(signingCredential, null);
 		} catch (MessageEncodingException e) {
 			throw new WrappedException(Layer.CLIENT, e);
 		}

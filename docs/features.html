@@ -27,7 +27,11 @@
 <li>ForceAuthn can be set on selected urls</li>
 <li>NameIDPolicy can be selected using properties</li>
 <li>IsPassive can be configured. If IsPassive is set, SPFilter will allow unauthenticated requests, but the context assertion will not be valid. See <a href="developers.html">developer's guide</a>.
-<li>Supports AttributeQuery</li> 
+<li>Supports AttributeQuery</li>
+<li>Error page can be customized</li>
+<li>Custom Assertion validators can be injected</li>
+<li>POST requests are saved if they initiate SSO process and are replayed after authentication</li>
+<li>Session state can be saved in a number of ways, thereby supporting both standalone and clustering</li> 
 </ul>
 
 <h3>Supported bindings</h3>
@@ -67,8 +71,7 @@ allow unencrypted assertions by setting oiosaml-sp.encryption.force to false in 
 
 <h2>Limitations</h2>
 <ul>
-<li>The current implementation is not cluster safe. Assertion IDs are stored in a static map, which means that IDs can not be distributed safely. 
-This can be fixed by refactoring LoggedInHandler to use a shared storage such as a database.</li>
+<li>The default configuration is not cluster safe. See the <a href="clustering.html">clustering guide</a> for more information.</li>
 </ul>
 
 </body>

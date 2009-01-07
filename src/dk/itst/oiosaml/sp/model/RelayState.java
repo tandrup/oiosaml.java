@@ -24,16 +24,13 @@
 package dk.itst.oiosaml.sp.model;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class RelayState {
 	private final String relayState;
 
 	public RelayState(String relayState) {
-		if (relayState == null) throw new IllegalArgumentException(" Parameter 'RelayState' is null...");
 		this.relayState = relayState;
 	}
 
@@ -46,7 +43,7 @@ public class RelayState {
 		return "RelayState: " + relayState;
 	}
 
-	public void finished(HttpSession session, SessionHandler handler) {
-		handler.removeID(session, relayState);
+	public String getRelayState() {
+		return relayState;
 	}
 }

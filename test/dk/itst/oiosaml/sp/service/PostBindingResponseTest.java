@@ -17,6 +17,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.SAMLAssertionConsumerHandler;
+import dk.itst.oiosaml.sp.service.session.Request;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class PostBindingResponseTest extends AbstractServiceTests {
@@ -79,10 +80,8 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 		final String xml = TestHelper.signObject(response, credential);
 		context.checking(new Expectations() {{
 			atLeast(1).of(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(Base64.encodeBytes(xml.getBytes())));
-			allowing(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue("relay"));
+			allowing(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("uri", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
-			one(session).getAttribute(Constants.SESSION_REQUESTURI); will(returnValue("uri"));
-			one(session).getAttribute(Constants.SESSION_QUERYSTRING); will(returnValue("query"));
 			one(res).sendRedirect("uri?query");
 		}});
 		

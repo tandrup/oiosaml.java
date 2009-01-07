@@ -80,7 +80,9 @@ public class PostBindingHandler implements BindingHandler {
 		String encodedMessage = request.toBase64();
 
 		req.setAttribute("action", request.getDestination());
-		req.setAttribute("RelayState", request.getRelayState());
+		if (request.getRelayState() != null) {
+			req.setAttribute("RelayState", request.getRelayState());
+		}
 		req.setAttribute("SAMLRequest", encodedMessage);
 		RequestDispatcher dispatcher = req.getRequestDispatcher(dispatchPath);
 		if(dispatcher == null) {

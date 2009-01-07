@@ -37,8 +37,8 @@ If this method returns false, the user has not been authenticated, and should be
 <p>Attribute Query must be performed programatically. How to use Attribute Query is described in <a href="attributequery.html">in the Attribute Query guide</a>.</p>
 
 <h2>Customization</h2>
-<p>Two parts of OIOSAML.java can be directly: the the page used for sending POST requests when authenticating a
-user, and the error page. In the demo, the post page is called postlogin.jsp, and contains a simple POST form.</p>
+<p>A number parts of OIOSAML.java can be directly: the the page used for sending POST requests when authenticating a
+user, the error page, and other advanced parts. In the demo, the post page is called postlogin.jsp, and contains a simple POST form.</p>
 
 <p>The default page does not submit the form automatically using Javascript, it just builds a basic form which the user must submit. A
 new page can use the following request attributes to build the form (using ServletRequest.getAttribute()):</p>
@@ -54,6 +54,7 @@ new page can use the following request attributes to build the form (using Servl
 oiosaml-sp.properties (see <a href="configuration.html">the configuration section</a> for more information about configuring OIOSAML.java) using 
 the property POSTDispatchPath.</p>
 
+<h3>Error Page</h3>
 <p>The error page is used whenever SAML processing  fails. Like the login page, it is a servlet, which can be configured using a property. The page receives two objects in the request:</p>
 <ul>
 <li>error: String containing an error message</li>
@@ -61,8 +62,30 @@ the property POSTDispatchPath.</p>
 </ul>
 <p>By default, the error page is rendered from an internal template.</p>
 
+<h3>Assertion Validation</h3>
+<p>When assertions are received, they are automatically validated according to the OIOSAML specification. The validation code can be controlled by implementing the 
+dk.itst.oiosaml.sp.model.validation.AssertionValidator interface and injecting the class into the system using a <a href="configuration.html">configuration property</a>.</p>
+
+<h3>Re-POSTing after SSO</h3>
+<p>If the user does not have an active session (due to for example timeout) and makes a POST request to a protected page, the POST request
+will normally be lost after the SSO process has completed. However, OIOSAML.java captures information about the last request made and
+replays it after the user had been authenticated. For GET requests, this results in a 302 redirect. For POST requests, a HTML page is displayed
+with a form containing the original form data.</p>
+
+<p>By default, the form is a very simple page which displays all form fields and asks the user to either submit the request or cancel it. However,
+it is possible to customize the page.  The mechanism is the same as when customizing the error page. Set the property called oiosaml-sp.repost
+to point to a local servlet path. This servlet must then display a form for reposting the request. The servlet received two attributes in the request:
+"request" and "home". The request attribute contains a dk.itst.oiosaml.sp.service.session.Request object with all the information about the
+original request (all parameter names and values have been html encoded). The home attribute contains the address for the default home page, in 
+case the user wants to cancel the request.</p>
+ 
+<h3>State management</h3>
+<p>See the <a href="clustering.html">clustering guide</a>.</p>
+
+
 <h2>Logging</h2>
 <p>See the <a href="logging.html">separate section on logging</a>.</p>
+
 
 
 <h2>Source code structure</h2>
@@ -115,18 +138,6 @@ the logic from SPFilter must be duplicated. This is quite simple: SPFilter handl
 <li>It generated AuthnRequests using OIOAuthnRequest and delegates to a BindingHandler.</li>
 </ul>
 <p>If SPFilter is disabled, it is also necessary to start cleanup tasks manually. The tasks in question are the CRLChecker and LoggedInHandler#scheduleCleanupTasks().</p>
-
-<h3>Assertion Validation</h3>
-<p>When assertions are received, they are automatically validated according to the OIOSAML specification. The validation code can be controlled by implementing the 
-dk.itst.oiosaml.sp.model.validation.AssertionValidator interface and injecting the class into the system using a <a href="configuration.html">configuration property</a>.</p>
-
- 
-<h3>State management</h3>
-<p>Part of the state required for OIOSAML.java to work is stored in static variables by default. This means that the implementation is not
-cluster safe. However, the default implementation can be changed, so it is possible to implement a safe state storage instead. The
-relevant interface is dk.itst.oiosaml.sp.service.session.SessionHandler. The concrete type which is used at runtime is controlled by the
-configuration property oiosaml-sp.sessionhandler, which holds the class name of a class implementing the SessionHandler interface.</p>
-
 
 </body>
 </html>

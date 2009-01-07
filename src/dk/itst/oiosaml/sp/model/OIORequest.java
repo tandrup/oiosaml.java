@@ -115,11 +115,11 @@ public abstract class OIORequest extends OIOSamlObject {
 	}
 	
 	protected class Encoder extends HTTPRedirectDeflateEncoder {
-		public String buildRedirectURL(Credential signingCredential) throws MessageEncodingException {
+		public String buildRedirectURL(Credential signingCredential, String relayState) throws MessageEncodingException {
 			SAMLMessageContext<?, RequestAbstractType, ?> messageContext = new BasicSAMLMessageContext<SAMLObject, RequestAbstractType, SAMLObject>();
 			// Build the parameters for the request
 			messageContext.setOutboundSAMLMessage(request);
-			messageContext.setRelayState(request.getID());
+			messageContext.setRelayState(relayState);
 
 			// Sign the parameters
 			messageContext.setOutboundSAMLMessageSigningCredential(signingCredential);

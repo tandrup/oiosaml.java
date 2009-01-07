@@ -20,7 +20,6 @@ import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandler;
-import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
 
 public abstract class AbstractServiceTests extends AbstractTests {
@@ -50,9 +49,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 		session = context.mock(HttpSession.class);
 		context.checking(new Expectations() {{
 			allowing(session).getId(); will(returnValue("" + System.currentTimeMillis()));
-			allowing(session).setAttribute(Constants.SESSION_ID_LIST, ids);
 			allowing(req).getSession(); will(returnValue(session));
-			allowing(session).getAttribute(Constants.SESSION_ID_LIST); will(returnValue(ids));
 		}});
 		assertion = (Assertion) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("/dk/itst/oiosaml/sp/model/assertion.xml"));
 

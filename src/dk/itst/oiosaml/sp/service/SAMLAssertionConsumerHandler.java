@@ -115,7 +115,6 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 
 		RelayState relayState = RelayState.fromRequest(ctx.getRequest());
 		if (log.isDebugEnabled()) log.debug("Got relayState..:" + relayState);
-		relayState.finished(session, ctx.getSessionHandler());
 
 		String idpEntityId = response.getOriginatingIdpEntityId(ctx.getSessionHandler());
 		if (log.isDebugEnabled()) log.debug("Received SAML Response from " + idpEntityId + ": " + response.toXML());
@@ -142,10 +141,11 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			session.setAttribute(Constants.SESSION_USER_ASSERTION, new UserAssertionImpl(assertion));
 		}
 
-		String redirect = HTTPUtils.buildRedirectUrl(session, ctx.getConfiguration());
-		log.debug("redirectURI...:" + redirect);
-
-		ctx.getResponse().sendRedirect(redirect);
+		if (relayState.getRelayState() != null) {
+			HTTPUtils.sendResponse(ctx.getSessionHandler().getRequest(relayState.getRelayState()), ctx);
+		} else {
+			HTTPUtils.sendResponse(null, ctx);
+		}
 	}
 
 }

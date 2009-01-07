@@ -44,9 +44,11 @@ import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
+import dk.itst.oiosaml.sp.service.session.Request;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.LogId;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 
@@ -83,31 +85,6 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 	}
 	
 	@Test
-	public void failWhenMissingRelayState() throws Exception {
-		final ByteArrayOutputStream bos = generateArtifact();
-		final SOAPClient client = context.mock(SOAPClient.class);
-		
-		context.checking(new Expectations() {{
-			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
-			allowing(req).getParameter(with(any(String.class))); will(returnValue(null));
-			allowing(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(any(String.class)), with(any(String.class)), with(any(String.class)), with(any(Boolean.class)));
-			will(new Action() {
-				public void describeTo(Description description) {}
-
-				public Object invoke(Invocation invocation) throws Throwable {
-					ArtifactResolve req = (ArtifactResolve) invocation.getParameter(0);
-					return buildResponse(req.getID(), false, false, null);
-				}
-			});
-		}});
-		sh.setSoapClient(client);
-		try {
-			sh.handleGet(ctx);
-			fail("RelayState not set");
-		} catch (IllegalArgumentException e) {}
-	}
-	
-	@Test
 	public void failWhenResponseIsUnsigned() throws Exception {
 		final ByteArrayOutputStream bos = generateArtifact();
 		final SOAPClient client = context.mock(SOAPClient.class);
@@ -115,7 +92,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
-			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.getID(session)));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(Utils.generateUUID()));
 
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 //			one(ar).artifactResolve(with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(equal(new Boolean(false))), with(aNull(String.class)), with(aNull(String.class)), with(any(String.class)));
@@ -146,7 +123,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
-			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.getID(session)));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
@@ -156,8 +133,6 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 					return buildResponse(req.getID(), true, false, null);
 				}
 			});
-			atLeast(1).of(session).getAttribute(Constants.SESSION_REQUESTURI); will(returnValue("requesturi"));
-			atLeast(1).of(session).getAttribute(Constants.SESSION_QUERYSTRING); will(returnValue("query"));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
 		}});
@@ -173,13 +148,13 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 
 		conf.put(Constants.PROP_PASSIVE, "true");
 		conf.put(Constants.PROP_PASSIVE_USER_ID, "passive");
-		final String reqId = handler.getID(session);
+		final String reqId = Utils.generateUUID();
 		handler.registerRequest(reqId, idpEntityId);
 		
 		context.checking(new Expectations() {{
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
-			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.getID(session)));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
@@ -189,8 +164,6 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 					return buildResponse(req.getID(), true, true, reqId);
 				}
 			});
-			atLeast(1).of(session).getAttribute(Constants.SESSION_REQUESTURI); will(returnValue("requesturi"));
-			atLeast(1).of(session).getAttribute(Constants.SESSION_QUERYSTRING); will(returnValue("query"));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(PassiveUserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
 		}});

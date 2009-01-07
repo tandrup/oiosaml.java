@@ -27,7 +27,7 @@ public class OIORequestTest extends AbstractTests{
 		ar = (AuthnRequest) SAMLUtil.unmarshallElement(getClass().getResourceAsStream("request.xml"));
 		ar.getIssuer().setValue("issuerValue");
 		
-		this.request = new OIOAuthnRequest(ar);
+		this.request = new OIOAuthnRequest(ar, "state");
 		credential = TestHelper.getCredential();
 
 		this.request.sign(credential);

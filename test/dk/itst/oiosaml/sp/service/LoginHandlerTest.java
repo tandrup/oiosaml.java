@@ -82,6 +82,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			allowing(req).getPathInfo(); will(returnValue("/test"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer("http://test")));
 			allowing(req).getQueryString();
+			allowing(req).getParameter("RelayState"); will(returnValue(null));
 			allowing(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
 		}});
 	}

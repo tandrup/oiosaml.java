@@ -23,8 +23,6 @@
  */
 package dk.itst.oiosaml.sp.model;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -41,23 +39,27 @@ import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class OIOAuthnRequest extends OIORequest {
 	private static final Logger log = Logger.getLogger(OIOAuthnRequest.class);
 
 	private final AuthnRequest request;
 
-	public OIOAuthnRequest(AuthnRequest request) {
+	private final String relayState;
+
+	public OIOAuthnRequest(AuthnRequest request, String relayState) {
 		super(request);
 		this.request = request;
+		this.relayState = relayState;
 	}
 	
 	
-	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, HttpSession session, SessionHandler handler) {
+	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, SessionHandler handler, String relayState) {
 		AuthnRequest authnRequest = SAMLUtil.buildXMLObject(AuthnRequest.class);
 
 		authnRequest.setIssuer(SAMLUtil.createIssuer(spEntityId));
-		authnRequest.setID(handler.getID(session));
+		authnRequest.setID(Utils.generateUUID());
 		authnRequest.setForceAuthn(Boolean.FALSE);
 		authnRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		authnRequest.setProtocolBinding(protocolBinding);
@@ -72,7 +74,7 @@ public class OIOAuthnRequest extends OIORequest {
 		} catch (ValidationException e) {
 			throw new WrappedException(Layer.CLIENT, e);
 		}
-		return new OIOAuthnRequest(authnRequest);
+		return new OIOAuthnRequest(authnRequest, relayState);
 	}
 
 	/**
@@ -84,7 +86,7 @@ public class OIOAuthnRequest extends OIORequest {
 		lu.setRequestId(request.getID());
 		Encoder enc = new Encoder();
 		try {
-			return enc.buildRedirectURL(signingCredential);
+			return enc.buildRedirectURL(signingCredential, getRelayState());
 		} catch (MessageEncodingException e) {
 			throw new WrappedException(Layer.CLIENT, e);
 		} finally {
@@ -106,7 +108,7 @@ public class OIOAuthnRequest extends OIORequest {
 	}
 	
 	public String getRelayState() {
-		return getID();
+		return relayState;
 	}
 	
 	public boolean isForceAuthn() {

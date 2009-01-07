@@ -123,7 +123,6 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		setHandler();
 		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, "http://logout", "issuer", handler);
 		
-		assertEquals(1, ids.size());
 		assertEquals("issuer", lr.getIssuer());
 		assertNotNull(lr.getID());
 

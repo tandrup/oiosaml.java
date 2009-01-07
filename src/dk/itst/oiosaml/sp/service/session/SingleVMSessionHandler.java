@@ -23,7 +23,6 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,10 +32,8 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Issuer;
 
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.LogId;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
@@ -52,10 +49,6 @@ public class SingleVMSessionHandler implements SessionHandler {
 	
 	public OIOAssertion getAssertion(String sessionId) {
 		return instance.getAssertion(sessionId);
-	}
-
-	public String getID(HttpSession session) {
-		return instance.getID(session);
 	}
 
 	public String getRelatedSessionId(String sessionIndex) {
@@ -82,10 +75,6 @@ public class SingleVMSessionHandler implements SessionHandler {
 		return instance.removeEntityIdForRequest(id);
 	}
 
-	public void removeID(HttpSession session, String id) {
-		instance.removeID(session, id);
-	}
-
 	public void setAssertion(String sessionId, OIOAssertion assertion)
 			throws IllegalArgumentException {
 		instance.setAssertion(sessionId, assertion);
@@ -99,12 +88,20 @@ public class SingleVMSessionHandler implements SessionHandler {
 		instance.resetReplayProtection(maxNum);
 	}
 
+	public String saveRequest(Request request) {
+		return instance.saveRequest(request);
+	}
+	
+	public Request getRequest(String state) throws IllegalArgumentException {
+		return instance.getRequest(state);
+	}
 
 	@SuppressWarnings("unchecked")
 	private static class SingletonHandler {
 		private final Map<String, TimeOutWrapper<OIOAssertion>> sessionMap = new ConcurrentHashMap<String, TimeOutWrapper<OIOAssertion>>();
 		private final Map<String, TimeOutWrapper<String>> sessionIndexMap = new ConcurrentHashMap<String, TimeOutWrapper<String>>();
 		private final Map<String, TimeOutWrapper<String>> requestIds = new ConcurrentHashMap<String, TimeOutWrapper<String>>();
+		private final Map<String, TimeOutWrapper<Request>> requests = new ConcurrentHashMap<String, TimeOutWrapper<Request>>();
 		private Map<String, OIOAssertion> usedAssertionIds = new LRUMap(10000);
 	
 		public synchronized void setAssertion(String sessionId, OIOAssertion assertion) throws IllegalArgumentException{
@@ -156,49 +153,6 @@ public class SingleVMSessionHandler implements SessionHandler {
 			removeAssertion(sessionId);
 		}
 		
-		public String getID(HttpSession session) {
-			return getID(session, null);
-		}
-
-		/**
-		 * Generate a new id for a SAML request and add it to the SESSION_ID_LIST on
-		 * the current session with an associated timer object ({@link LogUtil})
-		 * 
-		 * @param session
-		 *            Reference to the session
-		 * @param lu
-		 *            The associated timer object
-		 * @return The generated id
-		 */
-		public String getID(HttpSession session, LogUtil lu) {
-			Map<String, LogId> idList = getIdMap(session);
-
-			String id =  Utils.generateUUID();
-			LogId logId = new LogId(id, lu);
-			idList.put(id, logId);
-			
-			return id;
-		}
-		
-		private Map<String, LogId> getIdMap(HttpSession session) {
-			Map idList = (Map) session.getAttribute(Constants.SESSION_ID_LIST);
-			if (idList == null) {
-				idList = new HashMap();
-				session.setAttribute(Constants.SESSION_ID_LIST, idList);
-			}
-			return idList;
-		}
-
-		public LogUtil removeID(HttpSession session, String id) {
-			Map<String, LogId> idList = getIdMap(session);
-
-			if (idList == null || !idList.containsKey(id))
-				return null;
-
-			LogId logId = idList.remove(id);
-			return logId.getLu();
-		}
-
 		public synchronized OIOAssertion getAssertion(String sessionId) {
 			if(sessionId == null) {
 				return null;
@@ -247,6 +201,7 @@ public class SingleVMSessionHandler implements SessionHandler {
 			cleanup(sessionMap, sessionCleanupDelay);
 			cleanup(requestIds, requestIdsCleanupDelay);
 			cleanup(sessionIndexMap, sessionCleanupDelay);
+			cleanup(requests, sessionCleanupDelay);
 		}
 
 		private <E, T> void cleanup(Map<E, TimeOutWrapper<T>> map, long cleanupDelay) {
@@ -263,6 +218,21 @@ public class SingleVMSessionHandler implements SessionHandler {
 		public void resetReplayProtection(int maxNum) {
 			usedAssertionIds = new LRUMap(maxNum);
 		}
+		
+		public String saveRequest(Request request) {
+			String state = Utils.generateUUID();
+			requests.put(state, new TimeOutWrapper<Request>(request));
+			return state;
+		}
+		
+		public Request getRequest(String state) throws IllegalArgumentException {
+			TimeOutWrapper<Request> request = requests.remove(state);
+			if (request == null) {
+				throw new IllegalArgumentException("No request for state " + state);
+			}
+			return request.getObject();
+		}
+
 	}
 
 }

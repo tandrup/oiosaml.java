@@ -25,11 +25,19 @@ package dk.itst.oiosaml.sp.service.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import org.apache.commons.configuration.Configuration;
+import org.apache.log4j.Logger;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+
+import dk.itst.oiosaml.sp.service.RequestContext;
+import dk.itst.oiosaml.sp.service.session.Request;
 
 /**
  * Utility class for handling HTTP requests and responses.
@@ -38,6 +46,7 @@ import org.apache.commons.configuration.Configuration;
  *
  */
 public class HTTPUtils {
+	private static final Logger log = Logger.getLogger(HTTPUtils.class);
 	
 	private HTTPUtils() {}
 
@@ -69,21 +78,83 @@ public class HTTPUtils {
 	}
 	
 	/**
-	 * Build the original request uri, as set when the user was redirected to the IdP.
-	 * @param session Session object containing {@link Constants#SESSION_REQUESTURI} and {@link Constants#SESSION_QUERYSTRING}.
-	 * @param config Configuration where default url is read at {@link Constants#PROP_HOME}.
+	 * Replay a request.
+	 * 
+	 * <p>This method will take information about a request and replay it - either by issuing a redirect if the request was a GET request, or by 
+	 * creating a POST form with the original form data.</p>
+	 * 
+	 * <p>In the POST case, the context configuration is checked for the {@link Constants#PROP_REPOST_SERVLET} property. If it has been set,
+	 * this servlet will be invoked. Otherwise a default page is displayed.</p>
+	 * 
+	 * <p>In both cases, two attributes are added to the request context: "request" which holds the {@link Request} object and "home" which
+	 * contains a link to the default hom page.</p>
+	 * 
 	 */
-	public static String buildRedirectUrl(HttpSession session, Configuration config) {
-		// Redirect the user to the original URI
-		String redirectURI = (String) session.getAttribute(Constants.SESSION_REQUESTURI);
-		String queryString = (String) session.getAttribute(Constants.SESSION_QUERYSTRING);
-		if (null != queryString && !"".equals(queryString)) {
-			redirectURI += "?" + queryString;
+	public static void sendResponse(Request req, RequestContext ctx) throws IOException, ServletException {
+		String home = ctx.getConfiguration().getString(Constants.PROP_HOME);
+		if (req == null) {
+			log.debug("No request saved in RelayState, redrecting to default url: " + home);
+			ctx.getResponse().sendRedirect(home);
+			return;
 		}
+		
+		if ("GET".equals(req.getMethod())) {
+			StringBuilder sb = new StringBuilder(req.getRequestURI());
+			if (req.getQueryString() != null) {
+				sb.append("?");
+				sb.append(req.getQueryString());
+			}
+			if (log.isDebugEnabled()) log.debug("Saved GET request, redirecting to " + sb);
+			ctx.getResponse().sendRedirect(sb.toString());
+		} else {
+			Map<String, String[]> params = new HashMap<String, String[]>();
+			for (Map.Entry<String, String[]> e : req.getParameters().entrySet()) {
+				ArrayList<String> values = new ArrayList<String>();
+				
+				for (String val : e.getValue()) {
+					values.add(Utils.htmlEntityEncode(val));
+				}
+				params.put(Utils.htmlEntityEncode(e.getKey()), values.toArray(new String[0]));
+			}
+			req = new Request(req.getRequestURI(), req.getQueryString(), req.getMethod(), params);
+			
+			String postServlet = ctx.getConfiguration().getString(Constants.PROP_REPOST_SERVLET, null);
+			if (postServlet != null) {
+				if (log.isDebugEnabled()) log.debug("POST Request with custom servlet at " + postServlet + " for action " + req.getRequestURI());
+				ctx.getRequest().setAttribute("request", req);
+				ctx.getRequest().setAttribute("home", home);
+				ctx.getRequest().getRequestDispatcher(postServlet).forward(ctx.getRequest(), ctx.getResponse());
+			} else {
+				if (log.isDebugEnabled()) log.debug("Saved POST request with default servlet for action " + req.getRequestURI());
+				
+				VelocityContext vc = new VelocityContext();
+				vc.put("request", req);
+				vc.put("home", home);
+				
+				ctx.getResponse().setContentType("text/html");
 
-		if (redirectURI == null) { 
-			redirectURI = config.getString(Constants.PROP_HOME);
+				try {
+					getEngine().mergeTemplate("/dk/itst/oiosaml/sp/service/repost.vm", vc, ctx.getResponse().getWriter());
+				} catch (Exception e1) {
+					log.error("Unable to render error template", e1);
+					throw new ServletException(e1);
+				}
+			}
 		}
-		return redirectURI;
+			
+		
+	}
+	
+	private static VelocityEngine getEngine() {
+		VelocityEngine engine = new VelocityEngine();
+		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
+		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		try {
+			engine.init();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return engine;
+
 	}
 }

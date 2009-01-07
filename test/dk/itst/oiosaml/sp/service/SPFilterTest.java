@@ -78,6 +78,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer("http://test/saml/service")));
 			allowing(req).getQueryString();
 			allowing(req).getServletPath(); will(returnValue("/servlet"));
+			allowing(req).getMethod(); will(returnValue("GET"));
 		}});
 		
 		filter = new SPFilter();
@@ -122,10 +123,9 @@ public class SPFilterTest extends AbstractServiceTests {
 		UserAssertionHolder.set(new UserAssertionImpl(new OIOAssertion(assertion)));		
 		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
-			one(session).setAttribute(with(equal(Constants.SESSION_REQUESTURI)), with(any(String.class)));
-			one(session).setAttribute(with(equal(Constants.SESSION_QUERYSTRING)), with(any(String.class)));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 			one(req).getRequestDispatcher("/saml/login"); will(returnValue(dispatcher));
+			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>()));
 			one(dispatcher).forward(with(any(HttpServletRequest.class)), with(equal(res)));
 		}});
 		

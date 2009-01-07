@@ -75,19 +75,6 @@ public class LoggedInHandlerTest extends AbstractServiceTests{
 		assertNull(handler.getAssertion(session.getId()));
 	}
 
-	@Test
-	public void testGetIDHttpSession() {
-		String id = handler.getID(session);
-		assertNotNull(id);
-		assertEquals(1, ids.size());
-		
-		handler.removeID(session, id);
-		assertEquals(0, ids.size());
-		context.assertIsSatisfied();
-		
-		handler.removeID(session, id);
-	}
-
 	@Test 
 	public void cleanUpIsScheduled() throws Exception {
 		SessionCleaner.startCleaner(handler, 1, 1);

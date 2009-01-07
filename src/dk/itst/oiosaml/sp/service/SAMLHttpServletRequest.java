@@ -30,16 +30,23 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertion;
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class SAMLHttpServletRequest extends HttpServletRequestWrapper {
 
 	private final UserAssertion assertion;
 	private final String hostname;
+	private String relayState;
 
 	public SAMLHttpServletRequest(HttpServletRequest request, UserAssertion assertion, String hostname) {
 		super(request);
 		this.assertion = assertion;
 		this.hostname = hostname;
+	}
+
+	public SAMLHttpServletRequest(HttpServletRequest servletRequest, String hostname, String relayState) {
+		this(servletRequest, (UserAssertion)null, hostname);
+		this.relayState = relayState;
 	}
 
 	@Override
@@ -68,4 +75,11 @@ public class SAMLHttpServletRequest extends HttpServletRequestWrapper {
 		return new StringBuffer(mod);
 	}
 
+	@Override
+	public String getParameter(String name) {
+		if (Constants.SAML_RELAYSTATE.equals(name) && relayState != null) {
+			return relayState;
+		}
+		return super.getParameter(name);
+	}
 }

@@ -67,6 +67,23 @@ public final class Utils {
 	}
 
 	/**
+	 * Encode a string to html entities.
+	 */
+	public static String htmlEntityEncode(String s) {
+		StringBuilder buf = new StringBuilder();
+		int len = (s == null ? -1 : s.length());
+		for (int i = 0; i < len; i++) {
+			char c = s.charAt(i);
+			if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') {
+				buf.append(c);
+			} else {
+				buf.append("&#" + (int) c + ";");
+			}
+		}
+		return buf.toString();
+	} 
+	
+	/**
 	 * @return true if the queryString in the request has been signed correctly
 	 *         by the Login Site
 	 */
