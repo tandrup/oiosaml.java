@@ -79,11 +79,14 @@ public class JdbcSessionHandler implements SessionHandler {
 
 	public void cleanup(long requestIdsCleanupDelay, long sessionCleanupDelay) {
 		Connection con = getConnection();
+		String[] tables = new String[] { "assertions", "requests", "requestdata" };
+		
 		try {
-			PreparedStatement ps = con.prepareStatement("DELETE FROM assertions WHERE timestamp < ?");
-			ps.setTimestamp(1, new Timestamp(new Date().getTime() - sessionCleanupDelay));
-			ps.executeUpdate();
-			ps.close();
+			for (String table : tables) {
+				PreparedStatement ps = con.prepareStatement("DELETE FROM " + table + " WHERE timestamp < ?");
+				ps.setTimestamp(1, new Timestamp(new Date().getTime() - sessionCleanupDelay));
+				ps.executeUpdate();
+			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
