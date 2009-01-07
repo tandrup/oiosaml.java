@@ -23,11 +23,12 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class Request {
+public class Request implements Serializable {
 	
 	private final String requestURI;
 	private final String queryString;

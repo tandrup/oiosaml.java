@@ -91,7 +91,7 @@ public interface SessionHandler {
 	 * @param id
 	 * @throws IllegalArgumentException If the request id is unknown.
 	 */
-	public String removeEntityIdForRequest(String id);
+	public String removeEntityIdForRequest(String id) throws IllegalArgumentException;
 
 	/**
 	 * Clean stored ids and sessions.

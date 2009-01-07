@@ -68,8 +68,8 @@ public class SAMLConfiguration {
 		conf.setProperty("oiosaml.home", home);
 		
 		try {
-			conf.addConfiguration(new PropertiesConfiguration(SAMLConfiguration.class.getResource("/oiosaml-common.properties")));
 			conf.addConfiguration(new PropertiesConfiguration(new File(home, name + ".properties")));
+			conf.addConfiguration(new PropertiesConfiguration(SAMLConfiguration.class.getResource("/oiosaml-common.properties")));
 			
 			systemConfiguration = conf;
 			return systemConfiguration;
