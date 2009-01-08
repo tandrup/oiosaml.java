@@ -24,6 +24,7 @@
 package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -81,7 +82,6 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  */
 public class SPFilter implements Filter {
 
-	public static final String VERSION = "$Id: SPFilter.java 2950 2008-05-28 08:22:34Z jre $";
 	private static final Logger log = Logger.getLogger(SPFilter.class);
 	private CRLChecker crlChecker = new CRLChecker();
 	
@@ -89,6 +89,8 @@ public class SPFilter implements Filter {
 	private Configuration conf;
 	private String hostname;
 	private SessionHandlerFactory sessionHandlerFactory;
+	
+	private AtomicBoolean cleanerRunning = new AtomicBoolean(false);
 
 	/**
 	 * Static initializer for bootstrapping OpenSAML.
@@ -136,8 +138,11 @@ public class SPFilter implements Filter {
 				request.getRequestDispatcher("/saml/configure").forward(request, response);
 				return;
 			}
-			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), 30, ((HttpServletRequest)request).getSession().getMaxInactiveInterval());
 		}
+		if (cleanerRunning.compareAndSet(false, true)) {
+			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), ((HttpServletRequest)request).getSession().getMaxInactiveInterval(), 30);
+		}
+		
 		HttpServletRequest servletRequest = ((HttpServletRequest) request);
 		SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
 		

@@ -26,10 +26,16 @@ package dk.itst.oiosaml.sp.service.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
+
 public class SessionCleaner {
+	private static final Logger log = Logger.getLogger(SessionCleaner.class);
+	
 	private static Timer cleanupTimer = null;
 
 	public static void startCleaner(final SessionHandler handler, int maxInactiveIntervalSeconds, int delay) {
+		log.info("Starting session cleaner");
+		
 		if (cleanupTimer != null) {
 			cleanupTimer.cancel();
 		}
@@ -40,6 +46,8 @@ public class SessionCleaner {
 		
 		cleanupTimer.schedule(new TimerTask() {
 			public void run() {
+				log.debug("Cleaning sessions older than " + sessionCleanupDelay + " and request ids older than " + requestIdsCleanupDelay);
+				
 				handler.cleanup(requestIdsCleanupDelay, sessionCleanupDelay);
 			}
 		}, sessionCleanupDelay, sessionCleanupDelay);

@@ -101,13 +101,24 @@ public class JdbcSessionHandler implements SessionHandler {
 			ps.setString(1, sessionId);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				return new OIOAssertion((Assertion) SAMLUtil.unmarshallElementFromString(rs.getString("assertion")));
+				OIOAssertion res = new OIOAssertion((Assertion) SAMLUtil.unmarshallElementFromString(rs.getString("assertion")));
+				updateTimestamp(sessionId, con);
+				
+				return res;
 			} else {
 				return null;
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private void updateTimestamp(String id, Connection con) throws SQLException {
+		PreparedStatement ps = con.prepareStatement("UPDATE assertions SET timestamp = ? WHERE id = ?");
+		ps.setTimestamp(1, new Timestamp(new Date().getTime()));
+		ps.setString(2, id);
+		ps.executeUpdate();
+		ps.close();
 	}
 
 	public String getRelatedSessionId(String sessionIndex) {
