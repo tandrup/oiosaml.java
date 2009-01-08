@@ -79,6 +79,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			allowing(req).getQueryString();
 			allowing(req).getServletPath(); will(returnValue("/servlet"));
 			allowing(req).getMethod(); will(returnValue("GET"));
+			allowing(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
 		filter = new SPFilter();
