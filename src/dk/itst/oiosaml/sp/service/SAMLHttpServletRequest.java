@@ -82,4 +82,15 @@ public class SAMLHttpServletRequest extends HttpServletRequestWrapper {
 		}
 		return super.getParameter(name);
 	}
+	
+	@Override
+	public String getQueryString() {
+		if (relayState == null) return super.getQueryString();
+		
+		String q = super.getQueryString();
+		if (q == null) {
+			q = "";
+		}
+		return new StringBuilder(q).append("&").append(Constants.SAML_RELAYSTATE).append("=").append(relayState).toString();
+	}
 }
