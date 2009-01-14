@@ -267,6 +267,11 @@ public class JdbcSessionHandler implements SessionHandler {
 			if (rs.next()) {
 				throw new IllegalArgumentException("Assertion with id " + assertion.getID() + " is already registered");
 			}
+			ps = con.prepareStatement("DELETE FROM assertions WHERE id = ?");
+			ps.setString(1, sessionId);
+			if (ps.executeUpdate() > 0) {
+				log.debug("Overwriting exising session info for session " + sessionId);
+			}
 			
 			ps = con.prepareStatement("INSERT INTO assertions (id, assertion, assertionid, sessionindex, timestamp) VALUES (?, ?, ?, ?, ?)");
 			ps.setString(1, sessionId);
