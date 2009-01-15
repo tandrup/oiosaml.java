@@ -1,6 +1,7 @@
 package dk.itst.oiosaml.sp.service;
 
 import static dk.itst.oiosaml.sp.service.TestHelper.buildAssertion;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
@@ -15,6 +16,8 @@ import java.security.cert.CertificateEncodingException;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.Configuration;
 import org.hamcrest.Description;
@@ -33,14 +36,16 @@ import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.util.Base64;
+import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
@@ -95,7 +100,6 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(Utils.generateUUID()));
 
 			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
-//			one(ar).artifactResolve(with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(equal(new Boolean(false))), with(aNull(String.class)), with(aNull(String.class)), with(any(String.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
 
@@ -142,6 +146,23 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 	}
 	
 	@Test
+	public void testPost() throws Exception {
+		String id = Utils.generateUUID();
+		handler.registerRequest(id, idpEntityId);
+		ArtifactResponse r = (ArtifactResponse) buildResponse(Utils.generateUUID(), true, false, id).getBody().getUnknownXMLObjects().get(0);
+		final String response = Base64.encodeBytes(XMLHelper.nodeToString(SAMLUtil.marshallObject(r.getMessage())).getBytes());
+		
+		context.checking(new Expectations() {{
+			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(response));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
+			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
+			one(res).sendRedirect("requesturi?query");
+		}});
+		
+		sh.handlePost(ctx);
+	}
+	
+	@Test
 	public void testPassive() throws Exception {
 		final ByteArrayOutputStream bos = generateArtifact();
 		final SOAPClient client = context.mock(SOAPClient.class);
@@ -171,6 +192,48 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		
 		sh.handleGet(ctx);
 	}
+	
+	@Test
+	public void authenticationHookMustBeInvokedIfConfigured() throws Exception {
+		AuthenticationHandlerStub.invoked = false;
+		conf.put(Constants.PROP_AUTHENTICATION_HANDLER, AuthenticationHandlerStub.class.getName());
+		
+		String id = Utils.generateUUID();
+		handler.registerRequest(id, idpEntityId);
+		ArtifactResponse r = (ArtifactResponse) buildResponse(Utils.generateUUID(), true, false, id).getBody().getUnknownXMLObjects().get(0);
+		final String response = Base64.encodeBytes(XMLHelper.nodeToString(SAMLUtil.marshallObject(r.getMessage())).getBytes());
+		
+		context.checking(new Expectations() {{
+			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(response));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
+			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
+			one(res).sendRedirect("requesturi?query");
+		}});
+		
+		AuthenticationHandlerStub.succeed = true;
+		sh.handlePost(ctx);
+		assertTrue(AuthenticationHandlerStub.invoked);
+	}
+
+	@Test
+	public void authenticationHookFailureMustAbort() throws Exception {
+		AuthenticationHandlerStub.invoked = false;
+		conf.put(Constants.PROP_AUTHENTICATION_HANDLER, AuthenticationHandlerStub.class.getName());
+		
+		String id = Utils.generateUUID();
+		handler.registerRequest(id, idpEntityId);
+		ArtifactResponse r = (ArtifactResponse) buildResponse(Utils.generateUUID(), true, false, id).getBody().getUnknownXMLObjects().get(0);
+		final String response = Base64.encodeBytes(XMLHelper.nodeToString(SAMLUtil.marshallObject(r.getMessage())).getBytes());
+		
+		context.checking(new Expectations() {{
+			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(response));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
+		}});
+		
+		AuthenticationHandlerStub.succeed = false;
+		sh.handlePost(ctx);
+		assertTrue(AuthenticationHandlerStub.invoked);
+	}
 		
 	private Envelope buildResponse(String id, boolean sign, boolean passive, String reqId) throws Exception {
 		ArtifactResponse res = SAMLUtil.buildXMLObject(ArtifactResponse.class);
@@ -183,9 +246,9 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		Response samlResponse = SAMLUtil.buildXMLObject(Response.class);
 		samlResponse.setInResponseTo(reqId);
 		
+		Assertion assertion = buildAssertion(spMetadata.getAssertionConsumerServiceLocation(0), spMetadata.getEntityID());
 		if (!passive) {
 			samlResponse.setStatus(SAMLUtil.createStatus(StatusCode.SUCCESS_URI));
-			Assertion assertion = buildAssertion(spMetadata.getAssertionConsumerServiceLocation(0), spMetadata.getEntityID());
 	
 			samlResponse.getAssertions().add(assertion);
 		} else {
@@ -197,14 +260,13 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		res.setMessage(samlResponse);
 		
 		if (sign) {
-			Signature signature = SAMLUtil.createSignature("test");
-			signature.setSigningCredential(credential);
-			signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
-			signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-			samlResponse.setSignature(signature);
-
-			org.opensaml.xml.Configuration.getMarshallerFactory().getMarshaller(res).marshall(res);
-			Signer.signObject(signature);			
+			Signature signature = SAMLUtil.buildXMLObject(Signature.class);
+		    signature.setSigningCredential(credential);
+	        SecurityHelper.prepareSignatureParams(signature, credential, null, null);
+		    samlResponse.setSignature(signature);
+		    SAMLUtil.marshallObject(samlResponse);
+		    
+	        Signer.signObject(signature);
 		}
 		
 		Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
@@ -224,5 +286,16 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		bos.write(md.digest("idp1.test.oio.dk".getBytes("UTF-8")));
 		bos.write("12345678901234567890".getBytes());
 		return bos;
+	}
+	
+	public static class AuthenticationHandlerStub implements AuthenticationHandler {
+		static boolean invoked;
+		static boolean succeed = true;
+		
+		public boolean userAuthenticated(UserAssertion assertion, HttpServletRequest request, HttpServletResponse response) {
+			invoked = true;
+			return succeed;
+		}
+		
 	}
 }

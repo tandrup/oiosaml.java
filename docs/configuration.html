@@ -96,6 +96,7 @@ Defaults to artifact,post,redirect,soap.</li>
 <li>oiosaml-sp.assertion.validator: FQCN of a class which implements dk.itst.oiosaml.sp.model.validation.AssertionValidator. This class is then used to perform validation of received assertions. See <a href="developers.html">developer's guide</a> for more information.</li>
 <li>oiosaml-sp.sessionhandler.factory: FQCN of a class which implements dk.itst.oiosaml.sp.service.session.SessionHandlerFactory. This class is responsible for handling session state across requests and instances. See <a href="developers.html">developer's guide</a> for more information.</li>
 <li>oiosaml-sp.repost: Path to a servlet handling reposting of requests after authentication. See <a href="developers.html">developer's guide</a> for more information.</li>
+<li>oiosaml-sp.authenticationhandler: FQCN of a class implementing dk.itst.oiosaml.sp.AuthenticationHandler. This class is instantiated and invoked when a new user is authenticated (ie a valid saml assertion is received).</li>
 </ul>
 
 <h3>Service Provider Metadata</h3>

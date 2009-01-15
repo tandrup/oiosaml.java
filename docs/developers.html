@@ -82,6 +82,16 @@ case the user wants to cancel the request.</p>
 <h3>State management</h3>
 <p>See the <a href="clustering.html">clustering guide</a>.</p>
 
+<h3>Authentication Hooks</h3>
+<p>It is possible to receive a notification when a user has been authenticated by the SAML filter. To do this, implement the interface
+dk.itst.oiosaml.sp.AuthenticationHandler. This interface has one method, userAuthenticated, which is called when an assertion has been
+validated without errors.</p>
+
+<p>Authentication handlers can be used to do further authentication or lookups, which should not be performed on every request.</p>
+
+<p>The userAuthenticated method returns either true or false. If false is returned, processing is aborted, and the user will not be authenticated 
+by the filter, which means that no objects are added to the session.</p>
+
 
 <h2>Logging</h2>
 <p>See the <a href="logging.html">separate section on logging</a>.</p>

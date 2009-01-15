@@ -33,7 +33,9 @@ import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
+import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -46,6 +48,7 @@ import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 import dk.itst.oiosaml.sp.service.util.PostResponseExtractor;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
  * Servlet for receiving SAML asertions from the IdP.
@@ -135,16 +138,35 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			// Validate the content of the assertion
 			assertion.validateAssertion(validator, ctx.getSpMetadata().getEntityID(), ctx.getSpMetadata().getAssertionConsumerServiceLocation(0));
 			new LogUtil(getClass(), VERSION, NAME, assertion.getSubjectNameIDValue()).audit("Received assertion " + assertion.getID());
-	
+
+			UserAssertion userAssertion = new UserAssertionImpl(assertion);
+			if (!invokeAuthenticationHandler(ctx, userAssertion)) {
+				log.error("Authentication handler stopped authentication");
+				return;
+			}
+			
 			// Store the assertion in the session store
 			ctx.getSessionHandler().setAssertion(session.getId(), assertion);
-			session.setAttribute(Constants.SESSION_USER_ASSERTION, new UserAssertionImpl(assertion));
+			session.setAttribute(Constants.SESSION_USER_ASSERTION, userAssertion);
 		}
 
 		if (relayState.getRelayState() != null) {
 			HTTPUtils.sendResponse(ctx.getSessionHandler().getRequest(relayState.getRelayState()), ctx);
 		} else {
 			HTTPUtils.sendResponse(null, ctx);
+		}
+	}
+
+	private boolean invokeAuthenticationHandler(RequestContext ctx, UserAssertion userAssertion) {
+		String handlerClass = ctx.getConfiguration().getString(Constants.PROP_AUTHENTICATION_HANDLER, null);
+		if (handlerClass != null) {
+			log.debug("Authentication handler: " + handlerClass);
+			
+			AuthenticationHandler handler = (AuthenticationHandler) Utils.newInstance(ctx.getConfiguration(), Constants.PROP_AUTHENTICATION_HANDLER);
+			return handler.userAuthenticated(userAssertion, ctx.getRequest(), ctx.getResponse());
+		} else {
+			log.debug("No authentication handler configured");
+			return true;
 		}
 	}
 

@@ -87,6 +87,8 @@ public interface Constants {
 	 */
 	static final String PROP_SAML_SERVLET = "oiosaml-sp.servlet";
 	
+	static final String PROP_AUTHENTICATION_HANDLER = "oiosaml-sp.authenticationhandler";
+	
 	static final String PROP_SUPPORTED_BINDINGS = "oiosaml-sp.bindings";
 	
 	/**
