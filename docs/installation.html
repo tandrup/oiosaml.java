@@ -22,7 +22,10 @@ For configuration, see <a href="configuration.html">the configuration guide</a>.
 <p>The distribution file contains both the necessary jar files and a demo application. The demo application is a simple web application with OIOSAML.java configured to protect 
 selected resources.</p>
 
-<p>NB: If you are using <b>Java 1.5.0</b> you have to endorse alternative JAXP 1.3 implementations. <a href="endorsement.html">further information here</a>.</p>  
+<p>NB: If you are using <b>Java 1.5.0</b> you have to endorse alternative JAXP 1.3 implementations.<br/>
+If an exception occurs saying something like: <code>org.xml.sax.SAXParseException: UndeclaredPrefix: Cannot resolve 'xt:DEFAULT' as a QName: the prefix 'xt' is not declared.</code> you will have to endorse JAXP 1.3 also.
+ <a href="endorsement.html">further information here</a>.</p>
+  
 
 <h3>Demo installation</h3>
 <p>Before deploying the demo war file to a web container, web.xml must be edited to set <a href="configuration.html">oiosaml-j.home to point to a valid configuration dir</a>. If this is 

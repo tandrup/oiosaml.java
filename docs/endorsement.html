@@ -33,5 +33,13 @@ OpenSAML requires the use of alternative implementations of JAXP 1.3 than the on
 <p><a href="http://tomcat.apache.org/tomcat-6.0-doc/class-loader-howto.html">The specifics of classloading in Tomcat 6.0</a> summarizes to: Place the <code>endorsed</code> dir from the distribution in $CATALINA_HOME</p>
 <h4>Tomcat 5.5.26</h4>
 <p><a href="http://tomcat.apache.org/tomcat-5.5-doc/class-loader-howto.html">The specifics of classloading in Tomcat 5.5</a> summarizes to: Place the jars from the <code>endorsed</code> dir from the distribution in $CATALINA_HOME/common/endorsed</p>
+
+<h4>OS X</h4>
+<p>Also in certain situations it might be necessary to set some extra vm parameters, this depends a lot on the VM implementation.<br/>
+These parameters, along with the endorsed library settings, will setup the correct XML parser.<br/>
+<pre>-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl<br/>
+-Djavax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema=org.apache.xerces.jaxp.validation.XMLSchemaFactory</pre>
+</p>
+
 </body>
 </html>
