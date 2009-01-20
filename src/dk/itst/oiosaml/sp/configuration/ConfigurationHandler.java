@@ -61,6 +61,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.AttributeConsumingService;
 import org.opensaml.saml2.metadata.ContactPerson;
+import org.opensaml.saml2.metadata.ContactPersonTypeEnumeration;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
@@ -299,6 +300,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		ContactPerson contact = SAMLUtil.buildXMLObject(ContactPerson.class);
 		contact.getEmailAddresses().add(SAMLUtil.createEmail(email));
 		contact.setCompany(SAMLUtil.createCompany(orgName));
+		contact.setType(ContactPersonTypeEnumeration.TECHNICAL);
 		
 		descriptor.getContactPersons().add(contact);
 		descriptor.setOrganization(SAMLUtil.createOrganization(orgName, orgName, orgUrl));
