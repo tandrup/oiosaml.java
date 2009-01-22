@@ -261,14 +261,16 @@ public class JdbcSessionHandler implements SessionHandler {
 	public void setAssertion(String sessionId, OIOAssertion assertion) throws IllegalArgumentException {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM assertions WHERE assertionid = ?");
+			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM assertions WHERE assertionid = ? OR sessionindex = ?");
 			ps.setString(1, assertion.getID());
+			ps.setString(2, assertion.getSessionIndex());
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				throw new IllegalArgumentException("Assertion with id " + assertion.getID() + " is already registered");
+				throw new IllegalArgumentException("Assertion with id " + assertion.getID() + " and sessionidx " + assertion.getSessionIndex() + " is already registered");
 			}
-			ps = con.prepareStatement("DELETE FROM assertions WHERE id = ?");
+			ps = con.prepareStatement("DELETE FROM assertions WHERE id = ? OR sessionindex = ?");
 			ps.setString(1, sessionId);
+			ps.setString(2, assertion.getSessionIndex());
 			if (ps.executeUpdate() > 0) {
 				log.debug("Overwriting exising session info for session " + sessionId);
 			}
