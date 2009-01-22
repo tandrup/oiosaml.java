@@ -134,6 +134,32 @@ public class LoginHandlerTest extends AbstractServiceTests {
 	}
 
 	@Test
+	public void testDefaultSelectedDiscoveryIdp() throws Exception {
+		final BindingHandler bHandler = context.mock(BindingHandler.class);
+
+		IdpMetadata md = getDiscoveryMetadata();
+		conf.put(Constants.PROP_DISCOVERY_DEFAULT_IDP, "idp2");
+
+		final StringValueHolder holder = new StringValueHolder();
+		context.checking(new Expectations() {{
+			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(""));
+			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
+			allowing(bHandler).getBindingURI(); will(returnValue(SAMLConstants.SAML2_ARTIFACT_BINDING_URI));
+			one(bHandler).handle(with(equal(req)), with(equal(res)), with(equal(credential)), with(new BaseMatcher<OIOAuthnRequest>() {
+				public boolean matches(Object item) {
+					OIOAuthnRequest r = ((OIOAuthnRequest)item);
+					holder.setValue(r.getID());
+					return true;
+				}
+				public void describeTo(Description description) {}
+			}), with(any(LogUtil.class)));
+			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
+		}});
+		lh.handleGet(getContext(md));
+		assertEquals("idp2", handler.removeEntityIdForRequest(holder.getValue()));
+	}
+
+	@Test
 	public void testNameIDPolicy() throws Exception {
 		final BindingHandler bHandler = new BindingHandler() {
 			public String getBindingURI() {
