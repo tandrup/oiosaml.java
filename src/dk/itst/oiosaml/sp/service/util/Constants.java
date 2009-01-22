@@ -142,6 +142,11 @@ public interface Constants {
 	static final String DISCOVERY_LOCATION = "oiosaml-sp.discovery";
 	
 	/**
+	 * Configuration parameter containing the default IdP entity id if no _saml_idp cookie was set.
+	 */
+	static final String PROP_DISCOVERY_DEFAULT_IDP = "oiosaml-sp.discovery.default";
+	
+	/**
 	 * Session and url parameter holding the current saml idp discovery value.
 	 */
 	static final String DISCOVERY_ATTRIBUTE = "_saml_idp";

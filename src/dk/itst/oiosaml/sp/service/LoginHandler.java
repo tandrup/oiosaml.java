@@ -67,7 +67,6 @@ public class LoginHandler implements SAMLHandler {
 		Metadata metadata;
 		if (idpMetadata.enableDiscovery()) {
 			log.debug("Discovery profile is active");
-			
 			String samlIdp = request.getParameter(Constants.DISCOVERY_ATTRIBUTE);
 			if (samlIdp == null) {
 				String discoveryLocation = conf.getString(Constants.DISCOVERY_LOCATION);
@@ -79,7 +78,14 @@ public class LoginHandler implements SAMLHandler {
 				HTTPUtils.sendMetaRedirect(response, discoveryLocation, "r=" + URLEncoder.encode(url, "UTF-8"));
 				return;
 			} else if ("".equals(samlIdp)) {
-				metadata = idpMetadata.getFirstMetadata();
+				String defaultIdP = conf.getString(Constants.PROP_DISCOVERY_DEFAULT_IDP, null);
+				if (defaultIdP != null) {
+					log.debug("No IdP discovered, using default IdP from configuration: " + defaultIdP);
+					metadata = idpMetadata.getMetadata(defaultIdP);
+				} else {
+					log.debug("No IdP discovered, using first from metadata");
+					metadata = idpMetadata.getFirstMetadata();
+				}
 			} else {
 				String[] entityIds = SAMLUtil.decodeDiscoveryValue(samlIdp);
 				metadata = idpMetadata.findSupportedEntity(entityIds);

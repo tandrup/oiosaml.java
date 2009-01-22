@@ -49,6 +49,7 @@ arrive, the IdP metadata is found by using InResponseTo to find the original IdP
  <li>Save all participating Identity Providers' metadata in metadata/IdP/ in separate files. The file names are not important, as long as they end in .xml</li>
  <li>Deploy the discovery service on a server in the common domain, and at a secure url</li>
  <li>Set oiosaml-sp.discovery in oiosaml-j.properties to point to the discovery service</li>
+ <li>Optionally, set oiosaml-sp.discovery.default to point to a default IdP entity id, which will be used if no _saml_idp cookie has been set in the current session. If this is not set, the first IdP metadata will be used.</li>
  </ul>
  
 <p>When these steps have been completed, discovery profile will be enabled automatically.</p>
