@@ -24,11 +24,13 @@
 package dk.itst.oiosaml.configuration;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.common.SAMLUtil;
@@ -93,7 +95,9 @@ public class SAMLConfiguration {
 			throw new IllegalStateException(home + " is not a directory");
 		} else if (!h.exists()) {
 			log.info("Creating empty config dir in " + home);
-			if (!h.mkdir()) {
+			try {
+				FileUtils.forceMkdir(h);
+			} catch (IOException e) {
 				throw new IllegalStateException(h + " could not be created");
 			}
 		}
@@ -103,7 +107,8 @@ public class SAMLConfiguration {
 
 	public static boolean isConfigured() {
 		if(home == null) return false;
-		File config = new File(home, "oiosaml-sp.properties");
+		log.info("Config filename: "+name+".properties");
+		File config = new File(home, name+".properties");
 		return config.exists();
 	}
 	
