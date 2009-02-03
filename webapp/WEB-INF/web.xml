@@ -16,7 +16,17 @@
 		</param-value>
 	</context-param>
 	 -->
-	<display-name>OIOSAML-J</display-name>
+	 <!-- 
+	<context-param>
+		<description>
+			Name of the configuration dir for oiosaml
+		</description>
+		<param-name>oiosaml-j.name</param-name>
+		<param-value>
+			application
+		</param-value>
+	</context-param>
+	 -->
 
 	<servlet>
 		<servlet-name>SAMLDispatcherServlet</servlet-name>

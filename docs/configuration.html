@@ -35,6 +35,19 @@ on autoconfiguration below for more information.</p>
 &lt;/context-param&gt;
 </pre>
 
+<p>Alternatively, it is possible to configure an application name, which is appended to the default directory (~/.oiosaml). 
+This can be useful when deploying multiple OIOSAML applications to the same container. In this case, each application must have its own configuration
+dir, but setting the oiosaml-j.home parameter can be tedious, especially when on a large project with source control. To set the application
+name, insert a context-param in web.xml. The example below will result in a configuration dir called ~/.oiosaml-application1.</p>
+
+<pre>
+&lt;context-param&gt;
+	&lt;param-name&gt;oiosaml-j.name&lt;/param-name&gt;
+	&lt;param-value&gt;application1&lt;/param-value&gt;
+&lt;/context-param&gt;
+</pre>
+
+
 <p>The structure in oiosaml-j.home looks like this:</p>
 <pre>
 oiosaml-j.home/
