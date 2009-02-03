@@ -493,6 +493,12 @@ public class ConfigurationHandler implements SAMLHandler {
 			home = System.getProperty(SAMLUtil.OIOSAML_HOME);
 		}
 		if (home == null) {
+			String name = ctx.getInitParameter(Constants.INIT_OIOSAML_NAME);
+			if (name != null) {
+				home = System.getProperty("user.home") + "/.oiosaml-" + name;
+			}
+		}
+		if (home == null) {
 			home = System.getProperty("user.home") + "/.oiosaml";
 			File h = new File(home);
 			if (h.exists() && !h.isDirectory()) {
