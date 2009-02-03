@@ -197,7 +197,7 @@ public class SPFilter implements Filter {
 			 String name = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_NAME);
 			 if (name != null) {
 				 log.info("Configuring OIOSAML with application name " + name);
-				 homeParam = System.getProperty("user.home") + "-" + name;
+				 homeParam = System.getProperty("user.home") + "/.oiosaml-" + name;
 			 }
 		}
 		log.info("Trying to retrieve configuration from " + homeParam);
