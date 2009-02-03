@@ -136,6 +136,8 @@ public interface Constants {
 	
 	static final String INIT_OIOSAML_HOME = "oiosaml-j.home";
 	
+	static final String INIT_OIOSAML_NAME = "oiosaml-j.name";
+	
 	/**
 	 * Configuration parameter pointing to the URL for the discovery service.
 	 */

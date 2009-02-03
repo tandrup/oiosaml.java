@@ -193,6 +193,13 @@ public class SPFilter implements Filter {
 		if (homeParam == null) {
 			homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
 		}
+		if (homeParam == null) {
+			 String name = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_NAME);
+			 if (name != null) {
+				 log.info("Configuring OIOSAML with application name " + name);
+				 homeParam = System.getProperty("user.home") + "-" + name;
+			 }
+		}
 		log.info("Trying to retrieve configuration from " + homeParam);
 		SAMLConfiguration.setHomeProperty(homeParam);
 		
