@@ -27,6 +27,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Attribute;
@@ -65,4 +67,28 @@ public class AttributeUtilTest extends AbstractTests {
 		assertNotNull(AttributeUtil.extractAttributeValueValue(attr));
 		assertTrue(AttributeUtil.extractAttributeValueValue(attr).endsWith(xml));
 	}
+	
+	@Test
+	public void testExtractAttributeValues() {
+		final String VALUE1 = "value1";
+		final String VALUE2 = "value2";
+		
+		Attribute attr = AttributeUtil.createAttribute("test", "test", OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT);
+		attr.getAttributeValues().add(AttributeUtil.createAttributeValue(VALUE1));
+		attr.getAttributeValues().add(AttributeUtil.createAttributeValue(VALUE2));
+		
+		boolean found1 = false;
+		boolean found2 = false;
+		List<String> values = AttributeUtil.extractAttributeValueValues(attr);
+		for (String str : values) {
+			if(VALUE1.equals(str)) {
+				found1 = true;
+			} else if(VALUE1.equals(str)) {
+				found2 = true;
+			}
+		}
+		assertTrue(VALUE1, found1);
+		assertTrue(VALUE2, found2);
+	}
+	
 }

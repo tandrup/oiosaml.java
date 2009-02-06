@@ -24,6 +24,8 @@
 package dk.itst.oiosaml.sp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opensaml.xml.util.Base64;
 
@@ -33,14 +35,14 @@ public class UserAttribute implements Serializable{
 
 	private final String name;
 	private final String friendlyName;
-	private final String value;
+	private final List<String> values;
 	private final String format;
 	
-	public UserAttribute(String name, String friendlyName, String value, String format) {
+	public UserAttribute(String name, String friendlyName, List<String> values, String format) {
 		super();
 		this.name = name;
 		this.friendlyName = friendlyName;
-		this.value = value;
+		this.values = values;
 		this.format = format;
 	}
 
@@ -52,17 +54,50 @@ public class UserAttribute implements Serializable{
 		return friendlyName;
 	}
 
+	public List<String> getValues()  {
+		if(values == null) {
+			return new ArrayList<String>();
+		}
+		return values;
+	}
+	
+	/**
+	 * Gets the first value of all the AttributeValues
+	 * @return String 
+	 */
 	public String getValue() {
-		return value;
+		if(values == null || values.size() == 0) {
+			return null;
+		}
+		return values.get(0);
 	}
 
 	/**
 	 * Base64 decode the attribute value and retrieve it.
 	 * @return The decoded value. No checks are made to see if the string is actually encoded correctly.
 	 */
-	public byte[] getBase64Value() {
-		return Base64.decode(value);
+	public List<byte[]> getBase64Values() {
+		List<byte[]> base64Values = new ArrayList<byte[]>();
+		if(values == null) {
+			return new ArrayList<byte[]>();
+		}
+		for (String str : values) {
+			base64Values.add(Base64.decode(str));
+		}
+		return base64Values;
 	}
+
+	/**
+	 * Base64 decode the first attribute value and decode it
+	 * @return byte[]
+	 */
+	public byte[] getBase64Value() {
+		if(values == null || values.size() == 0) {
+			return null;
+		}
+		return Base64.decode(values.get(0));
+	}
+	
 	
 	public String getFormat() {
 		return format;
@@ -77,6 +112,6 @@ public class UserAttribute implements Serializable{
 
 	@Override
 	public String toString() {
-		return name + " (" + friendlyName + "): " + value;
+		return name + " (" + friendlyName + "): " + values;
 	}
 }

@@ -106,7 +106,7 @@ public class UserAttributeQuery {
 		Collection<UserAttribute> attrs = new ArrayList<UserAttribute>();
 		for (AttributeStatement attrStatement : res.getAssertion().getAttributeStatements()) {
 			for (Attribute attr : attrStatement.getAttributes()) {
-				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValue(attr), attr.getNameFormat()));
+				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValues(attr), attr.getNameFormat()));
 			}
 		}
 		

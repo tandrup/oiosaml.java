@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
@@ -56,7 +57,7 @@ public class UserAssertionImpl implements UserAssertion, Serializable {
 	public UserAssertionImpl(OIOAssertion assertion) {
 		for (AttributeStatement attrStatement : assertion.getAssertion().getAttributeStatements()) {
 			for (Attribute attr : attrStatement.getAttributes()) {
-				attributes.put(attr.getName(), new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValue(attr), attr.getNameFormat()));
+				attributes.put(attr.getName(), new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValues(attr), attr.getNameFormat()));
 			}
 		}
 		id = assertion.getID();
@@ -181,10 +182,12 @@ public class UserAssertionImpl implements UserAssertion, Serializable {
 	private String getAttributeValue(String name) {
 		UserAttribute attr = attributes.get(name);
 		if (attr != null) {
-			return attr.getValue();
-		} else {
-			return null;
+			List<String> values = attr.getValues();
+			if(values.size()>0) {
+				return values.get(0);
+			}
 		}
+		return null;
 	}
 
 	public String getCPRNumber() {

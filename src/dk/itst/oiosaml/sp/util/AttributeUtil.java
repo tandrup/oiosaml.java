@@ -23,6 +23,9 @@
  */
 package dk.itst.oiosaml.sp.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.opensaml.common.xml.SAMLConstants;
@@ -304,4 +307,36 @@ public class AttributeUtil implements OIOSAMLConstants {
 		return null;
 	}
 
+	/**
+	 * Extract all attribute values within an SAML20 attribute
+	 * 
+	 * @param attribute The attribute
+	 * @return A list containing the text value of each attributeValue
+	 */
+	public static List<String> extractAttributeValueValues(Attribute attribute) {
+		List<String> values = new ArrayList<String>();
+		for (int i = 0; i < attribute.getAttributeValues().size(); i++) {
+			if (attribute.getAttributeValues().get(i) instanceof XSString) {
+				XSString str = (XSString) attribute.getAttributeValues().get(i);
+				if (AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME.equals(str.getElementQName().getLocalPart())
+						&& SAMLConstants.SAML20_NS.equals(str.getElementQName().getNamespaceURI())) {
+					values.add(str.getValue());
+				}
+			} else {
+				XSAny ep = (XSAny) attribute.getAttributeValues().get(i);
+				if (AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME.equals(ep.getElementQName().getLocalPart())
+						&& SAMLConstants.SAML20_NS.equals(ep.getElementQName().getNamespaceURI())) {
+					if (ep.getUnknownXMLObjects().size() > 0) {
+						StringBuilder res = new StringBuilder();
+						for (XMLObject obj : ep.getUnknownXMLObjects()) {
+							res.append(XMLHelper.nodeToString(SAMLUtil.marshallObject(obj)));
+						}
+						values.add(res.toString());
+					}
+					values.add(ep.getTextContent());
+				}
+			}
+		}
+		return values;
+	}
 }

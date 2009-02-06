@@ -64,7 +64,7 @@ public class UserAssertionImplTest {
 		ua = new UserAssertionImpl(assertion);
 		assertEquals(1, ua.getAllAttributes().size());
 		assertNotNull(ua.getAttribute("test"));
-		assertEquals("test", ua.getAttribute("test").getValue());
+		assertEquals("test", ua.getAttribute("test").getValues().get(0));
 		
 	}
 
@@ -360,7 +360,7 @@ public class UserAssertionImplTest {
 		
 		UserAttribute a = new UserAssertionImpl(assertion).getAttribute("test");
 		assertNotNull(a);
-		assertTrue("input: " + value + ", out: " + a.getValue(), a.getValue().endsWith(value));
+		assertTrue("input: " + value + ", out: " + a.getValues().get(0), a.getValues().get(0).endsWith(value));
 	}
 	
 	private Assertion createAssertion() {
