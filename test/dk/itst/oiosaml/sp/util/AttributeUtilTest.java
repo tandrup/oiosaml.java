@@ -83,7 +83,7 @@ public class AttributeUtilTest extends AbstractTests {
 		for (String str : values) {
 			if(VALUE1.equals(str)) {
 				found1 = true;
-			} else if(VALUE1.equals(str)) {
+			} else if(VALUE2.equals(str)) {
 				found2 = true;
 			}
 		}
