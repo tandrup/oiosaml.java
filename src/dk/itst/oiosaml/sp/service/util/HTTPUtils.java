@@ -25,11 +25,14 @@ package dk.itst.oiosaml.sp.service.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
@@ -58,7 +61,7 @@ public class HTTPUtils {
 	 * @param url URL to redirect to.
 	 * @throws IOException
 	 */
-	public static void sendMetaRedirect(HttpServletResponse res, String url, String query) throws IOException {
+	public static void sendMetaRedirect(HttpServletResponse res, String url, String query, boolean saveFragment) throws IOException {
 		res.setContentType("text/html");
 
 		PrintWriter w = res.getWriter();
@@ -74,7 +77,30 @@ public class HTTPUtils {
 			w.write(query);
 		}
 		w.write("\">");
-		w.write("</head><body></body></html>");
+		w.write("</head><body>");
+		if (saveFragment) {
+			w.write("<script type=\"text/javascript\">document.cookie = 'oiosaml-fragment=' + escape(location.hash) + '; path=/';</script>");
+		}
+		w.write("</body></html>");
+	}
+	
+	public static String getFragmentCookie(HttpServletRequest req) {
+		Cookie[] cookies = req.getCookies();
+		if (cookies == null) return null;
+		
+		for (Cookie cookie : cookies) {
+			if ("oiosaml-fragment".equals(cookie.getName())) {
+				return cookie.getValue();
+			}
+		}
+		return null;
+	}
+	
+	public static void removeFragmentCookie(HttpServletResponse res) {
+		Cookie c = new Cookie("oiosaml-fragment", "");
+		c.setPath("/");
+		c.setMaxAge(0);
+		res.addCookie(c);
 	}
 	
 	/**
@@ -104,6 +130,12 @@ public class HTTPUtils {
 				sb.append("?");
 				sb.append(req.getQueryString());
 			}
+			String fragmentCookie = getFragmentCookie(ctx.getRequest());
+			if (fragmentCookie != null) {
+				removeFragmentCookie(ctx.getResponse());
+				sb.append(URLDecoder.decode(fragmentCookie, "utf-8"));
+			}
+			
 			if (log.isDebugEnabled()) log.debug("Saved GET request, redirecting to " + sb);
 			ctx.getResponse().sendRedirect(sb.toString());
 		} else {

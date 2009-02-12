@@ -27,6 +27,7 @@ public class RedirectBindingHandlerTest extends AbstractServiceTests {
 		
 		final StringWriter sw = new StringWriter();
 		context.checking(new Expectations() {{
+			allowing(req).getCookies(); will(returnValue(null));
 			one(res).setContentType("text/html");
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 		}});

@@ -75,7 +75,7 @@ public class LoginHandler implements SAMLHandler {
 				if (request.getQueryString() != null) {
 					url += "?" + request.getQueryString();
 				}
-				HTTPUtils.sendMetaRedirect(response, discoveryLocation, "r=" + URLEncoder.encode(url, "UTF-8"));
+				HTTPUtils.sendMetaRedirect(response, discoveryLocation, "r=" + URLEncoder.encode(url, "UTF-8"), true);
 				return;
 			} else if ("".equals(samlIdp)) {
 				String defaultIdP = conf.getString(Constants.PROP_DISCOVERY_DEFAULT_IDP, null);

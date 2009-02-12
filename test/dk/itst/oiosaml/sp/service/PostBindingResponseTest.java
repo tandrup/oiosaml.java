@@ -83,6 +83,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 			allowing(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("uri", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("uri?query");
+			one(req).getCookies(); will(returnValue(null));
 		}});
 		
 		sh.handlePost(ctx);

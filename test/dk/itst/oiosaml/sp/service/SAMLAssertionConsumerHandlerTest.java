@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,6 +17,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -125,6 +127,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		final SOAPClient client = context.mock(SOAPClient.class);
 
 		context.checking(new Expectations() {{
+			allowing(req).getCookies(); will(returnValue(null));
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
@@ -153,10 +156,31 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		final String response = Base64.encodeBytes(XMLHelper.nodeToString(SAMLUtil.marshallObject(r.getMessage())).getBytes());
 		
 		context.checking(new Expectations() {{
+			allowing(req).getCookies(); will(returnValue(null));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(response));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
+		}});
+		
+		sh.handlePost(ctx);
+	}
+
+	@Test
+	public void testRedirectWithUrlFragmentIfSavedInCookie() throws Exception {
+		String id = Utils.generateUUID();
+		handler.registerRequest(id, idpEntityId);
+		ArtifactResponse r = (ArtifactResponse) buildResponse(Utils.generateUUID(), true, false, id).getBody().getUnknownXMLObjects().get(0);
+		final String response = Base64.encodeBytes(XMLHelper.nodeToString(SAMLUtil.marshallObject(r.getMessage())).getBytes());
+		
+		final Cookie fragment = new Cookie("oiosaml-fragment", URLEncoder.encode("#test=more", "utf-8"));
+		context.checking(new Expectations() {{
+			allowing(req).getCookies(); will(returnValue(new Cookie[] { fragment }));
+			one(res).addCookie(with(any(Cookie.class)));
+			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(response));
+			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
+			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
+			one(res).sendRedirect("requesturi?query#test=more");
 		}});
 		
 		sh.handlePost(ctx);
@@ -173,6 +197,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		handler.registerRequest(reqId, idpEntityId);
 		
 		context.checking(new Expectations() {{
+			allowing(req).getCookies(); will(returnValue(null));
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
@@ -204,6 +229,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		final String response = Base64.encodeBytes(XMLHelper.nodeToString(SAMLUtil.marshallObject(r.getMessage())).getBytes());
 		
 		context.checking(new Expectations() {{
+			allowing(req).getCookies(); will(returnValue(null));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(response));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));

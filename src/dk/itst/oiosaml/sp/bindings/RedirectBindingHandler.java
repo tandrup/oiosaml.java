@@ -49,7 +49,7 @@ public class RedirectBindingHandler implements BindingHandler {
 		String url = authnRequest.getRedirectURL(credential, lu);
 		log.debug("Issuing redirect to " + url);
 		
-		HTTPUtils.sendMetaRedirect(response, url, null);
+		HTTPUtils.sendMetaRedirect(response, url, null, HTTPUtils.getFragmentCookie(req) == null);
 	}
 
 }
