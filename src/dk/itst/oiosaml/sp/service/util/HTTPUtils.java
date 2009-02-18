@@ -177,7 +177,7 @@ public class HTTPUtils {
 		
 	}
 	
-	private static VelocityEngine getEngine() {
+	public static VelocityEngine getEngine() {
 		VelocityEngine engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
 		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");

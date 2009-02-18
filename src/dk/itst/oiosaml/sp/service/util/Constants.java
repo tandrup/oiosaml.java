@@ -147,6 +147,16 @@ public interface Constants {
 	 * Configuration parameter containing the default IdP entity id if no _saml_idp cookie was set.
 	 */
 	static final String PROP_DISCOVERY_DEFAULT_IDP = "oiosaml-sp.discovery.default";
+
+	/**
+	 * Configuration parameter enabling IdP prompting if no IdP was discovered. Cannot be used in conjunction with {@link #PROP_DISCOVERY_DEFAULT_IDP}.
+	 */
+	static final String PROP_DISCOVERY_PROMPT = "oiosaml-sp.discovery.prompt";
+	
+	/**
+	 * Custom servlet to use when prompting user for IdP.
+	 */
+	static final String PROP_DISCOVERY_PROMPT_SERVLET = "oiosaml-sp.discovery.prompt.servlet";
 	
 	/**
 	 * Session and url parameter holding the current saml idp discovery value.

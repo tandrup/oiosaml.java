@@ -88,6 +88,8 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.resolve.password: Password for SOAP backchannel</li>
 <li>oiosaml-sp.discovery: URL pointing to the OIOSAML discovery service. Only relevant when multiple IdPs are configured.</li>
 <li>oiosaml-sp.discovery.default: The IdP entity ID to use for SSO if none was discovered using the discovery service.</li>
+<li>oiosaml-sp.discovery.prompt: Set to false to turn off user prompting when no IdP can be discovered automatically. This is not used if oiosaml-sp.discovery.default is set</li>
+<li>oiosaml-sp.discovery.prompt.servlet: Local servlet to use when prompting user for IdP. See <a href="discovery.html">the discovery page</a> for more information.</li>  
 <li>oiosaml-sp.crl.period: How often the IdP CRL should be updated in seconds</li>
 <li>oiosaml-sp.crl.&lt;entityId&gt;: Location of the CRL for a specific IdP, specified by entityId. This is necessary for CRL checking.</li>
 <li>oiosaml-sp.encryption.force: Only allow encrypted assertions to be processed. If set to false, unencrypted assertions are allowed, but encrypted assertions are still supported.</li>

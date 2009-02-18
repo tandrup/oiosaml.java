@@ -26,6 +26,8 @@ package dk.itst.oiosaml.sp.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +36,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
+import org.apache.velocity.VelocityContext;
 import org.opensaml.saml2.metadata.Endpoint;
+import org.opensaml.xml.util.Base64;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
@@ -83,8 +87,16 @@ public class LoginHandler implements SAMLHandler {
 					log.debug("No IdP discovered, using default IdP from configuration: " + defaultIdP);
 					metadata = idpMetadata.getMetadata(defaultIdP);
 				} else {
-					log.debug("No IdP discovered, using first from metadata");
-					metadata = idpMetadata.getFirstMetadata();
+					if (conf.getBoolean(Constants.PROP_DISCOVERY_PROMPT, false)) {
+						String url = request.getRequestURL().toString();
+						url += "?RelayState=" + request.getParameter(Constants.SAML_RELAYSTATE);
+						promptIdp(context, url);
+						
+						return;
+					} else {
+						log.debug("No IdP discovered, using first from metadata");
+						metadata = idpMetadata.getFirstMetadata();
+					}
 				}
 			} else {
 				String[] entityIds = SAMLUtil.decodeDiscoveryValue(samlIdp);
@@ -149,4 +161,40 @@ public class LoginHandler implements SAMLHandler {
 		}
 		return false;
 	}
+	
+	private void promptIdp(RequestContext context, String returnUrl) throws ServletException, IOException {
+		log.debug("Prompting user for IdP");
+		
+		Map<String, String> idps = new HashMap<String, String>();
+		for (String id : context.getIdpMetadata().getEntityIDs()) {
+			StringBuilder url = new StringBuilder(returnUrl);
+			if (returnUrl.indexOf('?') > -1) {
+				url.append("&");
+			} else {
+				url.append("?");
+			}
+			url.append(Constants.DISCOVERY_ATTRIBUTE).append("=");
+			url.append(Base64.encodeBytes(id.getBytes(), Base64.DONT_BREAK_LINES));
+			idps.put(id, url.toString());
+		}
+
+		String servlet = context.getConfiguration().getString(Constants.PROP_DISCOVERY_PROMPT_SERVLET, null);
+		if (servlet != null) {
+			HttpServletRequest request = context.getRequest();
+			request.setAttribute("entityIds", idps);
+			request.getRequestDispatcher(servlet).forward(request, context.getResponse());
+		} else {
+			VelocityContext vc = new VelocityContext();
+			vc.put("entityIds", idps);
+			
+			try {
+				HTTPUtils.getEngine().mergeTemplate("/dk/itst/oiosaml/sp/service/idp.vm", vc, context.getResponse().getWriter());
+			} catch (Exception e) {
+				log.error("Unable to render IdP list", e);
+				throw new ServletException(e);
+			}
+		}
+		
+	}
+
 }
