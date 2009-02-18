@@ -24,7 +24,9 @@
 package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -127,6 +129,7 @@ public class DispatcherServlet extends HttpServlet {
 				setHandler(new LogoutServiceSOAPHandler(), LogoutServiceSOAP);
 				setHandler(new LoginHandler(bindingHandlerFactory), Login);
 				setHandler(new MetadataHandler(), "/metadata");
+				setHandler(new IndexHandler(), "/");
 				
 				initialized = true;
 			}
@@ -244,5 +247,30 @@ public class DispatcherServlet extends HttpServlet {
 			sessionHandlerFactory.close();
 		}
 		SessionHandlerFactory.Factory.close();
+	}
+	
+	private class IndexHandler implements SAMLHandler {
+		public void handleGet(RequestContext context) throws ServletException, IOException {
+			PrintWriter w = context.getResponse().getWriter();
+			
+			w.println("<html><head><title>SAML Endppoints</title></head><body><h1>SAML Endpoints</h1>");
+			w.println("<ul>");
+			for (Map.Entry<String, SAMLHandler> e : handlers.entrySet()) {
+				w.println("<li><a href=\"");
+				w.print(e.getKey().substring(1));
+				w.print("\">");
+				w.print(e.getKey());
+				w.print("</a>: ");
+				w.print(e.getValue());
+				w.println("</li>");
+			}
+			w.println("</ul>");
+			w.println("</body></html>");
+		}
+
+		public void handlePost(RequestContext context) throws ServletException,
+				IOException {
+		}
+		
 	}
 }
