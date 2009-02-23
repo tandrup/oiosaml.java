@@ -83,8 +83,8 @@ public class DispatcherServlet extends HttpServlet {
 
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
-		setHandler(new ConfigurationHandler(config.getServletContext()), "/configure");
-
+		setHandler(new ConfigurationHandler(config.getServletContext()), "configure");
+		
 		initServlet();
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
@@ -112,7 +112,7 @@ public class DispatcherServlet extends HttpServlet {
 				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
-				handlers = Utils.getHandlers(configuration);
+				handlers.putAll(Utils.getHandlers(configuration));
 				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
 				
 				setHandler(new MetadataHandler(), "metadata");
@@ -136,7 +136,7 @@ public class DispatcherServlet extends HttpServlet {
 				handleError(req, res, e);
 			}
 		} else {
-			throw new UnsupportedOperationException(action);
+			throw new UnsupportedOperationException(action + ", allowed: " + handlers.keySet());
 		}
 	}
 	
