@@ -134,8 +134,8 @@ public class LoginHandler implements SAMLHandler {
 		
 		lu.audit(Constants.SERVICE_AUTHN_REQUEST, authnRequest.toXML());
 
-		bindingHandler.handle(request, response, context.getCredential(), authnRequest, lu);
 		context.getSessionHandler().registerRequest(authnRequest.getID(), metadata.getEntityID());
+		bindingHandler.handle(request, response, context.getCredential(), authnRequest, lu);
 	}
 
 	public void handlePost(RequestContext context) throws ServletException, IOException {
