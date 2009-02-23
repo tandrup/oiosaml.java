@@ -23,11 +23,15 @@
  */
 package dk.itst.oiosaml.sp.service.util;
 
+import java.lang.reflect.Constructor;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.configuration.Configuration;
@@ -38,6 +42,7 @@ import org.opensaml.xml.util.Base64;
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.sp.service.SAMLHandler;
 
 /**
  * Utility class used for signing SAML documents and verifying the signed
@@ -258,5 +263,35 @@ public final class Utils {
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to create instance of " + name, e);
 		}
+	}
+	
+	public static Map<String, SAMLHandler> getHandlers(Configuration config) {
+		Map<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
+		
+		for (Iterator<?> i = config.getKeys(); i.hasNext();) {
+			String key = (String) i.next();
+			if (!key.startsWith("oiosaml-sp.protocol.endpoints.")) continue;
+			log.debug("Checking " + key);
+			
+			try {
+				Class<?> c = Class.forName(config.getString(key));
+				SAMLHandler instance;
+				try {
+					Constructor<?> constructor = c.getConstructor(Configuration.class);
+					instance = (SAMLHandler) constructor.newInstance(config);
+				} catch (NoSuchMethodException e) {
+					instance = (SAMLHandler) c.newInstance();
+				}
+				
+				handlers.put(key.substring(key.lastIndexOf('.') + 1), instance);
+
+			} catch (Exception e) {
+				log.error("Unable to instantiate " + key + ": " + config.getString(key), e);
+				throw new RuntimeException(e);
+			}
+			
+		}
+		
+		return handlers;
 	}
 }

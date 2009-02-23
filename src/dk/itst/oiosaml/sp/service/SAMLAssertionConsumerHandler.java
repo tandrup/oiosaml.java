@@ -28,6 +28,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 
@@ -77,8 +78,8 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 	private SOAPClient client;
 	private final AssertionValidator validator;
 
-	public SAMLAssertionConsumerHandler(AssertionValidator validator) {
-		this.validator = validator;
+	public SAMLAssertionConsumerHandler(Configuration config) {
+		this.validator = (AssertionValidator) Utils.newInstance(config, Constants.PROP_VALIDATOR);
 		setSoapClient(new HttpSOAPClient());
 	}
 	

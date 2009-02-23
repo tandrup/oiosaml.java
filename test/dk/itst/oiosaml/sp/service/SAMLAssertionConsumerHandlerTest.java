@@ -72,12 +72,13 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getRequestURI(); will(returnValue("http://test"));
 			allowing(req).getQueryString(); will(returnValue(""));
 		}});
-		sh = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
 		conf = new HashMap<String, String>() {{
 			put(Constants.PROP_IGNORE_CERTPATH, "false");
+			put(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 		}};
 		configuration = TestHelper.buildConfiguration(conf);
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler);
+		sh = new SAMLAssertionConsumerHandler(configuration);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler, bindingHandlerFactory);
 	}
 	
 	@Test

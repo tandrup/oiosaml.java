@@ -60,27 +60,27 @@ public class DispatcherServletTest extends AbstractServiceTests {
 
 	@Test
 	public void samlAssertionConsumerHandler() throws Exception {
-		handlePostAndGetForSpecific(DispatcherServlet.SAMLAssertionConsumer);
+		handlePostAndGetForSpecific("SAMLAssertionConsumer");
 	}
 
 	@Test
 	public void logoutServiceHTTPRedirectHandler() throws Exception {
-		handlePostAndGetForSpecific(DispatcherServlet.LogoutServiceHTTPRedirect);
+		handlePostAndGetForSpecific("LogoutServiceHTTPRedirect");
 	}
 
 	@Test
 	public void logoutHTTPResponseHandler() throws Exception {
-		handlePostAndGetForSpecific(DispatcherServlet.LogoutServiceHTTPRedirectResponse);
+		handlePostAndGetForSpecific("LogoutServiceHTTPRedirectResponse");
 	}
 
 	@Test
 	public void logoutHandler() throws Exception {
-		handlePostAndGetForSpecific(DispatcherServlet.Logout);
+		handlePostAndGetForSpecific("Logout");
 	}
 
 	@Test
 	public void logoutServiceSoapHandler() throws Exception {
-		handlePostAndGetForSpecific(DispatcherServlet.LogoutServiceSOAP);
+		handlePostAndGetForSpecific("LogoutServiceSOAP");
 	}
 	
 	@Test
@@ -98,7 +98,7 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		}});
 		
 		servlet.init(config);
-		servlet.setHandler(handler, "/test");
+		servlet.setHandler(handler, "test");
 		servlet.doGet(req, res);
 	}
 	
@@ -119,21 +119,21 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		
 		conf.put(Constants.PROP_ERROR_SERVLET, "/error.jsp");
 		servlet.init(config);
-		servlet.setHandler(handler, "/test");
+		servlet.setHandler(handler, "test");
 		servlet.doGet(req, res);
 	}
 
 	private void handlePostAndGetForSpecific(final String servletPath) throws Exception {
 		servlet.setHandler(handler, servletPath);
 		context.checking(new Expectations() {{
-			allowing(req).getRequestURI(); will(returnValue("/base" + servletPath));
+			allowing(req).getRequestURI(); will(returnValue("/base/" + servletPath));
 			one(handler).handleGet(with(any(RequestContext.class)));
 		}});
 		servlet.doGet(req, res);
 
 		servlet.setHandler(handler, servletPath);
 		context.checking(new Expectations() {{
-			allowing(req).getRequestURI(); will(returnValue("/base" + servletPath));
+			allowing(req).getRequestURI(); will(returnValue("/base/" + servletPath));
 			one(handler).handlePost(with(any(RequestContext.class)));
 		}});
 		servlet.doPost(req, res);

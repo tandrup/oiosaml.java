@@ -31,6 +31,7 @@ import org.apache.commons.configuration.Configuration;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
@@ -44,8 +45,9 @@ public class RequestContext {
 	private final Configuration configuration;
 	private final LogUtil lu;
 	private final SessionHandler sessionHandler;
+	private final BindingHandlerFactory bindingHandlerFactory;
 
-	public RequestContext(HttpServletRequest request, HttpServletResponse response, IdpMetadata idpMetadata, SPMetadata spMetadata, Credential credential, Configuration configuration, LogUtil lu, SessionHandler sessionHandler) {
+	public RequestContext(HttpServletRequest request, HttpServletResponse response, IdpMetadata idpMetadata, SPMetadata spMetadata, Credential credential, Configuration configuration, LogUtil lu, SessionHandler sessionHandler, BindingHandlerFactory bindingHandlerFactory) {
 		this.request = request;
 		this.response = response;
 		this.idpMetadata = idpMetadata;
@@ -54,6 +56,7 @@ public class RequestContext {
 		this.configuration = configuration;
 		this.lu = lu;
 		this.sessionHandler = sessionHandler;
+		this.bindingHandlerFactory = bindingHandlerFactory;
 	}
 
 	public HttpServletRequest getRequest() {
@@ -90,5 +93,9 @@ public class RequestContext {
 	
 	public SessionHandler getSessionHandler() {
 		return sessionHandler;
+	}
+	
+	public BindingHandlerFactory getBindingHandlerFactory() {
+		return bindingHandlerFactory;
 	}
 }

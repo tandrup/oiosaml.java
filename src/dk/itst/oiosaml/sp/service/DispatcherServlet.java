@@ -49,7 +49,6 @@ import dk.itst.oiosaml.sp.configuration.ConfigurationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
-import dk.itst.oiosaml.sp.model.validation.AssertionValidator;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
@@ -69,19 +68,12 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 public class DispatcherServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(DispatcherServlet.class);
 
-	final public static String SAMLAssertionConsumer = "/SAMLAssertionConsumer";
-	final public static String LogoutServiceHTTPRedirect = "/LogoutServiceHTTPRedirect";
-	final public static String LogoutServiceHTTPRedirectResponse = "/LogoutServiceHTTPRedirectResponse";
-	final public static String Logout = "/Logout";
-	final public static String LogoutServiceSOAP = "/LogoutServiceSOAP";
-	final public static String Login  ="/login";
-
 	private transient IdpMetadata idpMetadata;
 	private transient SPMetadata spMetadata;
 	private Configuration configuration;
 	private Credential credential;
 
-	private HashMap<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
+	private Map<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
 	private boolean initialized = false;
 	private transient VelocityEngine engine;
 
@@ -120,16 +112,11 @@ public class DispatcherServlet extends HttpServlet {
 				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
-				AssertionValidator validator = (AssertionValidator) Utils.newInstance(configuration, Constants.PROP_VALIDATOR);
-	
-				setHandler(new SAMLAssertionConsumerHandler(validator), SAMLAssertionConsumer);
-				setHandler(new LogoutServiceHTTPRedirectHandler(), LogoutServiceHTTPRedirect);
-				setHandler(new LogoutHTTPResponseHandler(), LogoutServiceHTTPRedirectResponse);
-				setHandler(new LogoutHandler(), Logout);
-				setHandler(new LogoutServiceSOAPHandler(), LogoutServiceSOAP);
-				setHandler(new LoginHandler(bindingHandlerFactory), Login);
-				setHandler(new MetadataHandler(), "/metadata");
-				setHandler(new IndexHandler(), "/");
+				handlers = Utils.getHandlers(configuration);
+				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
+				
+				setHandler(new MetadataHandler(), "metadata");
+				setHandler(new IndexHandler(), "");
 				
 				initialized = true;
 			}
@@ -138,12 +125,12 @@ public class DispatcherServlet extends HttpServlet {
 	
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		initServlet();
-		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf(("/")));
+		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
 				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler); 
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler, bindingHandlerFactory); 
 				handler.handleGet(context);
 			} catch (Exception e) {
 				handleError(req, res, e);
@@ -155,12 +142,12 @@ public class DispatcherServlet extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		initServlet();
-		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf(("/")));
+		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
 				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler); 
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler, bindingHandlerFactory); 
 				handler.handlePost(context);
 			} catch (Exception e) {
 				handleError(req, res, e);
@@ -257,7 +244,7 @@ public class DispatcherServlet extends HttpServlet {
 			w.println("<ul>");
 			for (Map.Entry<String, SAMLHandler> e : handlers.entrySet()) {
 				w.println("<li><a href=\"");
-				w.print(e.getKey().substring(1));
+				w.print(e.getKey());
 				w.print("\">");
 				w.print(e.getKey());
 				w.print("</a>: ");

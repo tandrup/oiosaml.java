@@ -85,6 +85,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		filter = new SPFilter();
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "1");
 		conf.put(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
+		conf.put(Constants.PROP_PROTOCOL + ".saml20", "/login");
 		filter.setConfiguration(TestHelper.buildConfiguration(conf));
 		filter.setSessionHandlerFactory(handlerFactory);
 		filter.setFilterInitialized(true);

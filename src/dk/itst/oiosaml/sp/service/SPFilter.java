@@ -179,8 +179,15 @@ public class SPFilter implements Filter {
 
 			String relayState = sessionHandler.saveRequest(Request.fromHttpRequest(servletRequest));
 
-			String loginUrl = conf.getString(Constants.PROP_SAML_SERVLET, "/saml") + "/login";
-			if (log.isDebugEnabled()) log.debug("Redirecting to login handler at " + loginUrl);
+			String protocol = conf.getString(Constants.PROP_PROTOCOL, "saml20");
+			String loginUrl = conf.getString(Constants.PROP_SAML_SERVLET, "/saml");
+			
+			String protocolUrl = conf.getString(Constants.PROP_PROTOCOL + "." + protocol);
+			if (protocolUrl == null) {
+				throw new RuntimeException("No protocol url configured for " + Constants.PROP_PROTOCOL + "." + protocol);
+			}
+			loginUrl += protocolUrl;
+			if (log.isDebugEnabled()) log.debug("Redirecting to " + protocol + " login handler at " + loginUrl);
 			
 			RequestDispatcher dispatch = servletRequest.getRequestDispatcher(loginUrl);
 			dispatch.forward(new SAMLHttpServletRequest(servletRequest, hostname, relayState), response);

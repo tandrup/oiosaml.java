@@ -40,7 +40,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Before
 	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException {
 		logoutServiceHttpRedirectHandler = new LogoutServiceHTTPRedirectHandler();
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, logUtil, handler);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, logUtil, handler, bindingHandlerFactory);
 	}
 
 	@Test

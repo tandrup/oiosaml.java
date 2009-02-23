@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 
 import org.jmock.Expectations;
 import org.junit.Before;
+import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.xml.security.credential.Credential;
 
@@ -15,6 +16,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.AbstractTests;
+import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
@@ -42,9 +44,12 @@ public abstract class AbstractServiceTests extends AbstractTests {
 	
 	protected CredentialRepository credentialRepository = new CredentialRepository();
 	protected SessionHandlerFactory handlerFactory;
+	protected BindingHandlerFactory bindingHandlerFactory;
 
 	@Before
 	public void setUpTests() throws Exception {
+		bindingHandlerFactory = context.mock(BindingHandlerFactory.class);
+
 		credential = TestHelper.getCredential();
 		ids = new HashMap<String, LogId>();
 		req = context.mock(HttpServletRequest.class);
@@ -60,7 +65,7 @@ public abstract class AbstractServiceTests extends AbstractTests {
 		handler = handlerFactory.getHandler();
 		handler.resetReplayProtection(10);
 		
-		idpMetadata = new IdpMetadata(TestHelper.buildEntityDescriptor(credential));
+		idpMetadata = new IdpMetadata(SAMLConstants.SAML20P_NS, TestHelper.buildEntityDescriptor(credential));
 		spMetadata = TestHelper.buildSPMetadata();
 		idpEntityId = idpMetadata.getEntityIDs().iterator().next();
 	}

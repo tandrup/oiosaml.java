@@ -32,13 +32,13 @@ public class IdpMetadataTest extends AbstractTests {
 		ed1.setEntityID("ed1");
 		ed2 = TestHelper.buildEntityDescriptor(credential);
 		ed2.setEntityID("ed2");
-		md = new IdpMetadata(ed1, ed2);
+		md = new IdpMetadata(SAMLConstants.SAML20P_NS, ed1, ed2);
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void dontCreateWhenMissingCertificate() throws Exception {
 		EntityDescriptor ed = SAMLUtil.buildXMLObject(EntityDescriptor.class);
-		new IdpMetadata(ed);
+		new IdpMetadata(SAMLConstants.SAML20P_NS, ed);
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class IdpMetadataTest extends AbstractTests {
 	public void testEnableDiscovery() {
 		assertTrue(md.enableDiscovery());
 		
-		assertFalse(new IdpMetadata(ed1).enableDiscovery());
+		assertFalse(new IdpMetadata(SAMLConstants.SAML20P_NS, ed1).enableDiscovery());
 	}
 
 	@Test

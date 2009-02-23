@@ -175,7 +175,7 @@ public class TestHelper {
 
 	public static SPMetadata buildSPMetadata() {
 		EntityDescriptor data = (EntityDescriptor) SAMLUtil.unmarshallElement(TestHelper.class.getResourceAsStream("SPMetadata.xml"));
-		return new SPMetadata(data);
+		return new SPMetadata(data, SAMLConstants.SAML20P_NS);
 	}
 
 	public static EntityDescriptor buildEntityDescriptor(Credential cred) {

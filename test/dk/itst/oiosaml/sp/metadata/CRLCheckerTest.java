@@ -17,6 +17,7 @@ import org.bouncycastle.x509.X509V2CRLGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.credential.Credential;
 
@@ -38,7 +39,7 @@ public class CRLCheckerTest extends AbstractTests {
 		cred = TestHelper.getCredential();
 		EntityDescriptor buildIdPMetadata = TestHelper.buildEntityDescriptor(cred);
 		
-		idp = new IdpMetadata(buildIdPMetadata);
+		idp = new IdpMetadata(SAMLConstants.SAML20P_NS, buildIdPMetadata);
 		checker = new CRLChecker();
 	}
 	

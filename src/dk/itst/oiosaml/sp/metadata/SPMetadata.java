@@ -36,6 +36,7 @@ import org.opensaml.xml.security.credential.Credential;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
  * Utility class to extract relevant values of the meta data related to the service provider.
@@ -55,9 +56,9 @@ public class SPMetadata {
     private SPSSODescriptor spSSODescriptor;
 	private static SPMetadata instance;
     
-	public SPMetadata(EntityDescriptor entityDescriptor) {
+	public SPMetadata(EntityDescriptor entityDescriptor, String protocol) {
 		this.entityDescriptor = entityDescriptor;
-		spSSODescriptor = entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
+		spSSODescriptor = entityDescriptor.getSPSSODescriptor(protocol);
 	}
 
     public static SPMetadata getInstance() {
@@ -66,7 +67,7 @@ public class SPMetadata {
 	        String directory = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
 	        String fileName = conf.getString(METADATA_FILE);
 	        try {
-		        instance = new SPMetadata( (EntityDescriptor) SAMLUtil.unmarshallElementFromFile(directory+"/"+fileName));
+		        instance = new SPMetadata( (EntityDescriptor) SAMLUtil.unmarshallElementFromFile(directory+"/"+fileName), conf.getString(Constants.PROP_PROTOCOL));
 	        } catch (Exception e) {
 	        	log.error("Cannot load the metadata file: "+fileName+" - "+e.getMessage(), e);
 	        	throw new IllegalArgumentException(e.getMessage());

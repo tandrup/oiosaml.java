@@ -34,7 +34,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		configuration = TestHelper.buildConfiguration(new HashMap<String, String>() {{
 			put(Constants.PROP_HOME, "url");
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler, bindingHandlerFactory);
 	}
 
 	@Test

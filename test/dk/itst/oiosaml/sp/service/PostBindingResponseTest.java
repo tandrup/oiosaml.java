@@ -29,14 +29,16 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 	@Before
 	public void setUp() throws Exception {
 		
-		sh = new SAMLAssertionConsumerHandler(new OIOSAMLAssertionValidator());
+		sh = new SAMLAssertionConsumerHandler(TestHelper.buildConfiguration(new HashMap<String, String>() {{
+			put(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
+		}}));
 
 		response = SAMLUtil.buildXMLObject(Response.class);
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("uri"));
 			allowing(req).getQueryString(); will(returnValue("query"));
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, buildConfiguration(new HashMap<String, String>()), logUtil, handler);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, buildConfiguration(new HashMap<String, String>()), logUtil, handler, bindingHandlerFactory);
 	}
 
 	@Test(expected=RuntimeException.class)

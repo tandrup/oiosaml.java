@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.metadata.EntityDescriptor;
@@ -86,7 +87,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 		
 		HttpSOAPClient client = new HttpSOAPClient();
 		EntityDescriptor d = (EntityDescriptor) SAMLUtil.unmarshallElementFromFile("/tmp/env/metadata/IdP/IdPMetadata.xml.old");
-		IdpMetadata md = new IdpMetadata(d);
+		IdpMetadata md = new IdpMetadata(SAMLConstants.SAML20P_NS, d);
 		
 		BasicX509Credential credential = credentialRepository.getCredential("/tmp/env/certificate/keystore", "test");
 		

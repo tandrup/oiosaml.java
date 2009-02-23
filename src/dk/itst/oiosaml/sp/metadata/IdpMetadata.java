@@ -57,7 +57,7 @@ import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.security.SecurityHelper;
-import dk.itst.oiosaml.sp.model.Bindings;
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
  * Utility class to extract relevant values of the meta data related to the Login Site.
@@ -75,9 +75,9 @@ public class IdpMetadata {
 
 	private final Map<String, Metadata> metadata = new HashMap<String, Metadata>();
 
-	public IdpMetadata(EntityDescriptor ... entityDescriptor) {
+	public IdpMetadata(String protocol, EntityDescriptor ... entityDescriptor) {
 		for (EntityDescriptor descriptor : entityDescriptor) {
-			metadata.put(descriptor.getEntityID(), new Metadata(descriptor));
+			metadata.put(descriptor.getEntityID(), new Metadata(descriptor, protocol));
 		}
 	}
 
@@ -91,10 +91,11 @@ public class IdpMetadata {
 					return name.toLowerCase().endsWith(".xml");
 				}
 			});
-
+			String protocol = conf.getString(Constants.PROP_PROTOCOL);
+			
 			List<EntityDescriptor> descriptors = new ArrayList<EntityDescriptor>();
 			for (File md : files) {
-				log.info("Loading metadata from " + md);
+				log.info("Loading " + protocol + " metadata from " + md);
 				try {
 					XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
 					if (!(descriptor instanceof EntityDescriptor)) {
@@ -109,7 +110,7 @@ public class IdpMetadata {
 			if (descriptors.isEmpty()) {
 				throw new IllegalStateException("No IdP descriptors found in " + directory + "! At least one file is required.");
 			}
-			instance = new IdpMetadata(descriptors.toArray(new EntityDescriptor[descriptors.size()]));
+			instance = new IdpMetadata(protocol, descriptors.toArray(new EntityDescriptor[descriptors.size()]));
 		}
 		return instance ;
 	}
@@ -167,9 +168,9 @@ public class IdpMetadata {
 		private boolean certificateValid = true;
 
 
-		private Metadata(EntityDescriptor entityDescriptor) {
+		private Metadata(EntityDescriptor entityDescriptor, String protocol) {
 			this.entityDescriptor = entityDescriptor;
-			idpSSODescriptor = entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
+			idpSSODescriptor = entityDescriptor.getIDPSSODescriptor(protocol);
 			try {
 				certificate = SecurityHelper.buildJavaX509Cert(getCertificateNode().getValue());
 			} catch (CertificateException e) {
@@ -301,7 +302,7 @@ public class IdpMetadata {
 			
 			for (String binding : bindings) {
 				for (SingleSignOnService service : idpSSODescriptor.getSingleSignOnServices()) {
-					if (service.getBinding().equals(Bindings.valueOf(binding.toUpperCase()).getBinding())) {
+					if (service.getBinding().equalsIgnoreCase(binding)) {
 						return service;
 					}
 				}

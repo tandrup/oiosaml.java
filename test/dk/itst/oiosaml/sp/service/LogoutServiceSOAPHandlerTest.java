@@ -43,7 +43,7 @@ public class LogoutServiceSOAPHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(res).getOutputStream(); will(returnValue(TestHelper.createOutputStream(bos)));
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler, bindingHandlerFactory);
 	}
 	
 	@Test

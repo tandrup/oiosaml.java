@@ -165,6 +165,11 @@ public interface Constants {
 		
 	
 	static final String PROP_LOG_FILE_NAME = "oiosaml-sp.log";
+
+	/**
+	 * ID of the protocol to use for SSO.
+	 */
+	static final String PROP_PROTOCOL = "oiosaml-sp.protocol";
 	
 	static final String ATTRIBUTE_ERROR = "error";
 	static final String ATTRIBUTE_EXCEPTION = "exception";

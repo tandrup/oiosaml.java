@@ -77,7 +77,6 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.security.CredentialRepository;
-import dk.itst.oiosaml.sp.service.DispatcherServlet;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.SAMLHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -321,22 +320,22 @@ public class ConfigurationHandler implements SAMLHandler {
 		spDescriptor.getKeyDescriptors().add(encryptionDescriptor);
 		
 		spDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
-		spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_POST_BINDING_URI, 0, true));
+		spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/SAMLAssertionConsumer", SAMLConstants.SAML2_POST_BINDING_URI, 0, true));
 		if (enableArtifact) {
-			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_ARTIFACT_BINDING_URI, 1, false));
+			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/SAMLAssertionConsumer", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, 1, false));
 		}
 		if (enableRedirect) {
-			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + DispatcherServlet.SAMLAssertionConsumer, SAMLConstants.SAML2_REDIRECT_BINDING_URI, 2, false));
+			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/SAMLAssertionConsumer", SAMLConstants.SAML2_REDIRECT_BINDING_URI, 2, false));
 		}
 		
-		spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + DispatcherServlet.LogoutServiceHTTPRedirect, baseUrl + DispatcherServlet.LogoutServiceHTTPRedirectResponse, SAMLConstants.SAML2_REDIRECT_BINDING_URI));
+		spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPRedirect", baseUrl + "/LogoutServiceHTTPRedirectResponse", SAMLConstants.SAML2_REDIRECT_BINDING_URI));
 		
 		if (enableSoap) {
-			spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + DispatcherServlet.LogoutServiceSOAP, null, SAMLConstants.SAML2_SOAP11_BINDING_URI));
+			spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceSOAP", null, SAMLConstants.SAML2_SOAP11_BINDING_URI));
 		}
 		
 		if (enableArtifact) {
-			spDescriptor.getArtifactResolutionServices().add(SAMLUtil.createArtifactResolutionService(baseUrl + DispatcherServlet.SAMLAssertionConsumer));
+			spDescriptor.getArtifactResolutionServices().add(SAMLUtil.createArtifactResolutionService(baseUrl + "/SAMLAssertionConsumer"));
 		}
 		
 		if (supportOCESAttributes) {
@@ -529,12 +528,12 @@ public class ConfigurationHandler implements SAMLHandler {
 	private Map<String, Object> getStandardParameters(HttpServletRequest request) {
 		String base = getBaseUrl(request);
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("artifactResponseUrl", base + DispatcherServlet.SAMLAssertionConsumer);
-		params.put("postResponseUrl", base + DispatcherServlet.SAMLAssertionConsumer);
-		params.put("logoutUrl", base + DispatcherServlet.SAMLAssertionConsumer);
-		params.put("logoutResponseUrl", base + DispatcherServlet.LogoutServiceHTTPRedirectResponse);
-		params.put("logoutRequestUrl", base + DispatcherServlet.LogoutServiceHTTPRedirect);
-		params.put("logoutSoapRequestUrl", base + DispatcherServlet.LogoutServiceSOAP);
+		params.put("artifactResponseUrl", base + "/SAMLAssertionConsumer");
+		params.put("postResponseUrl", base + "/SAMLAssertionConsumer");
+		params.put("logoutUrl", base + "/SAMLAssertionConsumer");
+		params.put("logoutResponseUrl", base + "/LogoutServiceHTTPRedirectResponse");
+		params.put("logoutRequestUrl", base + "/LogoutServiceHTTPRedirect");
+		params.put("logoutSoapRequestUrl", base + "/LogoutServiceSOAP");
 		params.put("home", getHome(servletContext));
 		params.put("entityId", getEntityId(request));
 		return params;

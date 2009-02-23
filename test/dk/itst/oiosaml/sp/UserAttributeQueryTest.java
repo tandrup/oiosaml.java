@@ -85,7 +85,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		props.put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		
 		SAMLConfiguration.setSystemConfiguration(TestHelper.buildConfiguration(props));
-		IdpMetadata.setMetadata(new IdpMetadata(TestHelper.buildEntityDescriptor(cred)));
+		IdpMetadata.setMetadata(new IdpMetadata(SAMLConstants.SAML20P_NS, TestHelper.buildEntityDescriptor(cred)));
 		SPMetadata.setMetadata(spMetadata);
 	}
 	

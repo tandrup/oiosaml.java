@@ -73,10 +73,12 @@ public class LoginHandlerTest extends AbstractServiceTests {
 
 	@Before
 	public void setUp() {
-		handlerFactory = context.mock(BindingHandlerFactory.class);
-		lh = new LoginHandler(handlerFactory);
+		handlerFactory = bindingHandlerFactory;
+		
+		lh = new LoginHandler();
 		conf = new HashMap<String, String>();
-		conf.put(Constants.PROP_SUPPORTED_BINDINGS, "artifact");
+		conf.put(Constants.PROP_SUPPORTED_BINDINGS, SAMLConstants.SAML2_ARTIFACT_BINDING_URI);
+		conf.put(Constants.PROP_PROTOCOL, SAMLConstants.SAML20P_NS);
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("http://test"));
 			allowing(req).getPathInfo(); will(returnValue("/test"));
@@ -97,6 +99,8 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(null));
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 			one(res).setContentType("text/html");
+			allowing(res).addHeader(with(any(String.class)), with(any(String.class)));
+			allowing(res).addDateHeader(with(any(String.class)), with(any(Long.class)));
 		}});
 		lh.handleGet(getContext(md));
 		
@@ -272,12 +276,12 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		EntityDescriptor ed1 = TestHelper.buildEntityDescriptor(credential);
 		EntityDescriptor ed2 = TestHelper.buildEntityDescriptor(credential);
 		ed2.setEntityID("idp2");
-		IdpMetadata md = new IdpMetadata(ed1, ed2);
+		IdpMetadata md = new IdpMetadata(SAMLConstants.SAML20P_NS, ed1, ed2);
 		return md;
 	}
 
 	private RequestContext getContext(IdpMetadata md) {
-		return new RequestContext(req, res, md, spMetadata, credential, TestHelper.buildConfiguration(conf), logUtil, handler);		
+		return new RequestContext(req, res, md, spMetadata, credential, TestHelper.buildConfiguration(conf), logUtil, handler, handlerFactory);		
 	}
 
 }

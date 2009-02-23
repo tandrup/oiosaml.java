@@ -45,7 +45,6 @@ import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
-import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
@@ -54,12 +53,7 @@ import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 
 public class LoginHandler implements SAMLHandler {
 	private static final Logger log = Logger.getLogger(LoginHandler.class);
-	private final BindingHandlerFactory bindingHandlerFactory;
 	
-	public LoginHandler(BindingHandlerFactory bindingHandlerFactory) {
-		this.bindingHandlerFactory = bindingHandlerFactory;
-	}
-
 	public void handleGet(RequestContext context) throws ServletException, IOException {
 		if (log.isDebugEnabled()) log.debug("Go to login...");
 		
@@ -114,7 +108,7 @@ public class LoginHandler implements SAMLHandler {
 		}
 		log.debug("Signing on at " + signonLocation);
 		
-		BindingHandler bindingHandler = bindingHandlerFactory.getBindingHandler(signonLocation.getBinding());
+		BindingHandler bindingHandler = context.getBindingHandlerFactory().getBindingHandler(signonLocation.getBinding());
 		log.info("Using idp " + metadata.getEntityID() + " at " + signonLocation.getLocation() + " with binding " + signonLocation.getBinding());
 
 		HttpSession session = context.getSession();

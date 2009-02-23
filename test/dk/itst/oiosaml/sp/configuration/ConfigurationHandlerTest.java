@@ -96,7 +96,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 			one(session).getAttribute(ConfigurationHandler.SESSION_CONFIGURATION); will(returnValue(null));
 			one(res).sendError(with(equal(HttpServletResponse.SC_NOT_FOUND)), with(any(String.class)));
 		}});
-		handler.handleGet(new RequestContext(req, res, null, null, null, null, null, null));
+		handler.handleGet(new RequestContext(req, res, null, null, null, null, null, null, bindingHandlerFactory));
 	}
 	
 	@Test
@@ -110,7 +110,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 			one(res).addHeader(with(equal("Content-disposition")), with(any(String.class)));
 			one(res).getOutputStream(); will(returnValue(TestHelper.createOutputStream(os)));
 		}});
-		handler.handleGet(new RequestContext(req, res, null, null, null, null, null, null));
+		handler.handleGet(new RequestContext(req, res, null, null, null, null, null, null, bindingHandlerFactory));
 		
 		assertEquals("testing", new String(os.toByteArray()));
 	}
@@ -130,7 +130,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 			allowing(req).getServerName(); will(returnValue("localhost"));
 			allowing(req).getScheme(); will(returnValue("http"));
 		}});
-		handler.handleGet(new RequestContext(req, res, null, null, null, null, null, null));
+		handler.handleGet(new RequestContext(req, res, null, null, null, null, null, null, bindingHandlerFactory));
 		String output = sw.toString();
 		assertNotNull(output);
 		assertTrue(output.indexOf(url) > -1);

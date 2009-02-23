@@ -43,6 +43,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
+import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.Response;
@@ -101,8 +102,8 @@ public abstract class IntegrationTests {
 		IOUtils.write(XMLHelper.nodeToString(SAMLUtil.marshallObject(spDescriptor)).getBytes(), fos);
 		fos.close();
 		
-		spMetadata = new SPMetadata(spDescriptor);
-		idpMetadata = new IdpMetadata(idpDescriptor);
+		spMetadata = new SPMetadata(spDescriptor, SAMLConstants.SAML20P_NS);
+		idpMetadata = new IdpMetadata(SAMLConstants.SAML20P_NS, idpDescriptor);
 		
 		fos = new FileOutputStream(new File(tmpdir, "oiosaml-sp.log4j.xml"));
 		IOUtils.write("<!DOCTYPE log4j:configuration SYSTEM \"http://logging.apache.org/log4j/docs/api/org/apache/log4j/xml/log4j.dtd\"><log4j:configuration xmlns:log4j=\"http://jakarta.apache.org/log4j/\" debug=\"false\"></log4j:configuration>", fos);
