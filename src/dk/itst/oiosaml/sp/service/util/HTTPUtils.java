@@ -63,6 +63,10 @@ public class HTTPUtils {
 	 */
 	public static void sendMetaRedirect(HttpServletResponse res, String url, String query, boolean saveFragment) throws IOException {
 		res.setContentType("text/html");
+		res.addHeader("Pragma", "no-cache");
+		res.addDateHeader("Expires", -1);
+		res.addHeader("Cache-Control", "no-cache");
+		res.addHeader("Cache-Control", "no-store");
 
 		PrintWriter w = res.getWriter();
 		w.write("<html><head>");
