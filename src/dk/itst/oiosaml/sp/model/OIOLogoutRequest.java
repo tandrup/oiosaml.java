@@ -52,7 +52,6 @@ import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
@@ -187,14 +186,8 @@ public class OIOLogoutRequest extends OIORequest {
 	 * @param signingCredential Credential to use for signing the url.
 	 * @return A URL containing an &lt;LogoutRequest&gt; for the current user.
 	 */
-	public String getRedirectRequestURL(Credential signingCredential, LogUtil lu) {
-		lu.setRequestId(getID());
-		lu.audit(Constants.SERVICE_LOGOUT_REQUEST, toXML());
-
+	public String getRedirectRequestURL(Credential signingCredential) {
 		Encoder enc = new Encoder();
-
-		// Start timer
-		lu.beforeService("", request.getDestination(),Constants.SERVICE_LOGOUT_REQUEST, "ID=" + getID());
 
 		try {
 			return enc.buildRedirectURL(signingCredential, null);

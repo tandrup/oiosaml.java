@@ -45,11 +45,12 @@ import org.opensaml.xml.security.credential.Credential;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
-import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
 /**
@@ -59,10 +60,7 @@ import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
  * @author Rolf Njor Jensen, Trifork A/S
  */
 public class LogoutServiceSOAPHandler implements SAMLHandler {
-
-	private static final long serialVersionUID = 528551181441140639L;
-	public static final String VERSION = "$Id: LogoutServiceSOAPHandler.java 2910 2008-05-21 13:07:31Z jre $";
-	static final Logger log = Logger.getLogger(LogoutServiceSOAPHandler.class);
+	private static final Logger log = Logger.getLogger(LogoutServiceSOAPHandler.class);
 
 	private OIOLogoutRequest extractRequest(HttpServletRequest request) throws IOException {
 		InputStream is = request.getInputStream();
@@ -93,11 +91,9 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 		String consent = null;
 
 		OIOLogoutRequest logoutRequest = extractRequest(ctx.getRequest());
+		Audit.log(Operation.LOGOUT_SOAP, false, logoutRequest.getID(), logoutRequest.toXML());
 		try {
 			
-			ctx.getLogUtil().setRequestId(logoutRequest.getID());
-			ctx.getLogUtil().audit(Constants.SERVICE_LOGOUT_RESPONSE, logoutRequest.toXML());
-
 			String sessionIndex = logoutRequest.getSessionIndex();
 			String sessionId = ctx.getSessionHandler().getRelatedSessionId(sessionIndex);
 			
@@ -116,6 +112,8 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 					Certificate idpCertificate = metadata.getCertificate();
 					logoutRequest.validateRequest(null, null, idpCertificate != null ? idpCertificate.getPublicKey() : null, ctx.getSpMetadata().getSingleLogoutServiceSOAPLocation(), metadata.getEntityID());
 					ctx.getSessionHandler().logOut(sessionId);
+					
+					Audit.log(Operation.LOGOUT, assertion.getSubjectNameIDValue());
 				} catch (LogoutRequestValidationException e) {
 					consent = e.getMessage();
 					statusCode = StatusCode.AUTHN_FAILED_URI;
@@ -124,14 +122,14 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 		} catch (Throwable t) {
 			statusCode = StatusCode.AUTHN_FAILED_URI;
 			consent = t instanceof WrappedException ? t.getCause().getMessage() : t.getMessage();
-			ctx.getLogUtil().error(t);
+			Audit.logError(Operation.LOGOUT_SOAP, false, logoutRequest.getID(), t);
 		}
 
 		if (log.isDebugEnabled()) log.debug("Logout status: " + statusCode + ", message: " + consent);
 
 		OIOLogoutResponse logoutResponse = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), null);
 		returnResponse(ctx.getResponse(), logoutResponse, ctx.getCredential());
-		ctx.getLogUtil().endService("ID=" + logoutResponse.getInResponseTo());
+		Audit.log(Operation.LOGOUT_SOAP, true, logoutRequest.getID(), logoutResponse.toXML());
 	}
 
 	public void handleGet(RequestContext ctx) throws IOException {

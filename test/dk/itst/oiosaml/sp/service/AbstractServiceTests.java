@@ -13,7 +13,6 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
@@ -24,7 +23,6 @@ import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.LogId;
 
 public abstract class AbstractServiceTests extends AbstractTests {
 
@@ -33,14 +31,12 @@ public abstract class AbstractServiceTests extends AbstractTests {
 	protected HttpSession session;
 	protected Assertion assertion;
 	protected SessionHandler handler;
-	protected HashMap<String, LogId> ids;
 
 	protected Credential credential;
 	protected IdpMetadata idpMetadata;
 	protected SPMetadata spMetadata;
 
 	protected String idpEntityId;
-	protected LogUtil logUtil = new LogUtil(getClass(), "test");
 	
 	protected CredentialRepository credentialRepository = new CredentialRepository();
 	protected SessionHandlerFactory handlerFactory;
@@ -51,7 +47,6 @@ public abstract class AbstractServiceTests extends AbstractTests {
 		bindingHandlerFactory = context.mock(BindingHandlerFactory.class);
 
 		credential = TestHelper.getCredential();
-		ids = new HashMap<String, LogId>();
 		req = context.mock(HttpServletRequest.class);
 		res = context.mock(HttpServletResponse.class);
 		session = context.mock(HttpSession.class);

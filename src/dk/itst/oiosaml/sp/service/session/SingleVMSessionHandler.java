@@ -32,6 +32,8 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Issuer;
 
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
@@ -146,18 +148,19 @@ public class SingleVMSessionHandler implements SessionHandler {
 
 
 	public void cleanup(long requestIdsCleanupDelay, long sessionCleanupDelay) {
-		cleanup(sessionMap, sessionCleanupDelay);
-		cleanup(requestIds, requestIdsCleanupDelay);
-		cleanup(sessionIndexMap, sessionCleanupDelay);
-		cleanup(requests, sessionCleanupDelay);
+		cleanup(sessionMap, sessionCleanupDelay, "Session ");
+		cleanup(requestIds, requestIdsCleanupDelay, "Request ");
+		cleanup(sessionIndexMap, sessionCleanupDelay, "SessionIndex ");
+		cleanup(requests, sessionCleanupDelay, "Request ");
 	}
 
-	private <E, T> void cleanup(Map<E, TimeOutWrapper<T>> map, long cleanupDelay) {
+	private <E, T> void cleanup(Map<E, TimeOutWrapper<T>> map, long cleanupDelay, String msg) {
 		if (log.isDebugEnabled()) log.debug(hashCode() +  " Running cleanup timer on " + map);
 		for (E key : map.keySet()) {
 			TimeOutWrapper<T> tow = map.get(key);
 			if (tow.isExpired(cleanupDelay)) {
 				log.debug("Expiring " + tow);
+				Audit.log(Operation.TIMEOUT, msg + tow.getObject());
 				map.remove(key);
 			}
 		}

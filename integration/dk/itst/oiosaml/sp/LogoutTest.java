@@ -39,7 +39,6 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.TestHelper;
@@ -65,7 +64,7 @@ public class LogoutTest extends IntegrationTests {
 		assertEquals("joetest", lr.getNameID().getValue());
 		
 		OIOLogoutResponse response = OIOLogoutResponse.fromRequest(new OIOLogoutRequest(lr), StatusCode.SUCCESS_URI, null, idpMetadata.getFirstMetadata().getEntityID(), spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
-		String redirectURL = response.getRedirectURL(credential, TestHelper.getParameter("RelayState", handler.url.toString()), new LogUtil(getClass(), ""));
+		String redirectURL = response.getRedirectURL(credential, TestHelper.getParameter("RelayState", handler.url.toString()));
 		
 		Page responsePage = client.getPage(redirectURL);
 		assertEquals(302, responsePage.getWebResponse().getStatusCode());
@@ -83,7 +82,7 @@ public class LogoutTest extends IntegrationTests {
 		lr.setIssueInstant(new DateTime());
 		lr.setNameID(SAMLUtil.createNameID("joetest"));
 		OIOLogoutRequest req = new OIOLogoutRequest(lr);
-		String redirectUrl = req.getRedirectRequestURL(credential, new LogUtil(getClass(), ""));
+		String redirectUrl = req.getRedirectRequestURL(credential);
 		
 		System.out.println(redirectUrl);
 		Page responsePage = client.getPage(redirectUrl);

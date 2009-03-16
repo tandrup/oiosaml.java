@@ -38,7 +38,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 			allowing(req).getRequestURI(); will(returnValue("uri"));
 			allowing(req).getQueryString(); will(returnValue("query"));
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, buildConfiguration(new HashMap<String, String>()), logUtil, handler, bindingHandlerFactory);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, buildConfiguration(new HashMap<String, String>()), handler, bindingHandlerFactory);
 	}
 
 	@Test(expected=RuntimeException.class)

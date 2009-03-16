@@ -46,7 +46,6 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAttributeQuery;
@@ -131,7 +130,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		new OIOResponse(resp).sign(credential);
 		
 		context.checking(new Expectations() {{
-			one(client).wsCall(with(any(OIOAttributeQuery.class)), with(any(LogUtil.class)), with(equal(location)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)));
+			one(client).wsCall(with(any(OIOAttributeQuery.class)), with(equal(location)), with(aNull(String.class)), with(aNull(String.class)), with(equal(true)));
 			will(returnValue(resp));
 		}});
 		

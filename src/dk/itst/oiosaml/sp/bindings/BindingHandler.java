@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 
 /**
@@ -51,5 +50,5 @@ public interface BindingHandler {
 	 */
 	public String getBindingURI();
 
-	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest, LogUtil lu) throws IOException, ServletException;
+	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest) throws IOException, ServletException;
 }

@@ -37,13 +37,15 @@ import org.opensaml.saml2.core.ArtifactResponse;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.util.BRSArtifact;
@@ -67,7 +69,7 @@ public class ArtifactExtractor  {
 	}
 	
 
-	public OIOResponse extract(HttpServletRequest request, LogUtil lu) throws IOException {
+	public OIOResponse extract(HttpServletRequest request) throws IOException {
 		String samlArt = request.getParameter(Constants.SAML_SAMLART);
 		if (log.isDebugEnabled()) log.debug("Got SAMLart..:" + samlArt);
 		
@@ -92,9 +94,12 @@ public class ArtifactExtractor  {
 		// Build the <ArtifactResolve>
 		String id = Utils.generateUUID();
 		ArtifactResolve artifactResolve = buildArtifactResolve(samlArt, id, artifactResolutionServiceLocation);
+		
+		Audit.log(Operation.ARTIFACTRESOLVE, true, artifactResolve.getID(), XMLHelper.nodeToString(SAMLUtil.marshallObject(artifactResolve)));
 
-		Envelope env = client.wsCall(artifactResolve, lu, artifactResolutionServiceLocation, resolveUsername, resolvePassword, ignoreCertPath);
+		Envelope env = client.wsCall(artifactResolve, artifactResolutionServiceLocation, resolveUsername, resolvePassword, ignoreCertPath);
 		ArtifactResponse artifactResponse = (ArtifactResponse)env.getBody().getUnknownXMLObjects().get(0); 
+		Audit.log(Operation.ARTIFACTRESOLVE, false, artifactResolve.getID(), XMLHelper.nodeToString(SAMLUtil.marshallObject(artifactResponse)));
 		try {
 			artifactResponse.validate(false);
 		} catch (ValidationException e) {
@@ -104,13 +109,17 @@ public class ArtifactExtractor  {
 		// Check that the <ArtifactResponse> belongs to the sent
 		// <ArtifactResolve>
 		if (!id.equals(artifactResponse.getInResponseTo())) {
-			throw new RuntimeException("Received different id than I sent: Expected " + id + ". Was " + artifactResponse.getInResponseTo());
+			RuntimeException e = new RuntimeException("Received different id than I sent: Expected " + id + ". Was " + artifactResponse.getInResponseTo());
+			Audit.logError(Operation.ARTIFACTRESOLVE, false, artifactResolve.getID(), e);
+			throw e;
 		}
 
 		// Check whether the <ArtifactResponse> has status=SUCCESS
 		String statusCode = artifactResponse.getStatus().getStatusCode().getValue();
 		if (!StatusCode.SUCCESS_URI.equals(statusCode)) {
-			throw new RuntimeException("Got ArtifactResponse:StatusCode " + statusCode + " should be " + StatusCode.SUCCESS_URI);
+			RuntimeException e = new RuntimeException("Got ArtifactResponse:StatusCode " + statusCode + " should be " + StatusCode.SUCCESS_URI);
+			Audit.logError(Operation.ARTIFACTRESOLVE, false, artifactResolve.getID(), e);
+			throw e;
 		}
 		return new OIOResponse((Response) artifactResponse.getMessage());
 	}

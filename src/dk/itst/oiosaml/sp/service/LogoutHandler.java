@@ -30,7 +30,10 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
+import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
@@ -46,7 +49,6 @@ public class LogoutHandler implements SAMLHandler{
 	public void handleGet(RequestContext context) throws ServletException, IOException {
 
 		HttpSession session = context.getSession();
-		context.getLogUtil().audit("sessionId", session.getId());
 
 		// Check that user is logged in...
 		if (!context.getSessionHandler().isLoggedIn(session.getId())) {
@@ -55,17 +57,20 @@ public class LogoutHandler implements SAMLHandler{
 			return;
 		}
 		
-		String entityID = context.getSessionHandler().getAssertion(session.getId()).getAssertion().getIssuer().getValue();
+		OIOAssertion assertion = context.getSessionHandler().getAssertion(session.getId());
+		String entityID = assertion.getAssertion().getIssuer().getValue();
 		Metadata metadata = context.getIdpMetadata().getMetadata(entityID);
 
 		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, metadata.getSingleLogoutServiceLocation(), context.getSpMetadata().getEntityID(), context.getSessionHandler());
-		String redirectURL = lr.getRedirectRequestURL(context.getCredential(), context.getLogUtil());
+		String redirectURL = lr.getRedirectRequestURL(context.getCredential());
+		
+		Audit.log(Operation.LOGOUTREQUEST, true, lr.getID(), lr.toXML());
 
 		context.getSessionHandler().registerRequest(lr.getID(), metadata.getEntityID());
 		context.getSessionHandler().logOut(session);
 
 		if (log.isDebugEnabled()) log.debug("Redirect to..:" + redirectURL);
-		context.getLogUtil().audit("User logged out locally");
+		Audit.log(Operation.LOGOUT, assertion.getSubjectNameIDValue());
 
 		context.getResponse().sendRedirect(redirectURL);
 	}

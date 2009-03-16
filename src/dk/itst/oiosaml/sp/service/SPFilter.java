@@ -46,7 +46,8 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
@@ -129,6 +130,8 @@ public class SPFilter implements Filter {
 		if (!(request instanceof HttpServletRequest)) {
 			throw new RuntimeException("Not supported operation...");
 		}
+		HttpServletRequest servletRequest = ((HttpServletRequest) request);
+		Audit.init(servletRequest);
 
 		if(!isFilterInitialized()) {
 			try {
@@ -143,7 +146,6 @@ public class SPFilter implements Filter {
 			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), ((HttpServletRequest)request).getSession().getMaxInactiveInterval(), 30);
 		}
 		
-		HttpServletRequest servletRequest = ((HttpServletRequest) request);
 		SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
 		
 		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
@@ -168,6 +170,8 @@ public class SPFilter implements Filter {
 			UserAssertion ua = (UserAssertion) session.getAttribute(Constants.SESSION_USER_ASSERTION);
 			if (log.isDebugEnabled())
 				log.debug("Everything is ok... Assertion: " + ua);
+			
+			Audit.log(Operation.ACCESS, servletRequest.getRequestURI());
 
 			UserAssertionHolder.set(ua);
 			HttpServletRequestWrapper requestWrap = new SAMLHttpServletRequest(servletRequest, ua, hostname);
@@ -225,7 +229,7 @@ public class SPFilter implements Filter {
 	}
 	
 	private void setRuntimeConfiguration(Configuration conf) {
-		LogUtil.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_LOG_FILE_NAME));
+		Audit.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_LOG_FILE_NAME));
 		restartCRLChecker(conf);
 		setFilterInitialized(true);
 		setConfiguration(conf);

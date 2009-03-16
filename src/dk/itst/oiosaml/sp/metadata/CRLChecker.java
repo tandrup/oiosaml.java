@@ -39,6 +39,8 @@ import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
@@ -72,6 +74,7 @@ public class CRLChecker {
 		        boolean revoked = revokedCertificate != null;
 
 		        log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + md.getCertificate());
+		        Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
 		        md.setCertificateValid(!revoked);
 			} catch (MalformedURLException e) {
 				log.error("Unable to parse url " + url, e);

@@ -41,7 +41,8 @@ import org.opensaml.saml2.metadata.Endpoint;
 import org.opensaml.xml.util.Base64;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
@@ -73,6 +74,7 @@ public class LoginHandler implements SAMLHandler {
 				if (request.getQueryString() != null) {
 					url += "?" + request.getQueryString();
 				}
+				Audit.log(Operation.DISCOVER, true, "", discoveryLocation);
 				HTTPUtils.sendMetaRedirect(response, discoveryLocation, "r=" + URLEncoder.encode(url, "UTF-8"), true);
 				return;
 			} else if ("".equals(samlIdp)) {
@@ -93,6 +95,8 @@ public class LoginHandler implements SAMLHandler {
 					}
 				}
 			} else {
+				Audit.log(Operation.DISCOVER, false, "", samlIdp);
+				
 				String[] entityIds = SAMLUtil.decodeDiscoveryValue(samlIdp);
 				metadata = idpMetadata.findSupportedEntity(entityIds);
 				log.debug("Discovered idp " + metadata.getEntityID());
@@ -100,6 +104,8 @@ public class LoginHandler implements SAMLHandler {
 		} else {
 			metadata = idpMetadata.getFirstMetadata();
 		}
+		Audit.log(Operation.DISCOVER, metadata.getEntityID());
+		
 		Endpoint signonLocation = metadata.findLoginEndpoint(conf.getStringArray(Constants.PROP_SUPPORTED_BINDINGS));
 		if (signonLocation == null) {
 			String msg = "Could not find a valid IdP signon location. Supported bindings: " + conf.getString(Constants.PROP_SUPPORTED_BINDINGS) + ", available: " + metadata.getSingleSignonServices();
@@ -116,7 +122,6 @@ public class LoginHandler implements SAMLHandler {
 		session.removeAttribute(Constants.SESSION_USER_ASSERTION);
 		UserAssertionHolder.set(null);
 
-		LogUtil lu = new LogUtil(getClass(), "", "Authn");
 		String relayState = context.getRequest().getParameter(Constants.SAML_RELAYSTATE);
 		OIOAuthnRequest authnRequest = OIOAuthnRequest.buildAuthnRequest(signonLocation.getLocation(), context.getSpMetadata().getEntityID(), context.getSpMetadata().getDefaultAssertionConsumerService().getBinding(), context.getSessionHandler(), relayState);
 		authnRequest.setNameIDPolicy(conf.getString(Constants.PROP_NAMEID_POLICY, null), conf.getBoolean(Constants.PROP_NAMEID_POLICY_ALLOW_CREATE, false));
@@ -125,11 +130,10 @@ public class LoginHandler implements SAMLHandler {
 		if (ua == null) {
 			authnRequest.setPasive(conf.getBoolean(Constants.PROP_PASSIVE, false));
 		}
-		
-		lu.audit(Constants.SERVICE_AUTHN_REQUEST, authnRequest.toXML());
+		Audit.log(Operation.AUTHNREQUEST_SEND, true, authnRequest.getID(), authnRequest.toXML());
 
 		context.getSessionHandler().registerRequest(authnRequest.getID(), metadata.getEntityID());
-		bindingHandler.handle(request, response, context.getCredential(), authnRequest, lu);
+		bindingHandler.handle(request, response, context.getCredential(), authnRequest);
 	}
 
 	public void handlePost(RequestContext context) throws ServletException, IOException {

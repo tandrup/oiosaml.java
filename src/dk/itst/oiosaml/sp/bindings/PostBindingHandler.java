@@ -31,11 +31,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 
 /**
@@ -51,7 +53,7 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
  * <li><strong>RelayState</strong>: Value of the RelayState attribute</li>
  * <li><strong>SAMLRequest</strong>: Value of the SAMLRequest form attribute</li>
  * </ul>
- * All the values are properly form encoded and signed. Use {@link #createContext(HttpSession, Credential, String, String, LogUtil)} if a new
+ * All the values are properly form encoded and signed. Use {@link #createContext(HttpSession, Credential, String, String)} if a new
  * SAMLRequest must be generated, but without sending it directly to the browser.
  * </p>
  * 
@@ -60,8 +62,9 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
  *
  */
 public class PostBindingHandler implements BindingHandler {
+	private static final Logger log = Logger.getLogger(PostBindingHandler.class);
+	
 	private String dispatchPath;
-	public static final String VERSION = "$Id: ClientSSOEngine.java 2546 2008-04-11 13:29:25Z jre $";
 
 	public PostBindingHandler() {
 		dispatchPath = SAMLConfiguration.getSystemConfiguration().getString("POSTDispatchPath", null);
@@ -75,7 +78,7 @@ public class PostBindingHandler implements BindingHandler {
 		return SAMLConstants.SAML2_POST_BINDING_URI;
 	}
 	
-	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest request, LogUtil lu) throws IOException, ServletException {
+	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest request) throws IOException, ServletException {
 		request.sign(credential);
 		String encodedMessage = request.toBase64();
 
@@ -86,10 +89,13 @@ public class PostBindingHandler implements BindingHandler {
 		req.setAttribute("SAMLRequest", encodedMessage);
 		RequestDispatcher dispatcher = req.getRequestDispatcher(dispatchPath);
 		if(dispatcher == null) {
-			lu.audit("No request dispatcher found for path: " + dispatchPath);
+			log.error("No request dispatcher found for path: " + dispatchPath);
 			throw new RuntimeException("No request dispatcher found for path: " + dispatchPath);
 		}
-		lu.audit("Dispatching request to: " + dispatchPath);
+		log.debug("Dispatching request to: " + dispatchPath);
+		
+		Audit.log(Operation.AUTHNREQUEST_POST, true, request.getID(), encodedMessage);
+		
 		dispatcher.forward(req, response);
 	}
 }

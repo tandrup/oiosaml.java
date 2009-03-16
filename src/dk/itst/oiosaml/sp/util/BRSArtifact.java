@@ -39,7 +39,6 @@ import org.opensaml.xml.util.DatatypeHelper;
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
 
 /**
  * Utility methods related to extract the content of a SAML Artifact
@@ -154,7 +153,6 @@ public class BRSArtifact {
 
             return new BRSArtifactType0004(trimmedIndex, source, assertionHandle);
         } catch (NoSuchAlgorithmException e) {
-            new LogUtil(BRSArtifact.class, VERSION).error(e, "JVM does not support required cryptography algorithms: SHA-1/SHA1PRNG.");
             throw new InternalError("JVM does not support required cryptography algorithms: SHA-1/SHA1PRNG.");
         }
     }

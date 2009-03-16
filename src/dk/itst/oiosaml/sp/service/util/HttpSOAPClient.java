@@ -45,7 +45,6 @@ import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.common.SOAPException;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.model.OIOSamlObject;
 
 public class HttpSOAPClient implements SOAPClient {
@@ -53,26 +52,14 @@ public class HttpSOAPClient implements SOAPClient {
 	private static final String END_SOAP_ENVELOPE = "</soapenv:Body></soapenv:Envelope>";
 	private static final Logger log = Logger.getLogger(HttpSOAPClient.class);
 
-	public XMLObject wsCall(OIOSamlObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
-		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
-		try {
-			return wsCall(location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security").getBody().getUnknownXMLObjects().get(0);
-		} finally {
-			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
-		}
+	public XMLObject wsCall(OIOSamlObject obj, String location, String username, String password, boolean ignoreCertPath) throws IOException {
+		return wsCall(location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security").getBody().getUnknownXMLObjects().get(0);
 	}
 	
-	public Envelope wsCall(XMLObject obj, LogUtil lu, String location, String username, String password, boolean ignoreCertPath) throws IOException {
-		
-		lu.beforeService("", location, Constants.SERVICE_ARTIFACT_RESOLVE, null);
-
+	public Envelope wsCall(XMLObject obj, String location, String username, String password, boolean ignoreCertPath) throws IOException {
 		String xml = XMLHelper.nodeToString(SAMLUtil.marshallObject(obj));
 		xml = START_SOAP_ENVELOPE + xml.substring(xml.indexOf("?>") + 2) + END_SOAP_ENVELOPE;
-		try {
-			return wsCall(location, username, password, ignoreCertPath, xml, "http://www.oasis-open.org/committees/security");
-		} finally {
-			lu.afterService(Constants.SERVICE_ARTIFACT_RESOLVE);
-		}
+		return wsCall(location, username, password, ignoreCertPath, xml, "http://www.oasis-open.org/committees/security");
 	}
 
 	public Envelope wsCall(String location, String username, String password, boolean ignoreCertPath, String xml, String soapAction) throws IOException, SOAPException {

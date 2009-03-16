@@ -21,8 +21,6 @@ import org.opensaml.xml.security.credential.Credential;
 import org.w3c.dom.Document;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
-import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -62,7 +60,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 	public void testValidateLogoutRequest() throws Exception {
 		String location = "http://logoutServiceLocation";
 		String issuer = "entityId";
-		String url = OIOLogoutRequest.buildLogoutRequest(session, location, issuer, handler).getRedirectRequestURL(credential, logUtil);
+		String url = OIOLogoutRequest.buildLogoutRequest(session, location, issuer, handler).getRedirectRequestURL(credential);
 		
 		Document doc = parseBase64Encoded(getParameter("SAMLRequest", url));
 		LogoutRequest lr = (LogoutRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
@@ -106,7 +104,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		lr.setDestination("http://dest");
 		
 		Credential cred = TestHelper.getCredential();
-		String url = lh.getRedirectRequestURL(cred, new LogUtil(getClass(), ""));
+		String url = lh.getRedirectRequestURL(cred);
 		
 		String req = TestHelper.getParameter(Constants.SAML_SAMLREQUEST, url);
 		
@@ -127,7 +125,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		assertNotNull(lr.getID());
 
 		Credential cred = TestHelper.getCredential();
-		String url = lr.getRedirectRequestURL(cred, new LogUtil(getClass(), ""));
+		String url = lr.getRedirectRequestURL(cred);
 		String req = TestHelper.getParameter(Constants.SAML_SAMLREQUEST, url);
 		Document document = TestHelper.parseBase64Encoded(req);
 		LogoutRequest logoutRequest = (LogoutRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(document.getDocumentElement()).unmarshall(document.getDocumentElement());

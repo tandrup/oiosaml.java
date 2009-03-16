@@ -80,6 +80,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			allowing(req).getServletPath(); will(returnValue("/servlet"));
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(session).getMaxInactiveInterval(); will(returnValue(30));
+			allowing(req).getRemoteAddr(); will(returnValue("127.0.0.1"));
 		}});
 		
 		filter = new SPFilter();
@@ -104,6 +105,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations(){{
 			one(config).getServletContext(); will(returnValue(servletContext));
 			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(dir.getAbsolutePath()));
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
 		}});
 		System.clearProperty(SAMLUtil.OIOSAML_HOME);
 		filter.init(config);
@@ -130,6 +132,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(req).getRequestDispatcher("/saml/login"); will(returnValue(dispatcher));
 			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>()));
 			one(dispatcher).forward(with(any(HttpServletRequest.class)), with(equal(res)));
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
 		}});
 		
 		filter.doFilter(req, res, chain);
@@ -144,6 +147,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		final BaseMatcher<ServletRequest> baseMatcher = new BaseMatcherExtension();
 		context.checking(new Expectations() {{
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(chain).doFilter(with(baseMatcher) , with(any(HttpServletResponse.class)));
 		}});
 		filter.doFilter(req, res, chain);
@@ -156,6 +160,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "4");
 		setHandler();
 		context.checking(new Expectations() {{
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
 		try {
@@ -169,6 +174,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_SAML_SERVLET, "/servlet");
 		context.checking(new Expectations() {{
 			one(chain).doFilter(with(any(HttpServletRequest.class)), with(equal(res)));
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
 		}});
 		
 		filter.doFilter(req, res, chain);

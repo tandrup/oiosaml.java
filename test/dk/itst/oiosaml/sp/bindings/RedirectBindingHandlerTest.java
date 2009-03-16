@@ -35,7 +35,7 @@ public class RedirectBindingHandlerTest extends AbstractServiceTests {
 		}});
 		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, handler, "state");
 
-		rh.handle(req, res, credential, request, logUtil);
+		rh.handle(req, res, credential, request);
 		
 		String url = sw.toString().substring(sw.toString().indexOf("url=") + 4, sw.toString().indexOf(">", sw.toString().indexOf("url=")) - 1);
 		String r = TestHelper.getParameter("SAMLRequest", url);

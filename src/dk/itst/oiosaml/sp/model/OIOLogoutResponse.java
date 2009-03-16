@@ -57,7 +57,6 @@ import org.opensaml.xml.validation.ValidationException;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
@@ -129,12 +128,7 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 	 * @return A URL containing an &lt;LogoutResponse&gt; as a response to a
 	 *         &lt;LogoutRequest&gt;
 	 */
-	public String getRedirectURL(Credential signingCredential, String relayState, LogUtil lu) {
-		
-		// Build the <LogoutResponse>
-		lu.setRequestId(response.getID());
-		lu.audit(Constants.SERVICE_LOGOUT_RESPONSE, toXML());
-
+	public String getRedirectURL(Credential signingCredential, String relayState) {
 		Encoder enc = new Encoder();
 
 		// Build the parameters for the response

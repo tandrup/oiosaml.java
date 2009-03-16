@@ -46,14 +46,12 @@ import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.session.Request;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.LogId;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
@@ -67,7 +65,6 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 	@SuppressWarnings("serial")
 	@Before
 	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException, CertificateEncodingException, InvalidKeyException, SignatureException {
-		ids = new HashMap<String, LogId>();
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("http://test"));
 			allowing(req).getQueryString(); will(returnValue(""));
@@ -78,7 +75,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		}};
 		configuration = TestHelper.buildConfiguration(conf);
 		sh = new SAMLAssertionConsumerHandler(configuration);
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler, bindingHandlerFactory);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, handler, bindingHandlerFactory);
 	}
 	
 	@Test
@@ -102,7 +99,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(Utils.generateUUID()));
 
-			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
+			one(client).wsCall(with(any(XMLObject.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
 
@@ -132,7 +129,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
-			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
+			one(client).wsCall(with(any(XMLObject.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
 
@@ -202,7 +199,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			allowing(req).getParameter(Constants.SAML_SAMLART); will(returnValue(Base64.encodeBytes(bos.toByteArray())));
 			allowing(req).getParameter(Constants.SAML_SAMLRESPONSE); will(returnValue(null));
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
-			one(client).wsCall(with(any(XMLObject.class)), with(any(LogUtil.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
+			one(client).wsCall(with(any(XMLObject.class)), with(equal(idpMetadata.getMetadata("idp1.test.oio.dk").getArtifactResolutionServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI))), with(aNull(String.class)), with(aNull(String.class)), with(any(Boolean.class)));
 			will(new Action() {
 				public void describeTo(Description description) {}
 
@@ -284,9 +281,9 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			status.setValue(StatusCode.NO_PASSIVE_URI);
 			samlResponse.getStatus().getStatusCode().setStatusCode(status);
 		}
-		res.setMessage(samlResponse);
 		
 		if (sign) {
+			samlResponse = (Response) SAMLUtil.unmarshallElementFromString(XMLHelper.nodeToString(SAMLUtil.marshallObject(samlResponse)));
 			Signature signature = SAMLUtil.buildXMLObject(Signature.class);
 		    signature.setSigningCredential(credential);
 	        SecurityHelper.prepareSignatureParams(signature, credential, null, null);
@@ -295,6 +292,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		    
 	        Signer.signObject(signature);
 		}
+		res.setMessage(samlResponse);
 		
 		Envelope env = SAMLUtil.buildXMLObject(Envelope.class);
 		Body body = SAMLUtil.buildXMLObject(Body.class);

@@ -282,12 +282,12 @@ public class IdpMetadata {
 		 * @return The certificate associated with the Login Site
 		 */
 		public X509Certificate getCertificate() throws InvalidCertificateException {
-			if (!certificateValid) throw new InvalidCertificateException("Certificate not valid");
-			if (!certificate.getNotAfter().after(new Date())) throw new InvalidCertificateException("Certificate expired at " + certificate.getNotAfter() + ", current: " + new Date());
+			if (!certificateValid) throw new InvalidCertificateException("Certificate for " + getEntityID() + "  not valid");
+			if (!certificate.getNotAfter().after(new Date())) throw new InvalidCertificateException("Certificate for " + getEntityID() + " expired at " + certificate.getNotAfter() + ", current: " + new Date());
 			
 			return certificate;
 		}
-		
+
 		void setCertificateValid(boolean valid) {
 			this.certificateValid = valid;
 			

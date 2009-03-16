@@ -18,12 +18,10 @@ import org.opensaml.saml2.core.ArtifactResolve;
 import org.opensaml.saml2.core.ArtifactResponse;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
-import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.service.util.HttpSOAPClient;
 
@@ -49,7 +47,7 @@ public class HttpSOAPClientTest extends AbstractTests {
 	public void testArtifactResolve() throws Exception {
 		ArtifactResolve ar = SAMLUtil.buildXMLObject(ArtifactResolve.class);
 		
-		Envelope env = client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test", "test", true);
+		Envelope env = client.wsCall(ar, "http://localhost:12349", "test", "test", true);
 		assertTrue(env.getBody().getUnknownXMLObjects().get(0) instanceof ArtifactResponse);
 		assertEquals("\"http://www.oasis-open.org/committees/security\"", ds.headers.get("SOAPAction"));
 		
@@ -60,7 +58,7 @@ public class HttpSOAPClientTest extends AbstractTests {
 	public void dontFailWhenUsingLongUsernamePassword() throws Exception {
 		ArtifactResolve ar = SAMLUtil.buildXMLObject(ArtifactResolve.class);
 		
-		client.wsCall(ar, new LogUtil(getClass(), ""), "http://localhost:12349", "test123456789012345678901234567890", "test123456789012345678901234567890", true);
+		client.wsCall(ar, "http://localhost:12349", "test123456789012345678901234567890", "test123456789012345678901234567890", true);
 	}
 	
 	private static class DummyServer implements Runnable {

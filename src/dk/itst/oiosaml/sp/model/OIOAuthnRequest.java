@@ -35,10 +35,8 @@ import org.opensaml.xml.validation.ValidationException;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
-import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class OIOAuthnRequest extends OIORequest {
@@ -82,16 +80,12 @@ public class OIOAuthnRequest extends OIORequest {
 	 * 
 	 * @param signingCredential The credential used for signing the url.
 	 */
-	public String getRedirectURL(Credential signingCredential, LogUtil lu) {
-		lu.setRequestId(request.getID());
+	public String getRedirectURL(Credential signingCredential) {
 		Encoder enc = new Encoder();
 		try {
 			return enc.buildRedirectURL(signingCredential, getRelayState());
 		} catch (MessageEncodingException e) {
 			throw new WrappedException(Layer.CLIENT, e);
-		} finally {
-			lu.beforeService("", request.getDestination(), Constants.SERVICE_AUTHN_REQUEST, "ID=" + getID());
-
 		}
 	}
 	

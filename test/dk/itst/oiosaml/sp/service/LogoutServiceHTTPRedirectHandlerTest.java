@@ -40,7 +40,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Before
 	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException {
 		logoutServiceHttpRedirectHandler = new LogoutServiceHTTPRedirectHandler();
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, logUtil, handler, bindingHandlerFactory);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, handler, bindingHandlerFactory);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 		setHandler();
 		assertTrue(handler.isLoggedIn(session.getId()));
 		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), idpEntityId, handler);
-		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
+		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
 			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
@@ -92,7 +92,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Test
 	public void failWhenInvalidSignature() throws Exception {
 		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), idpEntityId, handler);
-		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
+		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
 			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
@@ -116,7 +116,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Test(expected=IllegalArgumentException.class)
 	public void testFailWhenIssuerIsWrong() throws Exception {
 		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), "entityID", handler);
-		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
+		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
 			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
@@ -134,7 +134,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Test(expected=RuntimeException.class)
 	public void failWhenNoIssuer() throws Exception {
 		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, spMetadata.getSingleLogoutServiceHTTPRedirectLocation(), null, handler);
-		final String requestURL = lr.getRedirectRequestURL(credential, logUtil);
+		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
 			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));

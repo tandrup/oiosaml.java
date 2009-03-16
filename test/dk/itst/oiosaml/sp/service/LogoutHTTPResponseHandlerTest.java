@@ -34,7 +34,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		configuration = TestHelper.buildConfiguration(new HashMap<String, String>() {{
 			put(Constants.PROP_HOME, "url");
 		}});
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler, bindingHandlerFactory);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, handler, bindingHandlerFactory);
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		handler.registerRequest(lr.getID(), idpEntityId);
 
 		OIOLogoutResponse resp = OIOLogoutResponse.fromRequest(lr, StatusCode.SUCCESS_URI, "consent", idpEntityId, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
-		String responseUrl = resp.getRedirectURL(credential, "relayState", logUtil);
+		String responseUrl = resp.getRedirectURL(credential, "relayState");
 		setExpectations(req, responseUrl);
 		
 		context.checking(new Expectations() {{
@@ -61,7 +61,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		
 		OIOLogoutResponse resp = OIOLogoutResponse.fromRequest(lr, StatusCode.SUCCESS_URI, "consent", idpEntityId, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
 		
-		String responseUrl = resp.getRedirectURL(credential, "relayState", logUtil);
+		String responseUrl = resp.getRedirectURL(credential, "relayState");
 		setExpectations(req, responseUrl);
 		
 		context.checking(new Expectations() {{

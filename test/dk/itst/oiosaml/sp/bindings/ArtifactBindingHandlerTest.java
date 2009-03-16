@@ -25,7 +25,7 @@ public class ArtifactBindingHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{ 
 			one(res).sendRedirect(with(any(String.class)));
 		}});
-		artifactBindingHandler.handle(req, res, credential, request, logUtil);
+		artifactBindingHandler.handle(req, res, credential, request);
 	}
 	
 }

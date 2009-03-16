@@ -36,7 +36,6 @@ import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
@@ -75,7 +74,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 
 		final SOAPClient client = context.mock(SOAPClient.class);
 		context.checking(new Expectations() {{
-			one(client).wsCall(with(same(q)), with(any(LogUtil.class)), with(equal(dest)), with(equal("username")), with(equal("password")), with(equal(true)));
+			one(client).wsCall(with(same(q)), with(equal(dest)), with(equal("username")), with(equal("password")), with(equal(true)));
 			will(returnValue(response));
 		}});
 		OIOAssertion res = q.executeQuery(client, credential, "username", "password", true, idpMetadata.getFirstMetadata().getCertificate(), true);

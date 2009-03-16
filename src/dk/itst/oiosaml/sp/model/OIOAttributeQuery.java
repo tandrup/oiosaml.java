@@ -37,8 +37,10 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.NameIDFormat;
+import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
@@ -80,18 +82,26 @@ public class OIOAttributeQuery extends OIORequest {
 	}
 
 	public OIOAssertion executeQuery(SOAPClient client, Credential credential, String username, String password, boolean ignoreCertPath, Certificate idpCertificate, boolean allowUnencryptedAssertion) throws IOException {
-		sign(credential);
-		LogUtil lu = new LogUtil(getClass(), "", "AttributeQuery");
-		XMLObject res = client.wsCall(this, lu, getDestination(), username, password, ignoreCertPath);
-		if (!(res instanceof Response)) throw new IllegalStateException("Received wrong type from IdP (expected Response): " + res);
-		
-		OIOResponse oiores = new OIOResponse((Response) res);
-		if (log.isDebugEnabled()) log.debug("Received attribute query response: " + oiores.toXML());
-		
-		oiores.decryptAssertion(credential, allowUnencryptedAssertion);
-		oiores.validateResponse(null, idpCertificate, false);
-		
-		return oiores.getAssertion();
+		try {
+			sign(credential);
+			Audit.log(Operation.ATTRIBUTEQUERY, true, getID(), toXML());
+			
+			XMLObject res = client.wsCall(this, getDestination(), username, password, ignoreCertPath);
+			if (!(res instanceof Response)) throw new IllegalStateException("Received wrong type from IdP (expected Response): " + res);
+			
+			OIOResponse oiores = new OIOResponse((Response) res);
+			if (log.isDebugEnabled()) log.debug("Received attribute query response: " + oiores.toXML());
+			
+			Audit.log(Operation.ATTRIBUTEQUERY, false, getID(), oiores.toXML());
+			
+			oiores.decryptAssertion(credential, allowUnencryptedAssertion);
+			oiores.validateResponse(null, idpCertificate, false);
+			
+			return oiores.getAssertion();
+		} catch (ValidationException e) {
+			Audit.logError(Operation.ATTRIBUTEQUERY, false, getID(), e);
+			throw e;
+		}
 	}
 	
 }

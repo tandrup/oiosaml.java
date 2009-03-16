@@ -33,7 +33,8 @@ import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.PassiveUserAssertion;
 import dk.itst.oiosaml.sp.UserAssertion;
@@ -72,7 +73,6 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 
 	private static final long serialVersionUID = -8417816228519917989L;
 	public static final String VERSION = "$Id: SAMLAssertionConsumerHandler.java 2910 2008-05-21 13:07:31Z jre $";
-	private static final String NAME = SAMLAssertionConsumerHandler.class.getName().substring(SAMLAssertionConsumerHandler.class.getName().lastIndexOf('.') + 1);
 	
 	private static final Logger log = Logger.getLogger(SAMLAssertionConsumerHandler.class);
 	private SOAPClient client;
@@ -105,13 +105,15 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 					client, ctx.getConfiguration().getString(Constants.PROP_RESOLVE_USERNAME), 
 					ctx.getConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD),
 					ctx.getConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false));
-			handleSAMLResponse(ctx, extractor.extract(ctx.getRequest(), ctx.getLogUtil()));
+			handleSAMLResponse(ctx, extractor.extract(ctx.getRequest()));
 		}
 	} 
 	
 	private void handleSAMLResponse(RequestContext ctx, OIOResponse response) throws IOException, ServletException {
+		Audit.log(Operation.AUTHNREQUEST_SEND, false, response.getInResponseTo(), response.toXML());
+		
 		HttpSession session = ctx.getSession();
-
+		
 		if (log.isDebugEnabled()) {
 			log.debug("Calling URL.:" + ctx.getRequest().getRequestURI() + "?" + ctx.getRequest().getQueryString());
 			log.debug("SessionId..:" + session.getId());
@@ -132,19 +134,22 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			Assertion assertion = SAMLUtil.buildXMLObject(Assertion.class);
 			assertion.setID("" + System.currentTimeMillis());
 			ctx.getSessionHandler().setAssertion(session.getId(), new OIOAssertion(assertion));
-			session.setAttribute(Constants.SESSION_USER_ASSERTION, new PassiveUserAssertion(ctx.getConfiguration().getString(Constants.PROP_PASSIVE_USER_ID)));
+			PassiveUserAssertion passiveUserAssertion = new PassiveUserAssertion(ctx.getConfiguration().getString(Constants.PROP_PASSIVE_USER_ID));
+			session.setAttribute(Constants.SESSION_USER_ASSERTION, passiveUserAssertion);
+			
+			Audit.log(Operation.LOGIN, passiveUserAssertion.getSubject());
 		} else {
 			OIOAssertion assertion = response.getAssertion();
 	
-			// Validate the content of the assertion
 			assertion.validateAssertion(validator, ctx.getSpMetadata().getEntityID(), ctx.getSpMetadata().getAssertionConsumerServiceLocation(0));
-			new LogUtil(getClass(), VERSION, NAME, assertion.getSubjectNameIDValue()).audit("Received assertion " + assertion.getID());
 
 			UserAssertion userAssertion = new UserAssertionImpl(assertion);
 			if (!invokeAuthenticationHandler(ctx, userAssertion)) {
+				Audit.logError(Operation.LOGIN, false, response.getInResponseTo(), "Authentication handler stopped authentication");
 				log.error("Authentication handler stopped authentication");
 				return;
 			}
+			Audit.log(Operation.LOGIN, assertion.getSubjectNameIDValue());
 			
 			// Store the assertion in the session store
 			ctx.getSessionHandler().setAssertion(session.getId(), assertion);

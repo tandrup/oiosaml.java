@@ -33,7 +33,8 @@ import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 
 /**
@@ -52,11 +53,13 @@ public class ArtifactBindingHandler implements BindingHandler {
 		return SAMLConstants.SAML2_ARTIFACT_BINDING_URI;
 	}
 
-	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest, LogUtil lu) throws IOException, ServletException {
-		String requestURI = authnRequest.getRedirectURL(credential, lu);
+	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest) throws IOException, ServletException {
+		String requestURI = authnRequest.getRedirectURL(credential);
 		
 		if (log.isDebugEnabled())
 			log.debug("redirectURL...:" + requestURI);
+		Audit.log(Operation.AUTHNREQUEST_REDIRECT_ARTIFACT, true, authnRequest.getID(), requestURI);
+		
 		response.sendRedirect(requestURI);
 	}
 	

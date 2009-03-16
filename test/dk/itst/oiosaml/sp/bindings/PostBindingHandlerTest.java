@@ -54,7 +54,7 @@ public class PostBindingHandlerTest extends AbstractServiceTests{
 			one(req).setAttribute(with(equal("RelayState")), with(any(String.class)));
 			one(req).setAttribute("action", serviceLocation);
 		}});
-		ph.handle(req, res, credential, request, logUtil);
+		ph.handle(req, res, credential, request);
 		Document samlRequest = parseBase64Encoded(samlRequestBase64Encoded.getValue(), false);
 		AuthnRequest authnRequest = (AuthnRequest)Configuration.getUnmarshallerFactory().getUnmarshaller(samlRequest.getDocumentElement()).unmarshall(samlRequest.getDocumentElement());
 		assertEquals(entityId, authnRequest.getIssuer().getValue());
@@ -72,6 +72,6 @@ public class PostBindingHandlerTest extends AbstractServiceTests{
 			one(req).setAttribute(with(equal("RelayState")), with(any(String.class)));
 			one(req).setAttribute("action", serviceLocation);
 		}});
-		ph.handle(req, res, credential, request, logUtil);		
+		ph.handle(req, res, credential, request);		
 	}
 }

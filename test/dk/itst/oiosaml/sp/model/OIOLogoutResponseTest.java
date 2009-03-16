@@ -57,7 +57,7 @@ public class OIOLogoutResponseTest extends AbstractServiceTests {
 	@Test
 	public void testGetRedirectResponseURL() throws Exception {
 		Credential cred = getCredential();
-		String url = response.getRedirectURL(cred, "relayState", logUtil);
+		String url = response.getRedirectURL(cred, "relayState");
 		
 		assertNotNull(url);
 		

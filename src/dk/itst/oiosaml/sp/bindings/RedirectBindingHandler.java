@@ -33,7 +33,8 @@ import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 
@@ -45,10 +46,11 @@ public class RedirectBindingHandler implements BindingHandler {
 		return SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 	}
 
-	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest, LogUtil lu) throws IOException, ServletException {
-		String url = authnRequest.getRedirectURL(credential, lu);
+	public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest) throws IOException, ServletException {
+		String url = authnRequest.getRedirectURL(credential);
 		log.debug("Issuing redirect to " + url);
 		
+		Audit.log(Operation.AUTHNREQUEST_REDIRECT, true, authnRequest.getID(), url);
 		HTTPUtils.sendMetaRedirect(response, url, null, HTTPUtils.getFragmentCookie(req) == null);
 	}
 

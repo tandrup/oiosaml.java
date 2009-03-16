@@ -41,14 +41,13 @@ import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
-import dk.itst.oiosaml.logging.LogUtil;
+import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.bindings.DefaultBindingHandlerFactory;
 import dk.itst.oiosaml.sp.configuration.ConfigurationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
-import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
@@ -100,7 +99,7 @@ public class DispatcherServlet extends HttpServlet {
 		try {
 			if (initialized  == false) {
 				setConfiguration(SAMLConfiguration.getSystemConfiguration());
-				LogUtil.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_LOG_FILE_NAME));
+				Audit.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_LOG_FILE_NAME));
 				
 				setBindingHandler(new DefaultBindingHandlerFactory());
 				setIdPMetadata(IdpMetadata.getInstance());
@@ -130,9 +129,10 @@ public class DispatcherServlet extends HttpServlet {
 			try {
 				SAMLHandler handler = handlers.get(action);
 				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler, bindingHandlerFactory); 
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, sessionHandler, bindingHandlerFactory); 
 				handler.handleGet(context);
 			} catch (Exception e) {
+				Audit.logError(action, false, e);
 				handleError(req, res, e);
 			}
 		} else {
@@ -147,19 +147,15 @@ public class DispatcherServlet extends HttpServlet {
 			try {
 				SAMLHandler handler = handlers.get(action);
 				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, getLogutil(action, handler, req, sessionHandler), sessionHandler, bindingHandlerFactory); 
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, sessionHandler, bindingHandlerFactory); 
 				handler.handlePost(context);
 			} catch (Exception e) {
+				Audit.logError(action, false, e);
 				handleError(req, res, e);
 			}
 		} else {
 			throw new UnsupportedOperationException(action);
 		}
-	}
-	
-	private LogUtil getLogutil(String action, SAMLHandler handler, HttpServletRequest req, SessionHandler sessionHandler) {
-		OIOAssertion assertion = sessionHandler == null ? null : sessionHandler.getAssertion(req.getSession().getId());
-		return new LogUtil(handler.getClass(), null, action, assertion == null ? null : assertion.getSubjectNameIDValue());
 	}
 	
 	public void setInitialized(boolean b) {

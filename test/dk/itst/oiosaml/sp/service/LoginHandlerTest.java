@@ -54,7 +54,6 @@ import org.opensaml.xml.util.Base64;
 import org.w3c.dom.Document;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
-import dk.itst.oiosaml.logging.LogUtil;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
@@ -131,7 +130,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(enc));
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			allowing(bHandler).getBindingURI(); will(returnValue(SAMLConstants.SAML2_ARTIFACT_BINDING_URI));
-			one(bHandler).handle(with(equal(req)), with(equal(res)), with(equal(credential)), with(any(OIOAuthnRequest.class)), with(any(LogUtil.class)));
+			one(bHandler).handle(with(equal(req)), with(equal(res)), with(equal(credential)), with(any(OIOAuthnRequest.class)));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
 		lh.handleGet(getContext(md));
@@ -156,7 +155,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 					return true;
 				}
 				public void describeTo(Description description) {}
-			}), with(any(LogUtil.class)));
+			}));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
 		lh.handleGet(getContext(md));
@@ -170,8 +169,8 @@ public class LoginHandlerTest extends AbstractServiceTests {
 				return SAMLConstants.SAML2_ARTIFACT_BINDING_URI;
 			}
 
-			public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest, LogUtil lu) throws IOException, ServletException {
-				String url = authnRequest.getRedirectURL(credential, lu);
+			public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest) throws IOException, ServletException {
+				String url = authnRequest.getRedirectURL(credential);
 				try {
 					Document doc = TestHelper.parseBase64Encoded(TestHelper.getParameter("SAMLRequest", url));
 					AuthnRequest ar = (AuthnRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
@@ -214,7 +213,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 					return true;
 				}
 				public void describeTo(Description description) {}
-			}), with(any(LogUtil.class)));
+			}));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
 		
@@ -237,7 +236,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 					return true;
 				}
 				public void describeTo(Description description) {}
-			}), with(any(LogUtil.class)));
+			}));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
 
@@ -264,7 +263,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 					return true;
 				}
 				public void describeTo(Description description) {}
-			}), with(any(LogUtil.class)));
+			}));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
 		lh.handleGet(getContext(idpMetadata));
@@ -281,7 +280,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 	}
 
 	private RequestContext getContext(IdpMetadata md) {
-		return new RequestContext(req, res, md, spMetadata, credential, TestHelper.buildConfiguration(conf), logUtil, handler, handlerFactory);		
+		return new RequestContext(req, res, md, spMetadata, credential, TestHelper.buildConfiguration(conf), handler, handlerFactory);		
 	}
 
 }

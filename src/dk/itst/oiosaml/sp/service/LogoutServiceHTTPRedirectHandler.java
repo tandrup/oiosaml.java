@@ -32,6 +32,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.StatusCode;
 
+import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
@@ -70,6 +72,8 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 		OIOLogoutRequest logoutRequest = OIOLogoutRequest.fromRedirectRequest(request);
 		if (log.isDebugEnabled())
 			log.debug("Got InboundSAMLMessage..:" + logoutRequest.toXML());
+		
+		Audit.log(Operation.LOGOUTREQUEST, false, logoutRequest.getID(), logoutRequest.toXML());
 
 		String statusCode = StatusCode.SUCCESS_URI;
 		String consent = null;
@@ -87,9 +91,6 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 			throw new RuntimeException("User is not logged in, and there is no Issuer in the LogoutRequest. Unable to continue.");
 		} else {
 			Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
-
-			ctx.getLogUtil().setRequestId(logoutRequest.getID());
-			ctx.getLogUtil().audit(Constants.SERVICE_LOGOUT_REQUEST, logoutRequest.toXML());
 
 			try {
 				logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getCertificate().getPublicKey(), ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectLocation(), metadata.getEntityID());
@@ -110,11 +111,12 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 			// Returning.....
 
 			OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
-			String url = res.getRedirectURL(ctx.getCredential(), relayState, ctx.getLogUtil());
+			String url = res.getRedirectURL(ctx.getCredential(), relayState);
+			
+			Audit.log(Operation.LOGOUTRESPONSE, true, res.getID(), res.toXML());
 
 			if (log.isDebugEnabled())
 				log.debug("sendRedirect to..:" + url);
-			ctx.getLogUtil().endService("ID=" + logoutRequest.getID());
 			ctx.getResponse().sendRedirect(url);
 			return;
 		}

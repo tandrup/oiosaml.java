@@ -32,7 +32,7 @@ public class LogoutHandlerTest extends AbstractServiceTests {
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 			allowing(req).getContextPath(); will(returnValue("/"));
 		}});
-		RequestContext ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, logUtil, handler, bindingHandlerFactory);
+		RequestContext ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, handler, bindingHandlerFactory);
 		servlet.handleGet(ctx);
 
 		setHandler();
