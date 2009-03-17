@@ -99,7 +99,6 @@ public class ArtifactExtractor  {
 
 		Envelope env = client.wsCall(artifactResolve, artifactResolutionServiceLocation, resolveUsername, resolvePassword, ignoreCertPath);
 		ArtifactResponse artifactResponse = (ArtifactResponse)env.getBody().getUnknownXMLObjects().get(0); 
-		Audit.log(Operation.ARTIFACTRESOLVE, false, artifactResolve.getID(), XMLHelper.nodeToString(SAMLUtil.marshallObject(artifactResponse)));
 		try {
 			artifactResponse.validate(false);
 		} catch (ValidationException e) {
@@ -121,7 +120,9 @@ public class ArtifactExtractor  {
 			Audit.logError(Operation.ARTIFACTRESOLVE, false, artifactResolve.getID(), e);
 			throw e;
 		}
-		return new OIOResponse((Response) artifactResponse.getMessage());
+		OIOResponse response = new OIOResponse((Response) artifactResponse.getMessage());
+		Audit.log(Operation.ARTIFACTRESOLVE, false, artifactResolve.getID(), response.toXML());
+		return response;
 	}
 
 	/**
