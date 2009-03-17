@@ -67,6 +67,7 @@ public class Audit {
 
 	private static void logEntry(String operation, Boolean out, String data, String msg) {
 		int dir = getDirection(out);
+		if (msg == null) msg = "";
 		String entry = format.get().format(new Object[] {operation, dir, remoteAddress.get(), session.get(), assertionId.get(), data, msg.replace('\n', ' ') });
 		log.info(entry);
 	}
