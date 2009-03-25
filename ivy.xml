@@ -13,16 +13,16 @@
     	<artifact name="not-yet-commons-ssl-0.3.9" type="jar" conf="*" />
     </publications>
     <dependencies>
-        <dependency org="commons-io" name="commons-io" rev="1.4" />
-        <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" />
-        <dependency org="commons-logging" name="commons-logging" rev="1.1.1" />
-        <dependency org="commons-lang" name="commons-lang" rev="2.4" />
-        <dependency org="commons-configuration" name="commons-configuration" rev="1.5">
+        <dependency org="commons-io" name="commons-io" rev="1.4" conf="*->*,!sources,!javadoc" />
+        <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="*->*,!sources,!javadoc" />
+        <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="*->*,!sources,!javadoc" />
+        <dependency org="commons-lang" name="commons-lang" rev="2.3" conf="*->*,!sources,!javadoc" />
+        <dependency org="commons-configuration" name="commons-configuration" rev="1.5" conf="*->*,!sources,!javadoc">
         	<exclude org="javax.mail" />
         	<exclude org="ant" />
         	<exclude org="commons-jxpath" />
         </dependency>
-        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1">
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="*->*,!sources,!javadoc">
         	<exclude org="portlet-api" />
         </dependency>
         <dependency org="joda-time" name="joda-time" rev="1.4" />
@@ -38,7 +38,7 @@
         <dependency org="xalan" name="xalan" rev="2.7.0" />
         <dependency org="xml-apis" name="xml-apis" rev="2.0.2" />
         <dependency org="xerces" name="xercesImpl" rev="2.9.1" />
-        <dependency org="bouncycastle" name="bcprov-jdk15" rev="136" />
+        <dependency org="bouncycastle" name="bcprov-jdk15" rev="136" conf="*->*,!sources,!javadoc"/>
         
         
         <dependency org="junit" name="junit" rev="4.4" conf="test->default"> 
