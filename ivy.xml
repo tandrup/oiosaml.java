@@ -27,7 +27,7 @@
         </dependency>
         <dependency org="joda-time" name="joda-time" rev="1.4" />
         <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="build->default" />
-        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.2" />
+        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.2" conf="*->*,!sources,!javadoc" />
         <dependency org="org.apache.velocity" name="velocity" rev="1.5">
         	<artifact name="velocity" type="jar" />
         	<exclude org="logkit" />
