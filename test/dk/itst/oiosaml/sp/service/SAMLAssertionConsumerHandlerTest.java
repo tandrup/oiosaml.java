@@ -139,6 +139,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 				}
 			});
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
+			one(session).getMaxInactiveInterval(); will(returnValue(30));
 			one(res).sendRedirect("requesturi?query");
 		}});
 		sh.setSoapClient(client);
@@ -159,6 +160,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
+			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
 		sh.handlePost(ctx);
@@ -179,6 +181,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("requesturi?query#test=more");
+			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
 		sh.handlePost(ctx);
@@ -232,6 +235,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(req).getParameter(Constants.SAML_RELAYSTATE); will(returnValue(handler.saveRequest(new Request("requesturi", "query", "GET", new HashMap<String, String[]>()))));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("requesturi?query");
+			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
 		AuthenticationHandlerStub.succeed = true;

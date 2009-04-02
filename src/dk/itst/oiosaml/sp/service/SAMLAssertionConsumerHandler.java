@@ -149,7 +149,9 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 				log.error("Authentication handler stopped authentication");
 				return;
 			}
-			Audit.log(Operation.LOGIN, assertion.getSubjectNameIDValue());
+			Audit.setAssertionId(assertion.getID());
+			Audit.log(Operation.LOGIN, assertion.getSubjectNameIDValue() + "/" + assertion.getAssuranceLevel() + " via " + assertion.getIssuer());
+			Audit.log(Operation.LOGIN_SESSION, Integer.toString(session.getMaxInactiveInterval()));
 			
 			// Store the assertion in the session store
 			ctx.getSessionHandler().setAssertion(session.getId(), assertion);

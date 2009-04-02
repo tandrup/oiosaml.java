@@ -86,6 +86,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("uri?query");
 			one(req).getCookies(); will(returnValue(null));
+			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
 		sh.handlePost(ctx);

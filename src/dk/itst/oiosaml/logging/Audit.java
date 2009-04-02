@@ -115,6 +115,10 @@ public class Audit {
 			assertionId.set("");
 		}
 	}
+	
+	public static void setAssertionId(String id) {
+		assertionId.set(id);
+	}
 
 	/**
 	 * Initialize log4j with the specified configuration file.
