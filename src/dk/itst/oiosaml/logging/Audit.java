@@ -72,6 +72,12 @@ public class Audit {
 		log.info(entry);
 	}
 
+	public static void logSystem(String sessionId, String assertionId, Operation operation, String msg) {
+		int dir = getDirection(null);
+		if (msg == null) msg = "";
+		String entry = format.get().format(new Object[] {operation, dir, "127.0.0.1", sessionId, assertionId, "", msg.replace('\n', ' ') });
+		log.info(entry);
+	}
 
 	
 	public static void logError(Operation operation, boolean out, String id, Throwable t) {

@@ -160,7 +160,10 @@ public class SingleVMSessionHandler implements SessionHandler {
 			TimeOutWrapper<T> tow = map.get(key);
 			if (tow.isExpired(cleanupDelay)) {
 				log.debug("Expiring " + tow);
-				Audit.log(Operation.TIMEOUT, msg + tow.getObject());
+				if (tow.getObject() instanceof OIOAssertion) {
+					OIOAssertion a = (OIOAssertion) tow.getObject();
+					Audit.logSystem(null, a.getID(), Operation.TIMEOUT, a.getSubjectNameIDValue());
+				}
 				map.remove(key);
 			}
 		}

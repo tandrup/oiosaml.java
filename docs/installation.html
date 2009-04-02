@@ -47,6 +47,10 @@ and there will be a link to the autoconfigure feature. Use this link to configur
 	&lt;param-value&gt;/path/to/oiosaml.home&lt;/param-value&gt;
 &lt;/context-param&gt;
 
+&lt;listener&gt;
+	%lt;listener-class&gt;dk.itst.oiosaml.sp.service.session.SessionDestroyListener&lt;/listener-class&gt;
+&lt;/listener&gt;
+
 &lt;servlet&gt;
 	&lt;servlet-name&gt;SAMLDispatcherServlet&lt;/servlet-name&gt;
 	&lt;servlet-class&gt;dk.itst.oiosaml.sp.service.DispatcherServlet&lt;/servlet-class&gt;
@@ -70,7 +74,7 @@ and there will be a link to the autoconfigure feature. Use this link to configur
 
 <p>This defines a servlet which handles all SAML related requests, such as Single Logout, Login Responses, and so on. /saml/ is the recommended prefix for this servlet. 
 Furthermore, a protection filter is defined. This filter handles user authentication, and only allows access to the protected resources if the user is authenticated correctly. Make sure the filter
-does not cover the SAML servlet.</p> 
+does not cover the SAML servlet. The listener makes sure assertions are cleaned up as soon sessions are expired. The listener is not strictly necessary, but it is good practice to include it.</p> 
 
 <p>When OIOSAML.java is started, it will check if it is configured correctly. If not, autoconfig is enabled, and you can visit saml/configure to configure the system.</p>
 

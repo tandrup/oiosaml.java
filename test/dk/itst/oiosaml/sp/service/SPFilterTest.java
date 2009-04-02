@@ -148,6 +148,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(chain).doFilter(with(baseMatcher) , with(any(HttpServletResponse.class)));
 		}});
 		filter.doFilter(req, res, chain);
@@ -160,6 +161,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "4");
 		setHandler();
 		context.checking(new Expectations() {{
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});

@@ -159,7 +159,7 @@ public class SPFilter implements Filter {
 			log.debug("sessionId....:" + session.getId());
 
 		// Is the user logged in?
-		if (sessionHandler.isLoggedIn(session.getId())) {
+		if (sessionHandler.isLoggedIn(session.getId()) && session.getAttribute(Constants.SESSION_USER_ASSERTION) != null) {
 			int actualAssuranceLevel = sessionHandler.getAssertion(session.getId()).getAssuranceLevel();
 			int assuranceLevel = conf.getInt(Constants.PROP_ASSURANCE_LEVEL);
 			if (actualAssuranceLevel < assuranceLevel) {
