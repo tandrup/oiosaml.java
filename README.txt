@@ -14,4 +14,13 @@ Quick start:
  OIOSAML.java is distributed under the Mozilla Public License 1.1, 
  and is based on OpenSAML 2.0, which is released under the 
  Apache License 2.0.
+
+
+
+Building the project:
+ - Download and install Gant (http://gant.codehaus.org)
+ - Run gant build_everything
  
+When importing the project into Eclipse, remember to run gant build_everything
+to download the necessary jar files.
+  
