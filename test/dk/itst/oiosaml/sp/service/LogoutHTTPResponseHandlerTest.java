@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.util.XMLHelper;
 
+import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -44,7 +45,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 
 		OIOLogoutResponse resp = OIOLogoutResponse.fromRequest(lr, StatusCode.SUCCESS_URI, "consent", idpEntityId, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
 		String responseUrl = resp.getRedirectURL(credential, "relayState");
-		setExpectations(req, responseUrl);
+		setExpectations(req, responseUrl, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
 		
 		context.checking(new Expectations() {{
 			one(res).sendRedirect("url");
@@ -62,7 +63,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		OIOLogoutResponse resp = OIOLogoutResponse.fromRequest(lr, StatusCode.SUCCESS_URI, "consent", idpEntityId, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
 		
 		String responseUrl = resp.getRedirectURL(credential, "relayState");
-		setExpectations(req, responseUrl);
+		setExpectations(req, responseUrl, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
 		
 		context.checking(new Expectations() {{
 			one(res).sendRedirect("url");
@@ -74,9 +75,32 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		handler.removeEntityIdForRequest(lr.getID());
 		
 	}
+	
+	@Test
+	public void testReceiveResponseCluster() throws Exception {
+		OIOLogoutRequest lr = OIOLogoutRequest.buildLogoutRequest(session, "http://cluster", idpEntityId, handler);
+		handler.registerRequest(lr.getID(), idpMetadata.getFirstMetadata().getEntityID());
+		
+		OIOLogoutResponse resp = OIOLogoutResponse.fromRequest(lr, StatusCode.SUCCESS_URI, "consent", idpEntityId, spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
+		
+		String responseUrl = resp.getRedirectURL(credential, "relayState");
+		setExpectations(req, responseUrl, "https://cluster:80/saml/LogoutServiceHTTPRedirectResponse");
+		
+		context.checking(new Expectations() {{
+			one(res).sendRedirect("url");
+			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
+		}});
+		
+		String url = spMetadata.getDefaultAssertionConsumerService().getLocation();
+		String hostname = url.substring(0, url.indexOf('/', 8));
+		ctx = new RequestContext(new SAMLHttpServletRequest(req, hostname, null), res, idpMetadata, spMetadata, credential, configuration, handler, bindingHandlerFactory);
+
+		lh.handleGet(ctx);
+		
+	}
 
 	private void setExpectations(final HttpServletRequest req,
-			final String responseUrl) throws UnsupportedEncodingException {
+			final String responseUrl, final String requestUrl) throws UnsupportedEncodingException {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/"));
 			allowing(req).getQueryString(); will(returnValue(responseUrl.substring(responseUrl.indexOf('?') + 1)));
@@ -86,7 +110,7 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(getParameter("SigAlg", responseUrl), "UTF-8")));
 			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(getParameter("Signature", responseUrl), "UTF-8")));
 			allowing(req).getMethod(); will(returnValue("GET"));
-			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation())));
+			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(requestUrl)));
 		}});
 	}
 	
