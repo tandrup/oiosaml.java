@@ -49,6 +49,10 @@ public class SessionDestroyListener implements HttpSessionListener {
 	 */
 	public void sessionDestroyed(HttpSessionEvent e) {
 		SessionHandlerFactory sf = SessionHandlerFactory.Factory.newInstance(null);
+		if (sf == null) {
+			logger.warn("No SessionHandler configured, skipping session destroy");
+			return;
+		}
 		if (e.getSession() == null) return;
 		
 		SessionHandler handler = sf.getHandler();
