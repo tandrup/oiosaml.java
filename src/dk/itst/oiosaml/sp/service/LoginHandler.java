@@ -95,9 +95,8 @@ public class LoginHandler implements SAMLHandler {
 					}
 				}
 			} else {
-				Audit.log(Operation.DISCOVER, false, "", samlIdp);
-				
 				String[] entityIds = SAMLUtil.decodeDiscoveryValue(samlIdp);
+				Audit.log(Operation.DISCOVER, false, "", Arrays.asList(entityIds).toString());
 				metadata = idpMetadata.findSupportedEntity(entityIds);
 				log.debug("Discovered idp " + metadata.getEntityID());
 			}
