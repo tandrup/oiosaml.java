@@ -12,7 +12,7 @@ function toggleKeystore() {
 <p>This page allows you to configure OIOSaml.java for your system. For security reasons, this configuration can be run
 only once. If possible, the configuration files will be written automatically to '$home' (oiosaml-j.home).</p>
 
-<form method="post" action="configure" enctype="multipart/form-data" name="configure" id="configure">
+<form method="post" enctype="multipart/form-data" name="configure" id="configure">
 
 <h3>Entity ID</h3>
 <p><input type="text" name="entityId" value="$entityId" /></p>
