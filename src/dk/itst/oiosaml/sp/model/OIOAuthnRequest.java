@@ -53,7 +53,7 @@ public class OIOAuthnRequest extends OIORequest {
 	}
 	
 	
-	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, SessionHandler handler, String relayState) {
+	public static OIOAuthnRequest buildAuthnRequest(String ssoServiceLocation, String spEntityId, String protocolBinding, SessionHandler handler, String relayState, String assertionConsumerUrl) {
 		AuthnRequest authnRequest = SAMLUtil.buildXMLObject(AuthnRequest.class);
 
 		authnRequest.setIssuer(SAMLUtil.createIssuer(spEntityId));
@@ -62,6 +62,7 @@ public class OIOAuthnRequest extends OIORequest {
 		authnRequest.setIssueInstant(new DateTime(DateTimeZone.UTC));
 		authnRequest.setProtocolBinding(protocolBinding);
 		authnRequest.setDestination(ssoServiceLocation);
+		authnRequest.setAssertionConsumerServiceURL(assertionConsumerUrl);
 
 		try {
 			if (log.isDebugEnabled())

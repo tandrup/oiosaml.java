@@ -122,7 +122,7 @@ public class LoginHandler implements SAMLHandler {
 		UserAssertionHolder.set(null);
 
 		String relayState = context.getRequest().getParameter(Constants.SAML_RELAYSTATE);
-		OIOAuthnRequest authnRequest = OIOAuthnRequest.buildAuthnRequest(signonLocation.getLocation(), context.getSpMetadata().getEntityID(), context.getSpMetadata().getDefaultAssertionConsumerService().getBinding(), context.getSessionHandler(), relayState);
+		OIOAuthnRequest authnRequest = OIOAuthnRequest.buildAuthnRequest(signonLocation.getLocation(), context.getSpMetadata().getEntityID(), context.getSpMetadata().getDefaultAssertionConsumerService().getBinding(), context.getSessionHandler(), relayState, context.getSpMetadata().getDefaultAssertionConsumerService().getLocation());
 		authnRequest.setNameIDPolicy(conf.getString(Constants.PROP_NAMEID_POLICY, null), conf.getBoolean(Constants.PROP_NAMEID_POLICY_ALLOW_CREATE, false));
 		authnRequest.setForceAuthn(isForceAuthnEnabled(request, conf));
 
