@@ -25,27 +25,12 @@ package dk.itst.oiosaml.sp.model;
 
 import java.security.cert.Certificate;
 
-import javax.crypto.SecretKey;
-
 import org.apache.log4j.Logger;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.encryption.Decrypter;
-import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
-import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
-import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.RetrievalMethod;
-import org.w3c.dom.Element;
 
-import dk.itst.oiosaml.common.OIOSAMLConstants;
-import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 
@@ -60,6 +45,8 @@ public class OIOResponse extends OIOAbstractResponse {
 	private static final Logger log = Logger.getLogger(OIOResponse.class);
 	
 	private final Response response;
+
+	private OIOAssertion assertion;
 
 	public OIOResponse(Response response) {
 		super(response);
@@ -114,60 +101,23 @@ public class OIOResponse extends OIOAbstractResponse {
 	 * Get the response assertion.
 	 */
 	public OIOAssertion getAssertion() {
+		if (assertion != null) {
+			if (log.isDebugEnabled()) log.debug("Found encrypted assertion, returning decrypted");
+			return assertion;
+		}
 		return OIOAssertion.fromResponse(response);
 	}
 	
 	
 	public void decryptAssertion(Credential credential, boolean allowUnencrypted) {
 		if (response.getEncryptedAssertions().size() > 0) {
-			KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(credential);
-			EncryptedAssertion enc = response.getEncryptedAssertions().get(0);
-			EncryptedKey key = getEncryptedKey(enc);
-			
-	        Decrypter decrypter = new Decrypter(null, keyResolver, null);
-
-	        try {
-	        	if (log.isDebugEnabled()) log.debug("Assertion encrypted: " + enc);
-	        	
-		        SecretKey dkey = (SecretKey) decrypter.decryptKey(key, enc.getEncryptedData().getEncryptionMethod().getAlgorithm());
-			       
-		        Credential scred = SecurityHelper.getSimpleCredential(dkey);
-		        
-		        decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(scred), null, null);
-		        
-		        // due to a bug in OpenSAML, we have to convert the assertion to and from xml
-		        // otherwise the signature will not validate later on
-				Assertion assertion = decrypter.decrypt(enc);
-				OIOAssertion res = new OIOAssertion(assertion);
-				assertion = (Assertion) SAMLUtil.unmarshallElementFromString(res.toXML());
-				if (log.isDebugEnabled()) log.debug("Decrypted assertion: " + res.toXML());
-				
-				response.getAssertions().add(assertion);
-			} catch (DecryptionException e) {
-				throw new ValidationException(e);
-			}
+			OIOEncryptedAssertion enc = new OIOEncryptedAssertion(response.getEncryptedAssertions().get(0));
+			this.assertion = enc.decryptAssertion(credential, allowUnencrypted);
 		} else {
 			if (!allowUnencrypted && !response.getAssertions().isEmpty()) {
 				throw new ValidationException("Assertion is not encrypted");
 			}
 		}
-	}
-
-	private EncryptedKey getEncryptedKey(EncryptedAssertion enc) {
-		KeyInfo keyInfo = enc.getEncryptedData().getKeyInfo();
-		if (!keyInfo.getEncryptedKeys().isEmpty()) {
-			return keyInfo.getEncryptedKeys().get(0);
-		} else if (!keyInfo.getRetrievalMethods().isEmpty()) {
-			RetrievalMethod rm = keyInfo.getRetrievalMethods().get(0);
-
-			if (!OIOSAMLConstants.RETRIEVAL_METHOD_ENCRYPTED_KEY.equals(rm.getType())) {
-				throw new UnsupportedOperationException("Retrieval type " + rm.getType() + " is not supported");
-			}
-			Element key = enc.getDOM().getOwnerDocument().getElementById(rm.getURI().substring(1));
-			return (EncryptedKey) SAMLUtil.unmarshallElement(key);
-		}
-		
-		throw new RuntimeException("No supported EncryptedKeys found");
 	}
 	
 	public Response getResponse() {
