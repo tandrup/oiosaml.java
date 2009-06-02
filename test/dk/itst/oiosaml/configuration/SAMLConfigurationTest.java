@@ -12,12 +12,18 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.service.TestHelper;
 
 public class SAMLConfigurationTest {
+	
+	@Before
+	public void before() {
+		SAMLConfiguration.setSystemConfiguration(null);
+	}
 
 	@Test(expected=IllegalStateException.class)
 	public void failOnMissingSystemProperty() {
@@ -51,11 +57,15 @@ public class SAMLConfigurationTest {
 		
 		File content = new File(dir, "oiosaml-sp.properties");
 		FileOutputStream fos = new FileOutputStream(content);
-		fos.write("testing".getBytes());
+		fos.write("testing=more\noiosaml-sp.servlet=test".getBytes());
 		fos.close();
 		
 		SAMLConfiguration.setHomeProperty(dir.getAbsolutePath());
 		assertTrue(SAMLConfiguration.isConfigured());
+		
+		assertEquals("more", SAMLConfiguration.getSystemConfiguration().getString("testing"));
+		assertEquals("test", SAMLConfiguration.getSystemConfiguration().getString("oiosaml-sp.servlet"));
+		assertEquals("oiosaml-sp.log4j.xml", SAMLConfiguration.getSystemConfiguration().getString("oiosaml-sp.log"));
 		
 		content.delete();
 		dir.delete();

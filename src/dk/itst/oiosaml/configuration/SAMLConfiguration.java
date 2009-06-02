@@ -25,6 +25,8 @@ package dk.itst.oiosaml.configuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -71,12 +73,21 @@ public class SAMLConfiguration {
 		
 		try {
 			conf.addConfiguration(new PropertiesConfiguration(new File(home, name + ".properties")));
-			conf.addConfiguration(new PropertiesConfiguration(SAMLConfiguration.class.getResource("/oiosaml-common.properties")));
+			
+			Enumeration<URL> resources = SAMLConfiguration.class.getClassLoader().getResources("oiosaml-common.properties");
+			while (resources.hasMoreElements()) {
+				URL u = resources.nextElement();
+				log.debug("Loading config from " + u);
+				conf.addConfiguration(new PropertiesConfiguration(u));
+			}
 			
 			systemConfiguration = conf;
 			return systemConfiguration;
 		} catch (ConfigurationException e) {
 			log.error("Cannot load the configuration file", e);
+			throw new WrappedException(Layer.DATAACCESS, e);
+		} catch (IOException e) {
+			log.error("Unable to load oiosaml-common.propeties from classpath", e);
 			throw new WrappedException(Layer.DATAACCESS, e);
 		}		
 	}
