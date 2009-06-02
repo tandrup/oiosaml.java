@@ -22,23 +22,19 @@
  */
 package dk.itst.oiosaml.sp.model;
 
-import javax.crypto.SecretKey;
-
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml2.encryption.Decrypter;
+import org.opensaml.saml2.encryption.EncryptedElementTypeEncryptedKeyResolver;
+import org.opensaml.xml.encryption.ChainingEncryptedKeyResolver;
 import org.opensaml.xml.encryption.DecryptionException;
-import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.security.SecurityHelper;
+import org.opensaml.xml.encryption.InlineEncryptedKeyResolver;
+import org.opensaml.xml.encryption.SimpleRetrievalMethodEncryptedKeyResolver;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.RetrievalMethod;
-import org.w3c.dom.Element;
 
-import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
 
@@ -49,22 +45,23 @@ public class OIOEncryptedAssertion {
 
 	public OIOEncryptedAssertion(EncryptedAssertion assertion) {
 		this.encrypted = assertion;
+		if (assertion.getEncryptedData().getType() == null) {
+			assertion.getEncryptedData().setType("http://www.w3.org/2001/04/xmlenc#Element");
+		}
 	}
 
-	public OIOAssertion decryptAssertion(Credential credential, boolean allowUnencrypted) {
+	public OIOAssertion decryptAssertion(Credential credential) {
 		KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(credential);
-		EncryptedKey key = getEncryptedKey(encrypted);
-
-		Decrypter decrypter = new Decrypter(null, keyResolver, null);
-
+		
+		ChainingEncryptedKeyResolver kekResolver = new ChainingEncryptedKeyResolver();
+		kekResolver.getResolverChain().add(new InlineEncryptedKeyResolver());
+		kekResolver.getResolverChain().add(new EncryptedElementTypeEncryptedKeyResolver());
+		kekResolver.getResolverChain().add(new SimpleRetrievalMethodEncryptedKeyResolver());
+		
 		try {
 			if (log.isDebugEnabled()) log.debug("Assertion encrypted: " + encrypted);
 
-			SecretKey dkey = (SecretKey) decrypter.decryptKey(key, encrypted.getEncryptedData().getEncryptionMethod().getAlgorithm());
-
-			Credential scred = SecurityHelper.getSimpleCredential(dkey);
-
-			decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(scred), null, null);
+			Decrypter decrypter = new Decrypter(null, keyResolver, kekResolver);
 
 			// due to a bug in OpenSAML, we have to convert the assertion to and from xml
 			// otherwise the signature will not validate later on
@@ -77,23 +74,6 @@ public class OIOEncryptedAssertion {
 		} catch (DecryptionException e) {
 			throw new ValidationException(e);
 		}
-	}
-
-	private EncryptedKey getEncryptedKey(EncryptedAssertion enc) {
-		KeyInfo keyInfo = enc.getEncryptedData().getKeyInfo();
-		if (!keyInfo.getEncryptedKeys().isEmpty()) {
-			return keyInfo.getEncryptedKeys().get(0);
-		} else if (!keyInfo.getRetrievalMethods().isEmpty()) {
-			RetrievalMethod rm = keyInfo.getRetrievalMethods().get(0);
-
-			if (!OIOSAMLConstants.RETRIEVAL_METHOD_ENCRYPTED_KEY.equals(rm.getType())) {
-				throw new UnsupportedOperationException("Retrieval type " + rm.getType() + " is not supported");
-			}
-			Element key = enc.getDOM().getOwnerDocument().getElementById(rm.getURI().substring(1));
-			return (EncryptedKey) SAMLUtil.unmarshallElement(key);
-		}
-		
-		throw new RuntimeException("No supported EncryptedKeys found");
 	}
 
 }
