@@ -73,13 +73,7 @@ public class SAMLConfiguration {
 		
 		try {
 			conf.addConfiguration(new PropertiesConfiguration(new File(home, name + ".properties")));
-			
-			Enumeration<URL> resources = SAMLConfiguration.class.getClassLoader().getResources("oiosaml-common.properties");
-			while (resources.hasMoreElements()) {
-				URL u = resources.nextElement();
-				log.debug("Loading config from " + u);
-				conf.addConfiguration(new PropertiesConfiguration(u));
-			}
+			conf.addConfiguration(getCommonConfiguration());
 			
 			systemConfiguration = conf;
 			return systemConfiguration;
@@ -90,6 +84,23 @@ public class SAMLConfiguration {
 			log.error("Unable to load oiosaml-common.propeties from classpath", e);
 			throw new WrappedException(Layer.DATAACCESS, e);
 		}		
+	}
+	
+	public static Configuration getCommonConfiguration() throws IOException {
+		CompositeConfiguration conf = new CompositeConfiguration();
+		Enumeration<URL> resources = SAMLConfiguration.class.getClassLoader().getResources("oiosaml-common.properties");
+		while (resources.hasMoreElements()) {
+			URL u = resources.nextElement();
+			log.debug("Loading config from " + u);
+			try {
+				conf.addConfiguration(new PropertiesConfiguration(u));
+			} catch (ConfigurationException e) {
+				log.error("Cannot load the configuration file", e);
+				throw new WrappedException(Layer.DATAACCESS, e);
+			}
+		}
+
+		return conf;
 	}
 	
 	public static String getStringPrefixedWithBRSHome(Configuration conf, String key) {
