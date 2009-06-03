@@ -49,7 +49,6 @@ import dk.itst.oiosaml.sp.bindings.DefaultBindingHandlerFactory;
 import dk.itst.oiosaml.sp.configuration.ConfigurationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
-import dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidator;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -112,7 +111,6 @@ public class DispatcherServlet extends HttpServlet {
 				
 				sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(configuration);
 				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
-				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
 				handlers.putAll(Utils.getHandlers(configuration, servletContext));
 				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
@@ -122,7 +120,13 @@ public class DispatcherServlet extends HttpServlet {
 				
 				initialized = true;
 			}
-		} catch (IllegalStateException e) {}
+		} catch (IllegalStateException e) {
+			try {
+				handlers.putAll(Utils.getHandlers(SAMLConfiguration.getCommonConfiguration(), servletContext));
+			} catch (IOException e1) {
+				log.error("Unable to load config", e);
+			}
+		}
 	}
 	
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
