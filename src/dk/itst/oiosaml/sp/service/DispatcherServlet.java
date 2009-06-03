@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -84,7 +85,7 @@ public class DispatcherServlet extends HttpServlet {
 	public final void init(ServletConfig config) throws ServletException {
 		setHandler(new ConfigurationHandler(config.getServletContext()), "configure");
 		
-		initServlet();
+		initServlet(config.getServletContext());
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
 		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -95,7 +96,7 @@ public class DispatcherServlet extends HttpServlet {
 		}
 	}
 	
-	private void initServlet() {
+	private void initServlet(ServletContext servletContext) {
 		try {
 			if (initialized  == false) {
 				setConfiguration(SAMLConfiguration.getSystemConfiguration());
@@ -111,7 +112,7 @@ public class DispatcherServlet extends HttpServlet {
 				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
-				handlers.putAll(Utils.getHandlers(configuration, getServletContext()));
+				handlers.putAll(Utils.getHandlers(configuration, servletContext));
 				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
 				
 				setHandler(new MetadataHandler(), "metadata");
@@ -123,7 +124,7 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		initServlet();
+		initServlet(getServletContext());
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 		if(handlers.containsKey(action)) {
 			try {
@@ -141,7 +142,7 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		initServlet();
+		initServlet(getServletContext());
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 		if(handlers.containsKey(action)) {
 			try {
