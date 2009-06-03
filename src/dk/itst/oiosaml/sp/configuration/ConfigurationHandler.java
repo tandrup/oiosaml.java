@@ -102,7 +102,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 public class ConfigurationHandler implements SAMLHandler {
 	public static final String SESSION_CONFIGURATION = "CONFIGURATION";
 	private static final Logger log = Logger.getLogger(ConfigurationHandler.class);
-	private VelocityEngine engine;
+	protected final VelocityEngine engine;
 	private final ServletContext servletContext;
 	
 	public ConfigurationHandler(ServletContext servletContext) {
@@ -525,7 +525,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		return true;
 	}
 	
-	private Map<String, Object> getStandardParameters(HttpServletRequest request) {
+	protected Map<String, Object> getStandardParameters(HttpServletRequest request) {
 		String base = getBaseUrl(request);
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("artifactResponseUrl", base + "/SAMLAssertionConsumer");
