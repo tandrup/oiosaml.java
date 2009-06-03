@@ -80,12 +80,14 @@ public class DispatcherServlet extends HttpServlet {
 	private BindingHandlerFactory bindingHandlerFactory;
 
 	private SessionHandlerFactory sessionHandlerFactory;
+	private ServletContext servletContext;
 
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
 		setHandler(new ConfigurationHandler(config.getServletContext()), "configure");
 		
-		initServlet(config.getServletContext());
+		servletContext = config.getServletContext();
+		initServlet();
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
 		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -96,7 +98,7 @@ public class DispatcherServlet extends HttpServlet {
 		}
 	}
 	
-	private void initServlet(ServletContext servletContext) {
+	private void initServlet() {
 		try {
 			if (initialized  == false) {
 				setConfiguration(SAMLConfiguration.getSystemConfiguration());
@@ -124,7 +126,7 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		initServlet(getServletContext());
+		initServlet();
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 		if(handlers.containsKey(action)) {
 			try {
@@ -142,7 +144,7 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		initServlet(getServletContext());
+		initServlet();
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 		if(handlers.containsKey(action)) {
 			try {
