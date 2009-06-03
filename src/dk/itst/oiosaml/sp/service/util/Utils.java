@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
@@ -265,7 +267,7 @@ public final class Utils {
 		}
 	}
 	
-	public static Map<String, SAMLHandler> getHandlers(Configuration config) {
+	public static Map<String, SAMLHandler> getHandlers(Configuration config, ServletContext servletContext) {
 		Map<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
 		
 		for (Iterator<?> i = config.getKeys(); i.hasNext();) {
@@ -280,7 +282,12 @@ public final class Utils {
 					Constructor<?> constructor = c.getConstructor(Configuration.class);
 					instance = (SAMLHandler) constructor.newInstance(config);
 				} catch (NoSuchMethodException e) {
-					instance = (SAMLHandler) c.newInstance();
+					try {
+					Constructor<?> constructor = c.getConstructor(ServletContext.class);
+					instance = (SAMLHandler) constructor.newInstance(servletContext);
+					} catch (NoSuchMethodException ex) {
+						instance = (SAMLHandler) c.newInstance();
+					}
 				}
 				
 				handlers.put(key.substring(key.lastIndexOf('.') + 1), instance);

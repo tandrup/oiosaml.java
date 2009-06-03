@@ -111,7 +111,7 @@ public class DispatcherServlet extends HttpServlet {
 				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 				configuration.getString(Constants.PROP_VALIDATOR, OIOSAMLAssertionValidator.class.getName());
 
-				handlers.putAll(Utils.getHandlers(configuration));
+				handlers.putAll(Utils.getHandlers(configuration, getServletContext()));
 				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
 				
 				setHandler(new MetadataHandler(), "metadata");
