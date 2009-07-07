@@ -23,15 +23,23 @@
  */
 package dk.itst.oiosaml.sp.metadata;
 
+import java.security.cert.CertificateEncodingException;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml2.metadata.RoleDescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.xml.security.credential.Credential;
+import org.opensaml.xml.security.x509.X509Credential;
+import org.opensaml.xml.signature.X509Certificate;
+import org.opensaml.xml.signature.X509Data;
+import org.opensaml.xml.util.Base64;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
@@ -155,12 +163,36 @@ public class SPMetadata {
 
     /**
      * Get a string representation of the signed metadata.
-     * @param signingCredential Credential to use for signing.
+     * 
+     * This method replaces the KeyInfo elements in the SPMetadata.xml file with the actual certificate passed in
+     * the credentials parameter.
+     * 
+     * @param signingCredential Credential to use for signing. If <code>null</code>, the metadata is not signed.
      * @return The signed metadata as a string.
      */
-    public String getMetadata(Credential signingCredential) {
-    	OIOSamlObject obj = new OIOSamlObject(entityDescriptor);
-    	obj.sign(signingCredential);
+    public String getMetadata(Credential signingCredential, boolean sign) {
+    	X509Credential c = (X509Credential) signingCredential;
+    	
+    	EntityDescriptor e = SAMLUtil.clone(entityDescriptor);
+    	for (RoleDescriptor rd : e.getRoleDescriptors()) {
+			for (KeyDescriptor k : rd.getKeyDescriptors()) {
+				for (X509Data data : k.getKeyInfo().getX509Datas()) {
+					for (X509Certificate cert : data.getX509Certificates()) {
+						try {
+							cert.setValue(Base64.encodeBytes(c.getEntityCertificate().getEncoded()));
+						} catch (CertificateEncodingException e1) {
+							throw new RuntimeException(e1);
+						}
+					}
+				}
+			}
+		}
+    	
+    	OIOSamlObject obj = new OIOSamlObject(e);
+    	
+    	if (sign) {
+    		obj.sign(signingCredential);
+    	}
     	
     	return obj.toXML();
     }

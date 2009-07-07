@@ -42,7 +42,7 @@ public class SPMetadataTest extends AbstractTests{
 		SPMetadata metadata = TestHelper.buildSPMetadata();
 		
 		BasicX509Credential credential = TestHelper.getCredential();
-		String xml = metadata.getMetadata(credential);
+		String xml = metadata.getMetadata(credential, true);
 		assertNotNull(xml);
 		
 		EntityDescriptor desc = (EntityDescriptor) SAMLUtil.unmarshallElementFromString(xml);
