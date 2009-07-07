@@ -36,7 +36,8 @@ public class MetadataHandler implements SAMLHandler {
 			context.getResponse().setCharacterEncoding("utf-8");
 		}
 		
-		String metadata = context.getSpMetadata().getMetadata(context.getCredential());
+		boolean sign = context.getRequest().getParameter("unsigned") == null;
+		String metadata = context.getSpMetadata().getMetadata(context.getCredential(), sign);
 		
 		context.getResponse().getWriter().print(metadata);
 	}
