@@ -118,7 +118,11 @@ Defaults to artifact,post,redirect,soap.</li>
 <h3>Service Provider Metadata</h3>
 <p>OIOSAML.java uses a static metadata file placed in oiosaml-.home/metadata/SP/SPMetadata.xml. Relevant data is read from this file, and
 the file can be freely modified. Metadata can be downloaded online from the saml/metadata servlet. When downloading metadata online, the
-metadata will be signed with the SP credentials.</p>
+metadata will be signed with the SP credentials. If an unsigned version is needed, add ?unsigned=true to the url.</p>
+
+<h3>Service Provider Certificate</h3>
+<p>In case the SP certificate is needed, it is possible to access the saml/certificate servlet, which will output a Base64-encoded certificate
+which can be saved to a file.</p>
 
 <h3>Endpoint urls</h3>
 <p>The following protocol endpoints are published by the OIOSAML.java servlet:</p>
