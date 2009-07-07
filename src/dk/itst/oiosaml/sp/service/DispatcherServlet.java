@@ -115,7 +115,6 @@ public class DispatcherServlet extends HttpServlet {
 				handlers.putAll(Utils.getHandlers(configuration, servletContext));
 				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
 				
-				setHandler(new MetadataHandler(), "metadata");
 				setHandler(new IndexHandler(), "");
 				
 				initialized = true;
