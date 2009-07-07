@@ -27,7 +27,7 @@ Instances of UserAssertion can be retrieved using these methods:</p>
 <li>request.getSession.getAttribute("dk.itst.oiosaml.userassertion")</li>
 <li>dk.itst.oiosaml.sp.UserAssertionHolder.get()</li>
 <li>request.getRemoteUser() - this will return the subject name identifier</li>
-<i>request.getUserPrincial() - this will return a dk.itst.oiosaml.sp.OIOPrincipal</i>
+<li>request.getUserPrincial() - this will return a dk.itst.oiosaml.sp.OIOPrincipal</li>
 </ul>
 
 <p>If IsPassive is set (using a property in oiosaml-sp.properties), the UserAssertion will not be valid. This can be checked with assertion.isAuthenticated().
