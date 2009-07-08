@@ -120,6 +120,11 @@ public class TestHelper {
         BasicX509Credential credential = new BasicX509Credential();
         credential.setPublicKey(keyPair.getPublic());
         credential.setPrivateKey(keyPair.getPrivate());
+        try {
+        	credential.setEntityCertificate(getCertificate(credential));
+        } catch (Exception e) {
+        	throw new RuntimeException(e);
+        }
 		return credential;
 	}
 
