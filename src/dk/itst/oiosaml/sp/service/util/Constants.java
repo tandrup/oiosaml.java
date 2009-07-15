@@ -173,4 +173,10 @@ public interface Constants {
 	
 	static final String ATTRIBUTE_ERROR = "error";
 	static final String ATTRIBUTE_EXCEPTION = "exception";
+
+
+	/**
+	 * Property controlling if the service is running in developer mode. 
+	 */
+	static final String PROP_DEVEL_MODE = "oiosaml-sp.develmode";
 }

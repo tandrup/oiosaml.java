@@ -35,6 +35,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.Configuration;
@@ -51,6 +52,8 @@ import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
+import dk.itst.oiosaml.sp.develmode.DevelMode;
+import dk.itst.oiosaml.sp.develmode.DevelModeImpl;
 import dk.itst.oiosaml.sp.metadata.CRLChecker;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
@@ -92,6 +95,7 @@ public class SPFilter implements Filter {
 	private SessionHandlerFactory sessionHandlerFactory;
 	
 	private AtomicBoolean cleanerRunning = new AtomicBoolean(false);
+	private DevelMode develMode;
 
 	/**
 	 * Static initializer for bootstrapping OpenSAML.
@@ -142,6 +146,12 @@ public class SPFilter implements Filter {
 				return;
 			}
 		}
+		if (conf.getBoolean(Constants.PROP_DEVEL_MODE, false)) {
+			log.warn("Running in debug mode, skipping regular filter");
+			develMode.doFilter(servletRequest, (HttpServletResponse) response, chain, conf);
+			return;
+		}
+		
 		if (cleanerRunning.compareAndSet(false, true)) {
 			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), ((HttpServletRequest)request).getSession().getMaxInactiveInterval(), 30);
 		}
@@ -217,6 +227,12 @@ public class SPFilter implements Filter {
 		if (SAMLConfiguration.isConfigured()) {
  			try {
 				Configuration conf = SAMLConfiguration.getSystemConfiguration();
+				if (conf.getBoolean(Constants.PROP_DEVEL_MODE, false)) {
+					develMode = new DevelModeImpl();
+					setConfiguration(conf);
+					setFilterInitialized(true);
+					return;
+				}
 				setRuntimeConfiguration(conf);
 				setFilterInitialized(true);
 				return;
@@ -226,6 +242,7 @@ public class SPFilter implements Filter {
 		}
 		log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam  + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
 		setFilterInitialized(false);
+		
 	}
 	
 	private void setRuntimeConfiguration(Configuration conf) {
@@ -283,4 +300,7 @@ public class SPFilter implements Filter {
 		this.sessionHandlerFactory = sessionHandlerFactory;
 	}
 
+	public void setDevelMode(DevelMode develMode) {
+		this.develMode = develMode;
+	}
 }

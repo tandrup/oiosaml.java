@@ -52,6 +52,7 @@ public class LogoutHandler implements SAMLHandler{
 
 		// Check that user is logged in...
 		if (!context.getSessionHandler().isLoggedIn(session.getId())) {
+			context.getSessionHandler().logOut(session);
 			String homeUrl = context.getConfiguration().getString(Constants.PROP_HOME, context.getRequest().getContextPath());
 			context.getResponse().sendRedirect(homeUrl);
 			return;

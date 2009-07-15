@@ -23,6 +23,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.configuration.Configuration;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -34,6 +35,7 @@ import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
+import dk.itst.oiosaml.sp.develmode.DevelMode;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -177,6 +179,21 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(chain).doFilter(with(any(HttpServletRequest.class)), with(equal(res)));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
+		}});
+		
+		filter.doFilter(req, res, chain);
+	}
+	
+	@Test
+	public void testDevelModeDelegatesToDevelModeObject() throws Exception {
+		conf.put(Constants.PROP_DEVEL_MODE, "true");
+		
+		final DevelMode develMode = context.mock(DevelMode.class);
+		filter.setDevelMode(develMode);
+		
+		context.checking(new Expectations() {{
+			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
+			one(develMode).doFilter(with(equal(req)), with(equal(res)), with(equal(chain)), with(any(Configuration.class)));
 		}});
 		
 		filter.doFilter(req, res, chain);

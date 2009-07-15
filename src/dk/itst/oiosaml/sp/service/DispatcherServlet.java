@@ -103,19 +103,22 @@ public class DispatcherServlet extends HttpServlet {
 				setConfiguration(SAMLConfiguration.getSystemConfiguration());
 				Audit.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_LOG_FILE_NAME));
 				
+				handlers.putAll(Utils.getHandlers(configuration, servletContext));
+				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
+				
+				setHandler(new IndexHandler(), "");
+				sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(configuration);
+				sessionHandlerFactory.getHandler().resetReplayProtection(configuration.getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
+				
+				if (configuration.getBoolean(Constants.PROP_DEVEL_MODE, false)) {
+					log.warn("Running in devel mode");
+					return;
+				}
 				setBindingHandler(new DefaultBindingHandlerFactory());
 				setIdPMetadata(IdpMetadata.getInstance());
 				setSPMetadata(SPMetadata.getInstance());
 				setCredential(new CredentialRepository().getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
 						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
-				
-				sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(configuration);
-				sessionHandlerFactory.getHandler().resetReplayProtection(SAMLConfiguration.getSystemConfiguration().getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
-
-				handlers.putAll(Utils.getHandlers(configuration, servletContext));
-				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
-				
-				setHandler(new IndexHandler(), "");
 				
 				initialized = true;
 			}

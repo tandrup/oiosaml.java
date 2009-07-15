@@ -38,6 +38,7 @@ public class LogoutHandlerTest extends AbstractServiceTests {
 		setHandler();
 		final StringValueHolder val = new StringValueHolder();
 		context.checking(new Expectations() {{
+			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 			one(res).sendRedirect(with(val));
 		}});
 		servlet.handleGet(ctx);

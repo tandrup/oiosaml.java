@@ -33,6 +33,22 @@ Instances of UserAssertion can be retrieved using these methods:</p>
 <p>If IsPassive is set (using a property in oiosaml-sp.properties), the UserAssertion will not be valid. This can be checked with assertion.isAuthenticated().
 If this method returns false, the user has not been authenticated, and should be treated as an anonymous user. To force a login, redirect the user to saml/login.</p>
 
+<h2>Developer Mode</h2>
+<p>When developing a new application, it might be an issue to get a connection to a real IdP, and it might also disturb any automated integration tests.
+To overcome this, the filter has a special developer mode where it will not issue any redirects. Instead, it will create a dummy-assertion with
+configurable user and attributes.</p>
+
+<p>To enable developer mode, simply set oiosaml-sp.develmode=true in oiosaml-sp.properties. It is not necessary to go through the configuration
+process when using this mode, so simply create the file and set the property.</p>
+
+<p>For the developer mode to work, it is necessary to configure one or more users. Do this by setting oiosaml-sp.develmode.users to a comma-separated list of usernames.
+If only one is specified, this user will be selected automatically, otherwise a simple page will be shown where the user can be chosen.</p>
+
+<p>Attributes can be defined for each user by setting oiosaml-sp.develmode.&lt;username&gt;.&lt;attributename&gt;=attributevalue.</p>
+
+<p><strong>Warning:</strong> When developer mode is enabled, no checks for valid assertions are made whatsoever!</p> 
+
+
 <h2>Attribute Query</h2>
 <p>Attribute Query must be performed programatically. How to use Attribute Query is described in <a href="attributequery.html">in the Attribute Query guide</a>.</p>
 
