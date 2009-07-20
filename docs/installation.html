@@ -22,7 +22,7 @@ For configuration, see <a href="configuration.html">the configuration guide</a>.
 <p>The distribution file contains both the necessary jar files and a demo application. The demo application is a simple web application with OIOSAML.java configured to protect 
 selected resources.</p>
 
-<p>NB: If you are using <b>Java 1.5.0</b> you have to endorse alternative JAXP 1.3 implementations.<br/>
+<p>NB: If you are using an older version of<b>Java 1.5.0</b> you either have to endorse alternative JAXP 1.3 implementations or upgrade to the newest 1.5.0.<br/>
 If an exception occurs saying something like: <code>org.xml.sax.SAXParseException: UndeclaredPrefix: Cannot resolve 'xt:DEFAULT' as a QName: the prefix 'xt' is not declared.</code> you will have to endorse JAXP 1.3 also.
  <a href="endorsement.html">further information here</a>.</p>
   
@@ -73,8 +73,8 @@ and there will be a link to the autoconfigure feature. Use this link to configur
 </ol>
 
 <p>This defines a servlet which handles all SAML related requests, such as Single Logout, Login Responses, and so on. /saml/ is the recommended prefix for this servlet. 
-Furthermore, a protection filter is defined. This filter handles user authentication, and only allows access to the protected resources if the user is authenticated correctly. Make sure the filter
-does not cover the SAML servlet. The listener makes sure assertions are cleaned up as soon sessions are expired. The listener is not strictly necessary, but it is good practice to include it.</p> 
+Furthermore, a protection filter is defined. This filter handles user authentication, and only allows access to the protected resources if the user is authenticated correctly. The filter can
+cover the SAML servlet, this does not make any difference. The listener makes sure assertions are cleaned up as soon sessions are expired. The listener is not strictly necessary, but it is good practice to include it.</p> 
 
 <p>When OIOSAML.java is started, it will check if it is configured correctly. If not, autoconfig is enabled, and you can visit saml/configure to configure the system.</p>
 
