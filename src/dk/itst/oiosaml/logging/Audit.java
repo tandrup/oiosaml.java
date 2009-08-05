@@ -23,11 +23,11 @@
  */
 package dk.itst.oiosaml.logging;
 
-import java.io.File;
 import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -139,7 +139,7 @@ public class Audit {
 			new DOMConfigurator() {
 				@Override
 				protected String subst(String value) {
-					return value.replaceAll("\\$\\{oiosaml.home\\}", new File(xmlFilename).getParent());
+					return value.replaceAll("\\$\\{oiosaml.home\\}", FilenameUtils.getPathNoEndSeparator(xmlFilename));
 				}
 			}.doConfigure(xmlFilename, LogManager.getLoggerRepository());
 		} catch (Exception e) {
