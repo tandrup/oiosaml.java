@@ -302,16 +302,16 @@ public class SAMLUtil {
 	 */
 	public static Organization createOrganization(String name, String displayName, String url) {
 		OrganizationDisplayName display = SAMLUtil.buildXMLObject(OrganizationDisplayName.class);
-		display.setName(new LocalizedString(displayName, null));
+		display.setName(new LocalizedString(displayName, "en"));
 		Organization org = SAMLUtil.buildXMLObject(Organization.class);
 		org.getDisplayNames().add(display);
 
 		OrganizationName orgName = SAMLUtil.buildXMLObject(OrganizationName.class);
-		orgName.setName(new LocalizedString(name, null));
+		orgName.setName(new LocalizedString(name, "en"));
 		org.getOrganizationNames().add(orgName);
 
 		OrganizationURL orgUrl = SAMLUtil.buildXMLObject(OrganizationURL.class);
-		orgUrl.setURL(new LocalizedString(url, null));
+		orgUrl.setURL(new LocalizedString(url, "en"));
 		org.getURLs().add(orgUrl);
 		return org;
 	}
@@ -570,7 +570,7 @@ public class SAMLUtil {
 	public static AttributeConsumingService createAttributeConsumingService(String serviceName) {
 		AttributeConsumingService service = SAMLUtil.buildXMLObject(AttributeConsumingService.class);
 		ServiceName name = SAMLUtil.buildXMLObject(ServiceName.class);
-		name.setName(new LocalizedString(serviceName, null));
+		name.setName(new LocalizedString(serviceName, "en"));
 		service.getNames().add(name);
 		
 		service.setIndex(0);
