@@ -191,8 +191,10 @@ public class OIOResponseTest extends AbstractTests {
         	fail("Response does not contain an assertion");
         } catch (RuntimeException e) {}
         
+        assertEquals(0, response.getResponse().getAssertions().size());
         response.decryptAssertion(credential, false);
         assertNotNull(response.getAssertion());
+        assertEquals(1, response.getResponse().getAssertions().size());
         
         try {
 	        Credential otherCredential = TestHelper.getCredential();

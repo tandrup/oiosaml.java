@@ -113,6 +113,7 @@ public class OIOResponse extends OIOAbstractResponse {
 		if (response.getEncryptedAssertions().size() > 0) {
 			OIOEncryptedAssertion enc = new OIOEncryptedAssertion(response.getEncryptedAssertions().get(0));
 			this.assertion = enc.decryptAssertion(credential);
+			response.getAssertions().add(assertion.getAssertion());
 		} else {
 			if (!allowUnencrypted && !response.getAssertions().isEmpty()) {
 				throw new ValidationException("Assertion is not encrypted");
