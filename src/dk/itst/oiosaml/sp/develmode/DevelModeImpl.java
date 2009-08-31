@@ -98,7 +98,7 @@ public class DevelModeImpl implements DevelMode {
 	}
 
 	private UserAssertion selectUser(String user, Configuration conf) {
-		Map<String, String> attributes = getAttributes(user, conf);
+		Map<String, String[]> attributes = getAttributes(user, conf);
 		
 		Assertion a = SAMLUtil.buildXMLObject(Assertion.class);
 		a.setSubject(SAMLUtil.createSubject(user, "urn:test", new DateTime().plusHours(1)));
@@ -106,26 +106,28 @@ public class DevelModeImpl implements DevelMode {
 		AttributeStatement as = SAMLUtil.buildXMLObject(AttributeStatement.class);
 		a.getAttributeStatements().add(as);
 
-		for (Map.Entry<String, String> e : attributes.entrySet()) {
+		for (Map.Entry<String, String[]> e : attributes.entrySet()) {
 			Attribute attr = AttributeUtil.createAttribute(e.getKey(), e.getKey(), "");
-			attr.getAttributeValues().add(AttributeUtil.createAttributeValue(e.getValue()));
-			as.getAttributes().add(attr);
+			for (String val : e.getValue()) {
+				attr.getAttributeValues().add(AttributeUtil.createAttributeValue(val));
+				as.getAttributes().add(attr);
+			}
 		}
 		
 		return new UserAssertionImpl(new OIOAssertion(a));
 	}
 
 	
-	private Map<String, String> getAttributes(String user, Configuration conf) {
+	private Map<String, String[]> getAttributes(String user, Configuration conf) {
 		String prefix = "oiosaml-sp.develmode." + user + ".";
 		
-		Map<String, String> attributes = new HashMap<String, String>();
+		Map<String, String[]> attributes = new HashMap<String, String[]>();
 		Iterator<?> i = conf.getKeys();
 		while (i.hasNext()) {
 			String key = (String) i.next();
 			if (key.startsWith(prefix)) {
 				String attr = key.substring(prefix.length());
-				String value = conf.getString(key);
+				String[] value = conf.getStringArray(key);
 				attributes.put(attr, value);
 			}
 		}
