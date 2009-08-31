@@ -45,6 +45,7 @@ import org.junit.Test;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
+import dk.itst.oiosaml.sp.UserAttribute;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
@@ -100,6 +101,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		conf.put("oiosaml-sp.develmode.users", "test");
 		conf.put("oiosaml-sp.develmode.test.urn:oid:2.5.4.4", "testing");
 		conf.put("oiosaml-sp.develmode.test.random", "value");
+		conf.put("oiosaml-sp.develmode.test.multi", "value1, value2");
 		
 		expectDoFilter();
 		
@@ -108,8 +110,14 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		UserAssertion ua = UserAssertionHolder.get();
 		assertNotNull(ua);
 		
-		assertEquals(2, ua.getAllAttributes().size());
+		assertEquals(3, ua.getAllAttributes().size());
 		assertEquals("testing", ua.getSurname());
+		
+		UserAttribute attr = ua.getAttribute("multi");
+		assertNotNull(attr);
+		assertEquals(2, attr.getValues().size());
+		assertEquals("value1", attr.getValues().get(0));
+		assertEquals("value2", attr.getValues().get(1));
 	}
 
 	@Test
