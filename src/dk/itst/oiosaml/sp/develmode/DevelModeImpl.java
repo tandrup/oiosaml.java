@@ -64,6 +64,7 @@ public class DevelModeImpl implements DevelMode {
 			if (users == null || users.length == 0) {
 				log.error("No users defined in properties. Set oiosaml-sp.develmode.users");
 				res.setStatus(500);
+				HTTPUtils.sendCacheHeaders(res);
 				render("nousers.vm", res, new HashMap<String, Object>());
 				return;
 			}
@@ -73,6 +74,8 @@ public class DevelModeImpl implements DevelMode {
 			} else {
 				String selected = req.getParameter("__oiosaml_devel");
 				if (selected == null || !Arrays.asList(users).contains(selected)) {
+					HTTPUtils.sendCacheHeaders(res);
+					
 					Map<String, Object> params = new HashMap<String, Object>();
 					params.put("users", users);
 					render("users.vm", res, params);

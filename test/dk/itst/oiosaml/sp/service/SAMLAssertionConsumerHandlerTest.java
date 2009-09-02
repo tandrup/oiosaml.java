@@ -144,6 +144,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 		}});
 		sh.setSoapClient(client);
 		
+		expectCacheHeaders();
 		sh.handleGet(ctx);
 	}
 	
@@ -162,6 +163,8 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(res).sendRedirect("requesturi?query");
 			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
+		
+		expectCacheHeaders();
 		
 		sh.handlePost(ctx);
 	}
@@ -183,6 +186,8 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(res).sendRedirect("requesturi?query#test=more");
 			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
+		
+		expectCacheHeaders();
 		
 		sh.handlePost(ctx);
 	}
@@ -215,7 +220,8 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(res).sendRedirect("requesturi?query");
 		}});
 		sh.setSoapClient(client);
-		
+
+		expectCacheHeaders();
 		sh.handleGet(ctx);
 	}
 	
@@ -238,6 +244,7 @@ public class SAMLAssertionConsumerHandlerTest extends AbstractServiceTests {
 			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
+		expectCacheHeaders();
 		AuthenticationHandlerStub.succeed = true;
 		sh.handlePost(ctx);
 		assertTrue(AuthenticationHandlerStub.invoked);

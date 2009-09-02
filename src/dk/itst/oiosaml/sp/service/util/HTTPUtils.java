@@ -63,10 +63,7 @@ public class HTTPUtils {
 	 */
 	public static void sendMetaRedirect(HttpServletResponse res, String url, String query, boolean saveFragment) throws IOException {
 		res.setContentType("text/html");
-		res.addHeader("Pragma", "no-cache");
-		res.addDateHeader("Expires", -1);
-		res.addHeader("Cache-Control", "no-cache");
-		res.addHeader("Cache-Control", "no-store");
+		sendCacheHeaders(res);
 
 		PrintWriter w = res.getWriter();
 		w.write("<html><head>");
@@ -86,6 +83,14 @@ public class HTTPUtils {
 			w.write("<script type=\"text/javascript\">document.cookie = 'oiosaml-fragment=' + escape(location.hash) + '; path=/';</script>");
 		}
 		w.write("</body></html>");
+	}
+
+
+	public static void sendCacheHeaders(HttpServletResponse res) {
+		res.addHeader("Pragma", "no-cache");
+		res.addDateHeader("Expires", -1);
+		res.addHeader("Cache-Control", "no-cache");
+		res.addHeader("Cache-Control", "no-store");
 	}
 	
 	public static String getFragmentCookie(HttpServletRequest req) {
@@ -121,6 +126,8 @@ public class HTTPUtils {
 	 * 
 	 */
 	public static void sendResponse(Request req, RequestContext ctx) throws IOException, ServletException {
+		sendCacheHeaders(ctx.getResponse());
+		
 		String home = ctx.getConfiguration().getString(Constants.PROP_HOME);
 		if (req == null) {
 			log.debug("No request saved in RelayState, redrecting to default url: " + home);

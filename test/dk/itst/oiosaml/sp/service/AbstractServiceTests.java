@@ -69,5 +69,14 @@ public abstract class AbstractServiceTests extends AbstractTests {
 	protected void setHandler() {
 		handler.setAssertion(session.getId(), new OIOAssertion(assertion));
 	}
+	
+	protected void expectCacheHeaders() {
+		context.checking(new Expectations() {{
+			one(res).addHeader("Pragma", "no-cache");
+			one(res).addDateHeader("Expires", -1);
+			one(res).addHeader("Cache-Control", "no-cache");
+			one(res).addHeader("Cache-Control", "no-store");
+		}});
+	}
 
 }

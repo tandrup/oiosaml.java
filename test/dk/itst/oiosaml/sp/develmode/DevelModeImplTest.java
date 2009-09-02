@@ -75,6 +75,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 			one(res).setStatus(500);
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 		}});
+		expectCacheHeaders();
 		dmi.doFilter(req, res, chain, cfg);
 	}
 	
@@ -131,6 +132,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 			one(req).getParameter("__oiosaml_devel"); will(returnValue(null));
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 		}});
+		expectCacheHeaders();
 		dmi.doFilter(req, res, chain, cfg);
 		
 		assertNull(UserAssertionHolder.get());

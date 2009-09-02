@@ -89,6 +89,7 @@ public class PostBindingResponseTest extends AbstractServiceTests {
 			one(session).getMaxInactiveInterval(); will(returnValue(30));
 		}});
 		
+		expectCacheHeaders();
 		sh.handlePost(ctx);
 	}
 	
