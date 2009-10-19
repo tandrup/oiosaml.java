@@ -81,7 +81,11 @@ public class DevelModeImpl implements DevelMode {
 					render("users.vm", res, params);
 					return;
 				} else {
+					HTTPUtils.sendCacheHeaders(res);
 					ua = selectUser(selected, conf);
+					req.getSession().setAttribute(Constants.SESSION_USER_ASSERTION, ua);
+					res.sendRedirect(req.getRequestURI() + "?" + req.getQueryString().substring(0, req.getQueryString().indexOf("__oiosaml_dev")));
+					return;
 				}
 			}
 		}

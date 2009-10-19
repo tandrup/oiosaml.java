@@ -145,13 +145,15 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		conf.put("oiosaml-sp.develmode.users", "test,test2");
 		
 		context.checking(new Expectations() {{
+			allowing(req).getRequestURI(); will(returnValue("/test/more"));
+			allowing(req).getQueryString(); will(returnValue("test=1&__oiosaml_dev=test"));
 			one(req).getParameter("__oiosaml_devel"); will(returnValue("test"));
+			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
+			one(res).sendRedirect("/test/more?test=1&");
 		}});
-		expectDoFilter();
+		expectCacheHeaders();
 		
 		dmi.doFilter(req, res, chain, cfg);
-		
-		assertNotNull(UserAssertionHolder.get());
 	}
 	
 	@Test
