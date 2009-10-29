@@ -135,8 +135,10 @@ public class HTTPUtils {
 			return;
 		}
 		
+		String uri = req.getRequestURI();
 		if ("GET".equals(req.getMethod())) {
-			StringBuilder sb = new StringBuilder(req.getRequestURI());
+			uri = uri.replaceAll("/[/]*", "/");
+			StringBuilder sb = new StringBuilder(uri);
 			if (req.getQueryString() != null) {
 				sb.append("?");
 				sb.append(req.getQueryString());
@@ -159,16 +161,16 @@ public class HTTPUtils {
 				}
 				params.put(Utils.htmlEntityEncode(e.getKey()), values.toArray(new String[0]));
 			}
-			req = new Request(req.getRequestURI(), req.getQueryString(), req.getMethod(), params);
+			req = new Request(uri, req.getQueryString(), req.getMethod(), params);
 			
 			String postServlet = ctx.getConfiguration().getString(Constants.PROP_REPOST_SERVLET, null);
 			if (postServlet != null) {
-				if (log.isDebugEnabled()) log.debug("POST Request with custom servlet at " + postServlet + " for action " + req.getRequestURI());
+				if (log.isDebugEnabled()) log.debug("POST Request with custom servlet at " + postServlet + " for action " + uri);
 				ctx.getRequest().setAttribute("request", req);
 				ctx.getRequest().setAttribute("home", home);
 				ctx.getRequest().getRequestDispatcher(postServlet).forward(ctx.getRequest(), ctx.getResponse());
 			} else {
-				if (log.isDebugEnabled()) log.debug("Saved POST request with default servlet for action " + req.getRequestURI());
+				if (log.isDebugEnabled()) log.debug("Saved POST request with default servlet for action " + uri);
 				
 				VelocityContext vc = new VelocityContext();
 				vc.put("request", req);
