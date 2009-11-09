@@ -147,6 +147,17 @@ public class OIOResponseTest extends AbstractTests {
 		response.validateResponse(srt.getDestination(), cert, true);
 	}
 	
+	@Test
+	public void isPassiveIgnoresOuterStatus() throws Exception {
+		srt.getAssertions().clear();
+		srt.setStatus(SAMLUtil.createStatus(StatusCode.REQUESTER_URI));
+		StatusCode code = SAMLUtil.buildXMLObject(StatusCode.class);
+		code.setValue(StatusCode.NO_PASSIVE_URI);
+		srt.getStatus().getStatusCode().setStatusCode(code);
+
+		assertTrue(response.isPassive());
+	}
+	
 	@Test(expected=ValidationException.class)
 	public void validatePassiveNotAllowed() throws Exception {
 		srt.getAssertions().clear();

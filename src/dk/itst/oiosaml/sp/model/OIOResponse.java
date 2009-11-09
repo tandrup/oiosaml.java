@@ -126,8 +126,9 @@ public class OIOResponse extends OIOAbstractResponse {
 	}
 	
 	public boolean isPassive() {
-		return StatusCode.RESPONDER_URI.equals(response.getStatus().getStatusCode().getValue()) && 
-			response.getStatus().getStatusCode().getStatusCode() != null &&
-			StatusCode.NO_PASSIVE_URI.equals(response.getStatus().getStatusCode().getStatusCode().getValue());
+		if (response.getStatus() == null) return false;
+		if (response.getStatus().getStatusCode() == null) return false;
+		if (response.getStatus().getStatusCode().getStatusCode() == null) return false;
+		return StatusCode.NO_PASSIVE_URI.equals(response.getStatus().getStatusCode().getStatusCode().getValue());
 	}
 }
