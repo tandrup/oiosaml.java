@@ -33,8 +33,6 @@ import org.opensaml.saml2.core.Subject;
 import org.opensaml.saml2.metadata.Endpoint;
 import org.opensaml.ws.soap.soap11.Header;
 import org.opensaml.ws.wssecurity.Created;
-import org.opensaml.ws.wssecurity.Security;
-import org.opensaml.ws.wssecurity.Timestamp;
 import org.opensaml.xml.AbstractXMLObject;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;

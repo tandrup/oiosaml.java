@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.xml.util.XMLHelper;
 
-import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.util.Constants;
