@@ -40,11 +40,12 @@
 	<classpathentry kind="lib" path="lib/build/xalan-xalan.jar"/>
 	<classpathentry kind="lib" path="lib/build/xerces-xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/build/xml-resolver-xml-resolver.jar"/>
-	<classpathentry kind="lib" path="lib/xmltooling-1.1.0.jar" sourcepath="/java-xmltooling"/>
 	<classpathentry kind="lib" path="lib/openws-wstrust.jar"/>
-	<classpathentry kind="lib" path="lib/opensaml-2.1.0.jar" sourcepath="/home/recht/install/opensaml-2.1.0"/>
 	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-api-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.apache.santuario-xmlsec.jar"/>
+	<classpathentry kind="lib" path="lib/opensaml-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/xmltooling-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/build/xalan-serializer.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

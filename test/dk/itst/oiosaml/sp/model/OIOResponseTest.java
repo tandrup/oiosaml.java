@@ -190,16 +190,16 @@ public class OIOResponseTest extends AbstractTests {
 	
 	@Test
 	public void testGetEncryptedAssertion() throws Exception {
+		
         EncryptedAssertion encrypted = encryptAssertion(true);
-        srt.getEncryptedAssertions().add(encrypted);
-        
         srt.getAssertions().clear();
+        srt.getEncryptedAssertions().add(encrypted);
         
         response = new OIOResponse((Response) SAMLUtil.unmarshallElementFromString(response.toXML()));
 
         try {
         	response.getAssertion();
-        	fail("Response does not contain an assertion");
+        	fail("Response should not contain an assertion");
         } catch (RuntimeException e) {}
         
         assertEquals(0, response.getResponse().getAssertions().size());
@@ -217,9 +217,9 @@ public class OIOResponseTest extends AbstractTests {
 	@Test
 	public void testEncryptedAssertionWithRetrievalMethod() throws Exception {
         EncryptedAssertion encrypted = encryptAssertion(false);
+        srt.getAssertions().clear();
         srt.getEncryptedAssertions().add(encrypted);
         
-        srt.getAssertions().clear();
         System.out.println(XMLHelper.nodeToString(SAMLUtil.marshallObject(encrypted)));
 
         response.decryptAssertion(credential, false);
@@ -231,9 +231,9 @@ public class OIOResponseTest extends AbstractTests {
 		response.getAssertion().sign(credential);
 		
 		EncryptedAssertion encrypted = encryptAssertion(true);
+		srt.getAssertions().clear();
         srt.getEncryptedAssertions().add(encrypted);
         
-        srt.getAssertions().clear();
 		
 		response.decryptAssertion(credential, false);
 		assertTrue(response.getAssertion().verifySignature(credential.getPublicKey()));

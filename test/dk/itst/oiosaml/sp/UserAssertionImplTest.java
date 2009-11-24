@@ -318,7 +318,6 @@ public class UserAssertionImplTest {
 		attributeStatement.getAttributes().add(AttributeUtil.createSerialNumber("number"));
 		attributeStatement.getAttributes().add(createAttribute(OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME, "true"));
 		attributeStatement.getAttributes().add(AttributeUtil.createPidNumberIdentifier("pid"));
-		attributeStatement.getAttributes().remove(2);
 		attributeStatement.getAttributes().add(AttributeUtil.createUid("PID:pid"));
 
 		assertTrue(new UserAssertionImpl(assertion).isOIOSAMLCompliant());
