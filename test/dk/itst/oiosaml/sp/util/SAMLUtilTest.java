@@ -235,7 +235,7 @@ public class SAMLUtilTest {
 		Artifact a = SAMLUtil.createArtifact("a");
 		String pretty = SAMLUtil.getSAMLObjectAsPrettyPrintXML(a);
 		assertNotNull(pretty);
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><samlp:Artifact xmlns:saml2p=\"urn:oasis:names:tc:SAML:2.0:protocol\">a</samlp:Artifact>", pretty.trim().replaceAll("\n", ""));
+		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><saml2p:Artifact xmlns:saml2p=\"urn:oasis:names:tc:SAML:2.0:protocol\">a</saml2p:Artifact>", pretty.trim().replaceAll("\n", ""));
 		
 		try {
 			SAMLUtil.getSAMLObjectAsPrettyPrintXML(null);
