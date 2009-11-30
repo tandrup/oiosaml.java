@@ -28,13 +28,7 @@
         <dependency org="joda-time" name="joda-time" rev="1.6" />
         <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="build->default" />
         <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" conf="*->*,!sources,!javadoc" />
-        <dependency org="org.apache.velocity" name="velocity" rev="1.5">
-        	<artifact name="velocity" type="jar" />
-        	<exclude org="logkit" />
-        	<exclude org="ant" />
-        	<exclude org="werken-xpath" />
-        	<exclude org="jdom" />
-        </dependency>
+        <dependency org="org.apache.velocity" name="velocity" rev="1.5" transitive="false" />
         <dependency org="xalan" name="xalan" rev="2.7.0" conf="*->*,!sources,!javadoc" />
         <dependency org="xerces" name="xercesImpl" rev="2.9.1" />
 	<dependency org="xalan" name="serializer" rev="2.7.1" />
@@ -56,6 +50,8 @@
         </dependency>
         
         <dependency org="org.apache.santuario" name="xmlsec" rev="1.4.3"  />
+        
+        <exclude org="javax.servlet" module="servlet-api" conf="dist" />
         
     </dependencies>
 </ivy-module>
