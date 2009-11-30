@@ -36,6 +36,12 @@ import java.util.TimerTask;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.x509.CRLDistPoint;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.x509.extension.X509ExtensionUtil;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
@@ -51,14 +57,38 @@ public class CRLChecker {
 
 	public void checkCertificates(IdpMetadata metadata, Configuration conf) {
 		for (String entityId : metadata.getEntityIDs()) {
+			Metadata md = metadata.getMetadata(entityId);
+			
 			String url = conf.getString(Constants.PROP_CRL + entityId);
 			log.debug("Checking CRL for " + entityId + " at " + url);
 			if (url == null) {
-				log.warn("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId + " in configuration");
+				log.debug("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId + " in configuration");
+				byte[] val = md.getCertificate().getExtensionValue("2.5.29.31");
+				if (val != null) {
+					try {
+						CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
+						for (DistributionPoint dp : point.getDistributionPoints()) {
+							if (dp.getDistributionPoint() == null) continue;
+							
+							if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
+								GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
+								for (GeneralName g : gn.getNames()) {
+									if (g.getName() instanceof DERIA5String) {
+										url =((DERIA5String)g.getName()).getString();
+									}
+								}
+							}
+						}
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+			if (url == null) {
+				log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate");
 				continue;
 			}
 			
-			Metadata md = metadata.getMetadata(entityId);
 			try {
 				URL u = new URL(url);
 				InputStream is = u.openStream();
@@ -72,9 +102,9 @@ public class CRLChecker {
 		        md.setCertificateValid(true);
 		        X509CRLEntry revokedCertificate = crl.getRevokedCertificate(md.getCertificate().getSerialNumber());
 		        boolean revoked = revokedCertificate != null;
-
 		        log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + md.getCertificate());
 		        Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
+		        
 		        md.setCertificateValid(!revoked);
 			} catch (MalformedURLException e) {
 				log.error("Unable to parse url " + url, e);

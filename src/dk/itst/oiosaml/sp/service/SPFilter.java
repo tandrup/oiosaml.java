@@ -274,7 +274,7 @@ public class SPFilter implements Filter {
 	
 	private void restartCRLChecker(Configuration conf) {
 		crlChecker.stopChecker();
-		int period = conf.getInt(Constants.PROP_CRL_CHECK_PERIOD, -1);
+		int period = conf.getInt(Constants.PROP_CRL_CHECK_PERIOD, 60);
 		if (period > 0) {
 			crlChecker.startChecker(period, IdpMetadata.getInstance(), conf);
 		}
