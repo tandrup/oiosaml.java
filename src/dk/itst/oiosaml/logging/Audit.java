@@ -23,6 +23,7 @@
  */
 package dk.itst.oiosaml.logging;
 
+import java.io.File;
 import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
@@ -134,12 +135,13 @@ public class Audit {
 	 *            the DomConfigurator is used unconditionally. An absolute path is expected.
 	 */
 	public static void configureLog4j(final String xmlFilename) {
-		System.out.println("Configuring logging from " + xmlFilename);
+		final String dir = new File(xmlFilename).getParentFile().getAbsolutePath();
+		System.out.println("Configuring logging from " + xmlFilename + ", saving logs in " + dir);
 		try {
 			new DOMConfigurator() {
 				@Override
 				protected String subst(String value) {
-					return value.replaceAll("\\$\\{oiosaml.home\\}", FilenameUtils.getPathNoEndSeparator(xmlFilename));
+					return value.replaceAll("\\$\\{oiosaml.home\\}", dir.replaceAll("\\\\", "\\\\\\\\"));
 				}
 			}.doConfigure(xmlFilename, LogManager.getLoggerRepository());
 		} catch (Exception e) {
