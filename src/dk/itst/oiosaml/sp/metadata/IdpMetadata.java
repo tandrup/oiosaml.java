@@ -45,6 +45,7 @@ import org.opensaml.saml2.metadata.ArtifactResolutionService;
 import org.opensaml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.opensaml.saml2.metadata.AttributeService;
 import org.opensaml.saml2.metadata.Endpoint;
+import org.opensaml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.KeyDescriptor;
@@ -103,10 +104,14 @@ public class IdpMetadata {
 				log.info("Loading " + protocol + " metadata from " + md);
 				try {
 					XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
-					if (!(descriptor instanceof EntityDescriptor)) {
+					if (descriptor instanceof EntityDescriptor) {
+						descriptors.add((EntityDescriptor) descriptor);
+					} else if (descriptor instanceof EntitiesDescriptor) {
+						EntitiesDescriptor desc = (EntitiesDescriptor) descriptor;
+						descriptors.addAll(desc.getEntityDescriptors());
+					} else {
 						throw new RuntimeException("Metadata file " + md + " does not contain an EntityDescriptor. Found " + descriptor.getElementQName()  + ", expected " + EntityDescriptor.ELEMENT_QNAME);
 					}
-					descriptors.add((EntityDescriptor) descriptor);
 				} catch (RuntimeException e) {
 					log.error("Unable to load metadata from " + md + ". File must contain valid XML and have EntityDescriptor as top tag",e);
 					throw e;
