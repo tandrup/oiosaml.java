@@ -31,6 +31,7 @@ import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,11 +43,14 @@ import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
+import org.opensaml.xml.security.x509.X509Credential;
 
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
+import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
@@ -59,31 +63,7 @@ public class CRLChecker {
 		for (String entityId : metadata.getEntityIDs()) {
 			Metadata md = metadata.getMetadata(entityId);
 			
-			String url = conf.getString(Constants.PROP_CRL + entityId);
-			log.debug("Checking CRL for " + entityId + " at " + url);
-			if (url == null) {
-				log.debug("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId + " in configuration");
-				byte[] val = md.getCertificate().getExtensionValue("2.5.29.31");
-				if (val != null) {
-					try {
-						CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
-						for (DistributionPoint dp : point.getDistributionPoints()) {
-							if (dp.getDistributionPoint() == null) continue;
-							
-							if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
-								GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
-								for (GeneralName g : gn.getNames()) {
-									if (g.getName() instanceof DERIA5String) {
-										url =((DERIA5String)g.getName()).getString();
-									}
-								}
-							}
-						}
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
+			String url = getCRLUrl(conf, entityId, md);
 			if (url == null) {
 				log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate");
 				continue;
@@ -97,15 +77,20 @@ public class CRLChecker {
 		        X509CRL crl = (X509CRL) cf.generateCRL(is);
 		        is.close();
 		        
+		        
 		        if (log.isDebugEnabled()) log.debug("CRL for " + url + ": " + crl);
 
 		        md.setCertificateValid(true);
-		        X509CRLEntry revokedCertificate = crl.getRevokedCertificate(md.getCertificate().getSerialNumber());
-		        boolean revoked = revokedCertificate != null;
-		        log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + md.getCertificate());
-		        Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
+		        if (!checkCRLSignature(crl, md.getCertificate(), conf)) {
+		        	md.setCertificateValid(false);
+		        } else {
+			        X509CRLEntry revokedCertificate = crl.getRevokedCertificate(md.getCertificate().getSerialNumber());
+			        boolean revoked = revokedCertificate != null;
+			        log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + md.getCertificate());
+			        Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
 		        
-		        md.setCertificateValid(!revoked);
+			        md.setCertificateValid(!revoked);
+		        }
 			} catch (MalformedURLException e) {
 				log.error("Unable to parse url " + url, e);
 				throw new WrappedException(Layer.BUSINESS, e);
@@ -116,6 +101,55 @@ public class CRLChecker {
 				throw new WrappedException(Layer.BUSINESS, e);
 			}
 		}
+	}
+	
+	
+	private boolean checkCRLSignature(X509CRL crl, X509Certificate certificate, Configuration conf) {
+		if (conf.getString(Constants.PROP_CRL_TRUSTSTORE, null) == null) return true;
+		
+		CredentialRepository cr = new CredentialRepository();
+		String location = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_CRL_TRUSTSTORE);
+		cr.getCertificate(location, conf.getString(Constants.PROP_CRL_TRUSTSTORE_PASSWORD), null);
+
+		for (X509Credential cred : cr.getCredentials()) {
+			try {
+				crl.verify(cred.getPublicKey());
+				return true;
+			} catch (Exception e) {
+				log.debug("CRL not signed by " + cred);
+			}
+		}
+		return false;
+	}
+
+
+	private String getCRLUrl(Configuration conf, String entityId, Metadata md) {
+		String url = conf.getString(Constants.PROP_CRL + entityId);
+		log.debug("Checking CRL for " + entityId + " at " + url);
+		if (url == null) {
+			log.debug("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId + " in configuration");
+			byte[] val = md.getCertificate().getExtensionValue("2.5.29.31");
+			if (val != null) {
+				try {
+					CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
+					for (DistributionPoint dp : point.getDistributionPoints()) {
+						if (dp.getDistributionPoint() == null) continue;
+						
+						if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
+							GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
+							for (GeneralName g : gn.getNames()) {
+								if (g.getName() instanceof DERIA5String) {
+									url =((DERIA5String)g.getName()).getString();
+								}
+							}
+						}
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return url;
 	}
 	
 	public void startChecker(long period, final IdpMetadata metadata, final Configuration conf) {

@@ -25,7 +25,6 @@ package dk.itst.oiosaml.security;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -36,6 +35,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,14 +77,19 @@ public class CredentialRepository {
 			try {
 				FileInputStream is = new FileInputStream(location);
 				credential = createCredential(is, password);
+				is.close();
 				credentials.put(key, credential);
-			} catch (FileNotFoundException e) {
+			} catch (IOException e) {
 				throw new WrappedException(Layer.CLIENT, e);
 			}
 		}
 		return credential;
 	}
 
+	public Collection<BasicX509Credential> getCredentials() {
+		return credentials.values();
+	}
+	
 	/**
 	 * Read credentials from a inputstream.
 	 * 
@@ -149,7 +154,9 @@ public class CredentialRepository {
 		BasicX509Credential credential = credentials.get(key);
 		if (credential == null) {
 			try {
-				KeyStore keystore = loadKeystore(new FileInputStream(location), password);
+				FileInputStream is = new FileInputStream(location);
+				KeyStore keystore = loadKeystore(is, password);
+				is.close();
 				
 				if (alias == null) {
 					Enumeration<String> eAliases = keystore.aliases();
@@ -157,21 +164,19 @@ public class CredentialRepository {
 						String strAlias = eAliases.nextElement();
 						log.debug("Trying " + strAlias);
 						if (keystore.isCertificateEntry(strAlias)) {
+							X509Certificate certificate = (X509Certificate) keystore.getCertificate(strAlias);
+							credential = new BasicX509Credential();
+							credential.setEntityCertificate(certificate);
+							credentials.put(new Key(location, password, strAlias), credential);
 							alias = strAlias;
 						}
 					}			
 				}
 				log.debug("Getting certificate from alias " + alias);
-				if (alias == null) {
-					throw new NullPointerException("No valid certificate alias found in " + location);
+				credential = credentials.get(new Key(location, password, alias));
+				if (credential == null) {
+					throw new NullPointerException("Unable to find certificate for " + alias);
 				}
-				X509Certificate certificate = (X509Certificate) keystore.getCertificate(alias);
-				if (certificate == null) {
-					throw new RuntimeException("Keystore " + location + " does not contain a certificate with alias " + alias);
-				}
-				credential = new BasicX509Credential();
-				credential.setEntityCertificate(certificate);
-				credentials.put(key, credential);
 			} catch (GeneralSecurityException e) {
 				throw new WrappedException(Layer.CLIENT, e);
 			} catch (IOException e) {

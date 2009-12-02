@@ -28,4 +28,8 @@ public class InvalidCertificateException extends RuntimeException {
 	public InvalidCertificateException(String reason) {
 		super(reason);
 	}
+
+	public InvalidCertificateException(String message, Exception e) {
+		super(message, e);
+	}
 }

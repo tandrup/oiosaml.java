@@ -51,6 +51,8 @@ public interface Constants {
 	static final String PROP_ASSURANCE_LEVEL = "oiosaml-sp.assurancelevel";
 	static final String PROP_CRL = "oiosaml-sp.crl.";
 	static final String PROP_CRL_CHECK_PERIOD = "oiosaml-sp.crl.period";
+	static final String PROP_CRL_TRUSTSTORE = "oiosaml-sp.crl.truststore";
+	static final String PROP_CRL_TRUSTSTORE_PASSWORD = "oiosaml-sp.crl.truststore.password";
 	static final String PROP_REQUIRE_ENCRYPTION = "oiosaml-sp.encryption.force";
 	static final String PROP_NUM_TRACKED_ASSERTIONIDS = "common.saml2.loggedinhandler.numusedassertionids";
 	static final String PROP_VALIDATOR = "oiosaml-sp.assertion.validator";
