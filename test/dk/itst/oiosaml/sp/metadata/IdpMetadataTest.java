@@ -113,7 +113,7 @@ public class IdpMetadataTest extends AbstractTests {
 		IdpMetadata md = new IdpMetadata(SAMLConstants.SAML20P_NS, ed1, ed2, ed3);
 
 		assertEquals(2, md.getEntityIDs().size());
-		Metadata metadata = md.getMetadata("ed1");
+		assertEquals(2, md.getMetadata("ed1").getCertificates().size());
 	}
 
 }
