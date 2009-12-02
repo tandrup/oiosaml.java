@@ -24,6 +24,8 @@
 package dk.itst.oiosaml.sp.model;
 
 import java.security.cert.Certificate;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Issuer;
@@ -80,6 +82,10 @@ public class OIOResponse extends OIOAbstractResponse {
 	}
 	
 	public void validateResponse(String expectedDestination, Certificate certificate, boolean allowPassive) throws ValidationException {
+		validateResponse(expectedDestination, Collections.singletonList(certificate), allowPassive);
+	}
+	
+	public void validateResponse(String expectedDestination, Collection<? extends Certificate> certificates, boolean allowPassive) throws ValidationException {
 		validateResponse(null, expectedDestination, allowPassive);
 		
 		if (response.getAssertions().isEmpty() && !isPassive()) {
@@ -87,12 +93,26 @@ public class OIOResponse extends OIOAbstractResponse {
 		}
 		
 		if (hasSignature() || isPassive()) {
-			 if (!verifySignature(certificate.getPublicKey())) {
-				 throw new ValidationException("The response is not signed correctly");
-			 }
+			boolean valid = false;
+			for (Certificate certificate : certificates) {
+				if (verifySignature(certificate.getPublicKey())) {
+					valid = true;
+				}
+			}
+			if (!valid) {
+				throw new ValidationException("The response is not signed correctly");
+			}
 		} else {
-			if (!response.getAssertions().isEmpty() && !getAssertion().verifySignature(certificate.getPublicKey())) {
-				throw new ValidationException("The assertion is not signed correctly");
+			if (!response.getAssertions().isEmpty()) {
+				boolean valid = false;
+				for (Certificate certificate : certificates) {
+					if (getAssertion().verifySignature(certificate.getPublicKey())) {
+						valid = true;
+					}
+				}
+				if (!valid) {
+					throw new ValidationException("The assertion is not signed correctly");
+				}
 			}
 		}
 	}

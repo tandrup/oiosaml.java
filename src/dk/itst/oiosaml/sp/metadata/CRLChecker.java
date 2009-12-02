@@ -62,43 +62,44 @@ public class CRLChecker {
 	public void checkCertificates(IdpMetadata metadata, Configuration conf) {
 		for (String entityId : metadata.getEntityIDs()) {
 			Metadata md = metadata.getMetadata(entityId);
-			
-			String url = getCRLUrl(conf, entityId, md);
-			if (url == null) {
-				log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate");
-				continue;
-			}
-			
-			try {
-				URL u = new URL(url);
-				InputStream is = u.openStream();
-				
-		        CertificateFactory  cf = CertificateFactory.getInstance("X.509");
-		        X509CRL crl = (X509CRL) cf.generateCRL(is);
-		        is.close();
-		        
-		        
-		        if (log.isDebugEnabled()) log.debug("CRL for " + url + ": " + crl);
 
-		        md.setCertificateValid(true);
-		        if (!checkCRLSignature(crl, md.getCertificate(), conf)) {
-		        	md.setCertificateValid(false);
-		        } else {
-			        X509CRLEntry revokedCertificate = crl.getRevokedCertificate(md.getCertificate().getSerialNumber());
-			        boolean revoked = revokedCertificate != null;
-			        log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + md.getCertificate());
-			        Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
-		        
-			        md.setCertificateValid(!revoked);
-		        }
-			} catch (MalformedURLException e) {
-				log.error("Unable to parse url " + url, e);
-				throw new WrappedException(Layer.BUSINESS, e);
-			} catch (IOException e) {
-				log.error("Unable to read CRL from " + url, e);
-				throw new WrappedException(Layer.BUSINESS, e);
-			} catch (GeneralSecurityException e) {
-				throw new WrappedException(Layer.BUSINESS, e);
+			for (X509Certificate certificate : md.getAllCertificates()) {
+				String url = getCRLUrl(conf, entityId, certificate);
+				if (url == null) {
+					log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate");
+					continue;
+				}
+
+				try {
+					URL u = new URL(url);
+					InputStream is = u.openStream();
+
+					CertificateFactory  cf = CertificateFactory.getInstance("X.509");
+					X509CRL crl = (X509CRL) cf.generateCRL(is);
+					is.close();
+
+
+					if (log.isDebugEnabled()) log.debug("CRL for " + url + ": " + crl);
+
+					if (!checkCRLSignature(crl, certificate, conf)) {
+						md.setCertificateValid(certificate, false);
+					} else {
+						X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
+						boolean revoked = revokedCertificate != null;
+						log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + certificate);
+						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
+
+						md.setCertificateValid(certificate, !revoked);
+					}
+				} catch (MalformedURLException e) {
+					log.error("Unable to parse url " + url, e);
+					throw new WrappedException(Layer.BUSINESS, e);
+				} catch (IOException e) {
+					log.error("Unable to read CRL from " + url, e);
+					throw new WrappedException(Layer.BUSINESS, e);
+				} catch (GeneralSecurityException e) {
+					throw new WrappedException(Layer.BUSINESS, e);
+				}
 			}
 		}
 	}
@@ -123,12 +124,12 @@ public class CRLChecker {
 	}
 
 
-	private String getCRLUrl(Configuration conf, String entityId, Metadata md) {
+	private String getCRLUrl(Configuration conf, String entityId, X509Certificate certificate) {
 		String url = conf.getString(Constants.PROP_CRL + entityId);
 		log.debug("Checking CRL for " + entityId + " at " + url);
 		if (url == null) {
 			log.debug("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId + " in configuration");
-			byte[] val = md.getCertificate().getExtensionValue("2.5.29.31");
+			byte[] val = certificate.getExtensionValue("2.5.29.31");
 			if (val != null) {
 				try {
 					CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));

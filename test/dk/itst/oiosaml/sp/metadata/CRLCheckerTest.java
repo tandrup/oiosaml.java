@@ -1,5 +1,6 @@
 package dk.itst.oiosaml.sp.metadata;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -62,13 +63,13 @@ public class CRLCheckerTest extends AbstractTests {
 	public void testCheckCertificatesWithNoRevoked() throws Exception {
 		checker.checkCertificates(idp, TestHelper.buildConfiguration(new HashMap<String, String>()));
 
-		assertNotNull(idp.getFirstMetadata().getCertificate());
+		assertNotNull(idp.getFirstMetadata().getCertificates());
 	}
 	
 	
-	@Test(expected=InvalidCertificateException.class)
+	@Test
 	public void testRevoked() throws Exception {
-		X509Certificate cert = (X509Certificate) idp.getFirstMetadata().getCertificate();
+		X509Certificate cert = (X509Certificate) idp.getFirstMetadata().getCertificates().iterator().next();
 		
 		final File crlFile = generateCRL(cert);
 
@@ -78,14 +79,14 @@ public class CRLCheckerTest extends AbstractTests {
 		
 		checker.checkCertificates(idp, conf);
 
-		idp.getFirstMetadata().getCertificate();
+		assertEquals(0, idp.getFirstMetadata().getCertificates().size());
 	}
 
 
 //	@Test(expected=InvalidCertificateException.class)
 	@Test
 	public void testTimer() throws Exception {
-		X509Certificate cert = (X509Certificate) idp.getFirstMetadata().getCertificate();
+		X509Certificate cert = (X509Certificate) idp.getFirstMetadata().getCertificates().iterator().next();
 
 		final File crlFile = generateCRL(null);
 
@@ -93,24 +94,21 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL + idp.getFirstMetadata().getEntityID(), crlFile.toURI().toString());
 		}});
 		
-		assertNotNull(idp.getFirstMetadata().getCertificate());
+		assertNotNull(idp.getFirstMetadata().getCertificates());
 		
 		checker.startChecker(1, idp, conf);
 		Thread.sleep(1500);
-		assertNotNull(idp.getFirstMetadata().getCertificate());
+		assertNotNull(idp.getFirstMetadata().getCertificates());
 
 		crlFile.delete();
 		generateCRL(cert).renameTo(crlFile);
 		
 		Thread.sleep(1500);
 		
-		try {
-			idp.getFirstMetadata().getCertificate();
-			fail("certificate should be revoked");
-		} catch (InvalidCertificateException e) {}
+		assertEquals(0, idp.getFirstMetadata().getCertificates().size());
 	}
 	
-	@Test(expected=InvalidCertificateException.class)
+	@Test
 	public void invalid_signature_on_crl_should_fail() throws Exception {
 		final File crlFile = generateCRL(null);
 
@@ -130,7 +128,7 @@ public class CRLCheckerTest extends AbstractTests {
 
 		checker.checkCertificates(idp, conf);
 		
-		idp.getFirstMetadata().getCertificate();
+		assertEquals(0, idp.getFirstMetadata().getCertificates().size());
 	}
 	
 	@Test
@@ -153,7 +151,7 @@ public class CRLCheckerTest extends AbstractTests {
 
 		checker.checkCertificates(idp, conf);
 		
-		idp.getFirstMetadata().getCertificate();
+		assertEquals(1, idp.getFirstMetadata().getCertificates().size());
 	}
 	
 	private File generateCRL(X509Certificate cert) throws CRLException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException, FileNotFoundException {

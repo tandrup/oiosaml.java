@@ -93,7 +93,7 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 			Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 
 			try {
-				logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getCertificate().getPublicKey(), ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectLocation(), metadata.getEntityID());
+				logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getPublicKeys(), ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectLocation(), metadata.getEntityID());
 
 				// Logging out
 				if (assertion != null) {

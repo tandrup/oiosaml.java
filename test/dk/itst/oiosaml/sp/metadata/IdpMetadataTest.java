@@ -105,5 +105,15 @@ public class IdpMetadataTest extends AbstractTests {
 		ed1.getRoleDescriptors().clear();
 		md.getMetadata("ed1").getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI);
 	}
+	
+	@Test
+	public void same_entity_id_must_be_merged_to_one_with_multiple_certificates() throws Exception {
+		EntityDescriptor ed3 = TestHelper.buildEntityDescriptor(TestHelper.getCredential());
+		ed3.setEntityID("ed1");
+		IdpMetadata md = new IdpMetadata(SAMLConstants.SAML20P_NS, ed1, ed2, ed3);
+
+		assertEquals(2, md.getEntityIDs().size());
+		Metadata metadata = md.getMetadata("ed1");
+	}
 
 }

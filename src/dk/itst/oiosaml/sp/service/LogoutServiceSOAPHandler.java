@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.security.cert.Certificate;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -109,8 +108,7 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 				try {
 					Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 
-					Certificate idpCertificate = metadata.getCertificate();
-					logoutRequest.validateRequest(null, null, idpCertificate != null ? idpCertificate.getPublicKey() : null, ctx.getSpMetadata().getSingleLogoutServiceSOAPLocation(), metadata.getEntityID());
+					logoutRequest.validateRequest(null, null, metadata.getPublicKeys(), ctx.getSpMetadata().getSingleLogoutServiceSOAPLocation(), metadata.getEntityID());
 					ctx.getSessionHandler().logOut(sessionId);
 					
 					Audit.log(Operation.LOGOUT, assertion.getSubjectNameIDValue());

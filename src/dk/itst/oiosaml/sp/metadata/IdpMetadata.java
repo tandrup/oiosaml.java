@@ -25,6 +25,7 @@ package dk.itst.oiosaml.sp.metadata;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +55,6 @@ import org.opensaml.xml.signature.X509Data;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
-import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.security.SecurityHelper;
@@ -77,7 +78,11 @@ public class IdpMetadata {
 
 	public IdpMetadata(String protocol, EntityDescriptor ... entityDescriptor) {
 		for (EntityDescriptor descriptor : entityDescriptor) {
-			metadata.put(descriptor.getEntityID(), new Metadata(descriptor, protocol));
+			if (metadata.containsKey(descriptor.getEntityID())) {
+				metadata.get(descriptor.getEntityID()).addCertificates(new Metadata(descriptor, protocol).getCertificates());
+			} else {
+				metadata.put(descriptor.getEntityID(), new Metadata(descriptor, protocol));
+			}
 		}
 	}
 
@@ -164,18 +169,25 @@ public class IdpMetadata {
 	public static class Metadata {
 		private EntityDescriptor entityDescriptor;
 		private IDPSSODescriptor idpSSODescriptor;
-		private X509Certificate certificate;
-		private boolean certificateValid = true;
-
+		private Collection<X509Certificate> certificates = new ArrayList<X509Certificate>();
+		private Collection<X509Certificate> validCertificates = new HashSet<X509Certificate>();
 
 		private Metadata(EntityDescriptor entityDescriptor, String protocol) {
 			this.entityDescriptor = entityDescriptor;
 			idpSSODescriptor = entityDescriptor.getIDPSSODescriptor(protocol);
 			try {
-				certificate = SecurityHelper.buildJavaX509Cert(getCertificateNode().getValue());
+				X509Certificate cert = SecurityHelper.buildJavaX509Cert(getCertificateNode().getValue());
+				certificates.add(cert);
+				validCertificates.add(cert);
 			} catch (CertificateException e) {
 				throw new WrappedException(Layer.BUSINESS, e);
 			}
+		}
+
+
+		public void addCertificates(Collection<X509Certificate> certificates) {
+			this.certificates.addAll(certificates);
+			this.validCertificates.addAll(certificates);
 		}
 
 
@@ -276,22 +288,36 @@ public class IdpMetadata {
 			}
 			throw new IllegalStateException("IdP Metadata does not contain a certificate: " + getEntityID());
 		}
+		
+		Collection<X509Certificate> getAllCertificates() {
+			return certificates;
+		}
 
 		/**
+		 * Get a list of all valid certificates for this IdP.
 		 * 
-		 * @return The certificate associated with the Login Site
+		 * Any expired or revoked certificates will not be included in the list. 
 		 */
-		public X509Certificate getCertificate() throws InvalidCertificateException {
-			if (!certificateValid) throw new InvalidCertificateException("Certificate for " + getEntityID() + "  not valid");
-			if (!certificate.getNotAfter().after(new Date())) throw new InvalidCertificateException("Certificate for " + getEntityID() + " expired at " + certificate.getNotAfter() + ", current: " + new Date());
-			
-			return certificate;
+		public Collection<X509Certificate> getCertificates() {
+			Collection<X509Certificate> res = new ArrayList<X509Certificate>();
+			for (X509Certificate certificate : validCertificates) {
+				if (certificate.getNotAfter().after(new Date())) {
+					res.add(certificate);
+				} else {
+					log.debug("Certificate for " + getEntityID() + " expired at " + certificate.getNotAfter() + ", current: " + new Date());
+				}
+			}
+			return res;
 		}
 
-		void setCertificateValid(boolean valid) {
-			this.certificateValid = valid;
-			
+		void setCertificateValid(X509Certificate cert, boolean valid) {
+			if (valid) {
+				validCertificates.add(cert);
+			} else {
+				validCertificates.remove(cert);
+			}
 		}
+		
 
 		/**
 		 * Find a supported login endpoint.
@@ -323,6 +349,15 @@ public class IdpMetadata {
 				}
 			}
 			return defaultFormat;
+		}
+
+
+		public Collection<PublicKey> getPublicKeys() {
+			Collection<PublicKey> res = new ArrayList<PublicKey>();
+			for (X509Certificate cert : getCertificates()) {
+				res.add(cert.getPublicKey());
+			}
+			return res;
 		}
 	}
 	

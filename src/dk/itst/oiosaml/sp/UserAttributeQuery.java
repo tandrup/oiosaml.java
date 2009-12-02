@@ -101,7 +101,7 @@ public class UserAttributeQuery {
 		for (UserAttribute attribute : attributes) {
 			q.addAttribute(attribute.getName(), attribute.getFormat());
 		}
-		OIOAssertion res = q.executeQuery(client, credential, username, password, ignoreCertPath, idpMetadata.getCertificate(), !requireEncryption);
+		OIOAssertion res = q.executeQuery(client, credential, username, password, ignoreCertPath, idpMetadata.getCertificates(), !requireEncryption);
 		
 		Collection<UserAttribute> attrs = new ArrayList<UserAttribute>();
 		for (AttributeStatement attrStatement : res.getAssertion().getAttributeStatements()) {

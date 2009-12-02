@@ -77,7 +77,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 			one(client).wsCall(with(same(q)), with(equal(dest)), with(equal("username")), with(equal("password")), with(equal(true)));
 			will(returnValue(response));
 		}});
-		OIOAssertion res = q.executeQuery(client, credential, "username", "password", true, idpMetadata.getFirstMetadata().getCertificate(), true);
+		OIOAssertion res = q.executeQuery(client, credential, "username", "password", true, idpMetadata.getFirstMetadata().getCertificates(), true);
 		assertNotNull(res);
 	}
 	
@@ -90,7 +90,7 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 		
 		BasicX509Credential credential = credentialRepository.getCredential("/tmp/env/certificate/keystore", "test");
 		
-		OIOAssertion res = q.executeQuery(client, credential, null, null, true, md.getFirstMetadata().getCertificate(), false);
+		OIOAssertion res = q.executeQuery(client, credential, null, null, true, md.getFirstMetadata().getCertificates(), false);
 		System.out.println(res.toXML());
 	}
 }

@@ -26,6 +26,8 @@ package dk.itst.oiosaml.sp.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.PublicKey;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -180,10 +182,20 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		validateResponse(requestId, expectedDestination, false);
 	}
 	
-	public void validate(String requestId, String expectedDestination, String signature, String queryString, PublicKey key) {
+	public void validate(String requestId, String expectedDestination, String signature, String queryString, final PublicKey key) {
+        validate(requestId, expectedDestination, signature, queryString, Collections.singletonList(key));
+	}
+	
+	public void validate(String requestId, String expectedDestination, String signature, String queryString, Collection<PublicKey> keys) {
 		validate(requestId, expectedDestination);
-		// Verifying the signature....
-		if (!Utils.verifySignature(signature, queryString, Constants.SAML_SAMLRESPONSE, key)) {
+		
+		boolean valid = false;
+		for (PublicKey key : keys) {
+			if (Utils.verifySignature(signature, queryString, Constants.SAML_SAMLRESPONSE, key)) {
+				valid = true;
+			}			
+		}
+		if (!valid) {
 			throw new dk.itst.oiosaml.sp.model.validation.ValidationException("Invalid signature");
 		} else if (log.isDebugEnabled()) {
 			log.debug("...signature OK");

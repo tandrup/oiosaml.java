@@ -25,6 +25,8 @@ package dk.itst.oiosaml.sp.model;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -117,12 +119,21 @@ public class OIOLogoutRequest extends OIORequest {
 	}
 	
 	public void validateRequest(String signature, String queryString, PublicKey publicKey, String destination, String issuer) throws LogoutRequestValidationException {
+		validateRequest(signature, queryString, Collections.singletonList(publicKey), destination, issuer);
+	}
+	
+	public void validateRequest(String signature, String queryString, Collection<PublicKey> keys, String destination, String issuer) throws LogoutRequestValidationException {
 		List<String> errors = new ArrayList<String>();
-		validateRequest(issuer, destination, publicKey, errors);
+		validateRequest(issuer, destination, keys, errors);
 		
 		if (signature != null) {
-			// Verifying the signature....
-			if (!Utils.verifySignature(signature, queryString, Constants.SAML_SAMLREQUEST, publicKey)) {
+			boolean valid = false;
+			for (PublicKey publicKey : keys) {
+				if (Utils.verifySignature(signature, queryString, Constants.SAML_SAMLREQUEST, publicKey)) {
+					valid = true;
+				}
+			}
+			if (!valid) {
 				errors.add("Invalid signature");
 			}
 		}

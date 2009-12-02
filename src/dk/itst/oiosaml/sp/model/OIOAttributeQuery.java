@@ -25,6 +25,8 @@ package dk.itst.oiosaml.sp.model;
 
 import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -82,6 +84,10 @@ public class OIOAttributeQuery extends OIORequest {
 	}
 
 	public OIOAssertion executeQuery(SOAPClient client, Credential credential, String username, String password, boolean ignoreCertPath, Certificate idpCertificate, boolean allowUnencryptedAssertion) throws IOException {
+		return executeQuery(client, credential, username, password, ignoreCertPath, Collections.singletonList(idpCertificate), allowUnencryptedAssertion);
+	}
+	
+	public OIOAssertion executeQuery(SOAPClient client, Credential credential, String username, String password, boolean ignoreCertPath, Collection<? extends Certificate> idpCertificates, boolean allowUnencryptedAssertion) throws IOException {
 		try {
 			sign(credential);
 			Audit.log(Operation.ATTRIBUTEQUERY, true, getID(), toXML());
@@ -95,7 +101,7 @@ public class OIOAttributeQuery extends OIORequest {
 			Audit.log(Operation.ATTRIBUTEQUERY, false, getID(), oiores.toXML());
 			
 			oiores.decryptAssertion(credential, allowUnencryptedAssertion);
-			oiores.validateResponse(null, idpCertificate, false);
+			oiores.validateResponse(null, idpCertificates, false);
 			
 			return oiores.getAssertion();
 		} catch (ValidationException e) {

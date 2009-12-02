@@ -26,6 +26,8 @@ package dk.itst.oiosaml.sp.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.PublicKey;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -79,8 +81,11 @@ public abstract class OIORequest extends OIOSamlObject {
 						issuer);
 	}
 
-	
 	protected final void validateRequest(String expectedIssuer, String expectedDestination, PublicKey publicKey, List<String> errors) {
+		validateRequest(expectedIssuer, expectedDestination, Collections.singletonList(publicKey), errors);
+	}
+	
+	protected final void validateRequest(String expectedIssuer, String expectedDestination, Collection<PublicKey> keys, List<String> errors) {
 		try {
 			request.validate(true);
 		} catch (ValidationException e) {
@@ -93,7 +98,13 @@ public abstract class OIORequest extends OIOSamlObject {
 			errors.add("Wring issuer. Expected " + expectedIssuer + " but was " + request.getIssuer());
 		}
 		if (hasSignature()) {
-			if (!verifySignature(publicKey)) {
+			boolean valid = false;
+			for (PublicKey key : keys) {
+				if (verifySignature(key)) {
+					valid = true;
+				}
+			}
+			if (!valid) {
 				errors.add("Invalid signature in SAMLObject");
 			}
 		}
