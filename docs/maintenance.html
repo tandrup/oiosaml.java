@@ -38,5 +38,28 @@ and restart the application. Then OIOSAML encounters multiple IdP metadata files
 collapse the files and merge the certificates. When checking signatures, all certificates for the IdP will be used for checking, and if one of
 them succeeds, the signature will be valid.</p> 
 
+<h4>Upgrading the Service Provider certificate</h4>
+<p>Upgrading the SP certificate can be problematic if the IdP cannot be controlled directly. Some IdPs makes it possible to register multiple
+ certificates for one SP. If that is the case, the upgrade process should be the following:</p>
+ <ul>
+ 	<li>Get the new certificate</li>
+ 	<li>Register it in the IdP along with the old certificate</li>
+ 	<li>When the certificate has been registered with the IdP, copy the new certificate (in PKCS12 or JKS format) to $oiosaml.home</li>
+ 	<li>Edit oiosaml-sp.properties and point oiosaml-sp.certificate.location to the new keystore, and oiosaml-sp.certificate.password 
+ 	to the password of the new certificate</li>
+ 	<li>Restart the SP application</li>
+ </ul>
+
+<p>If the IdP does not support rolling upgrades, it will be hard to avoid any downtime, as the SP restart will have to be coordinated
+with upgrading the IdP. In this case, the SP metadata must be imported in the IdP once again. In this case, the process is as follows:</p>
+<ul>
+	<li>Get the new certificate</li>
+	<li>Copy the new certificate (in PKCS12 or JKS format) to $oiosaml.home</li>
+ 	<li>Edit oiosaml-sp.properties and point oiosaml-sp.certificate.location to the new keystore, and oiosaml-sp.certificate.password 
+ 	to the password of the new certificate</li>
+ 	<li>Restart the SP application</li>
+ 	<li>Go to /saml/metadata to retrieve the new SP metadata file</li>
+ 	<li>Register the new metadata in the IdP</li>
+</ul>
 </body>
 </html>
