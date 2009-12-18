@@ -131,6 +131,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(req).getParameter("__oiosaml_devel"); will(returnValue(null));
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
+			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>()));
 		}});
 		expectCacheHeaders();
 		dmi.doFilter(req, res, chain, cfg);
@@ -146,10 +147,10 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/test/more"));
-			allowing(req).getQueryString(); will(returnValue("test=1&__oiosaml_dev=test"));
 			one(req).getParameter("__oiosaml_devel"); will(returnValue("test"));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
-			one(res).sendRedirect("/test/more?test=1&");
+			one(res).sendRedirect("/test/more?test=1");
+			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>() {{ put("test", new String[] {"1"}); }}));
 		}});
 		expectCacheHeaders();
 		
