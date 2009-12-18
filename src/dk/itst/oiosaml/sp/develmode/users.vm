@@ -22,7 +22,7 @@
 
 <ul>
 #foreach ($user in $users) 
-  <li><a href="?__oiosaml_devel=$user">$user</a></li>
+  <li><a href="?__oiosaml_devel=$user&$params">$user</a></li>
 #end
 </ul>
 

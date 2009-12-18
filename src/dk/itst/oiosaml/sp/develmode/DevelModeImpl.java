@@ -24,6 +24,7 @@
 package dk.itst.oiosaml.sp.develmode;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,13 +79,14 @@ public class DevelModeImpl implements DevelMode {
 					
 					Map<String, Object> params = new HashMap<String, Object>();
 					params.put("users", users);
+					params.put("params", buildParameterString(req.getParameterMap()));
 					render("users.vm", res, params);
 					return;
 				} else {
 					HTTPUtils.sendCacheHeaders(res);
 					ua = selectUser(selected, conf);
 					req.getSession().setAttribute(Constants.SESSION_USER_ASSERTION, ua);
-					res.sendRedirect(req.getRequestURI() + "?" + req.getQueryString().substring(0, req.getQueryString().indexOf("__oiosaml_dev")));
+					res.sendRedirect(req.getRequestURI() + "?" + buildParameterString(req.getParameterMap()));
 					return;
 				}
 			}
@@ -102,6 +104,24 @@ public class DevelModeImpl implements DevelMode {
 			res.sendError(500);
 			return;
 		}
+	}
+	
+	private String buildParameterString(Map<String, String[]> params) {
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		try {
+			for (Map.Entry<String, String[]> e : params.entrySet()) {
+				if ("__oiosaml_devel".equals(e.getKey())) continue;
+				for (String val : e.getValue()) {
+					sb.append(sep);
+					sep = "&";
+					sb.append(e.getKey()).append("=").append(URLEncoder.encode(val, "UTF-8"));
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return sb.toString();
 	}
 
 	private UserAssertion selectUser(String user, Configuration conf) {
