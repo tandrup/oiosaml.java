@@ -200,7 +200,7 @@ target (zipdist: 'Build distributable zip file') {
 		zipfileset (dir: 'lib/endorsed', prefix: 'endorsed')
 		fileset (dir: distDir, includes: "${system}-*${version}.*")
 		fileset (dir: '.', includes: 'LICENSE.txt')
-		fileset (dir: '.', includes: 'oiosaml.java-discovery-1.0.war')
+		fileset (dir: '.', includes: 'oiosaml.java-discovery-*.war')
 	}
 	
 	delete (dir: exportDir)	
