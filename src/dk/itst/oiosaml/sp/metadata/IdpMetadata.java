@@ -309,7 +309,7 @@ public class IdpMetadata {
 				if (certificate.getNotAfter().after(new Date())) {
 					res.add(certificate);
 				} else {
-					log.debug("Certificate for " + getEntityID() + " expired at " + certificate.getNotAfter() + ", current: " + new Date());
+					log.debug("Local Metadata certificate for " + getEntityID() + " expired at " + certificate.getNotAfter() + ", current: " + new Date());
 				}
 			}
 			return res;
