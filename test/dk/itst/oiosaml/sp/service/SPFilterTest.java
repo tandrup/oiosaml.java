@@ -20,6 +20,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -153,9 +154,14 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(chain).doFilter(with(baseMatcher) , with(any(HttpServletResponse.class)));
 		}});
-		filter.doFilter(req, res, chain);
+		filter.doFilter(req, res, new FilterChain() {
+			public void doFilter(ServletRequest arg0, ServletResponse arg1) throws IOException, ServletException {
+				assertNotNull(UserAssertionHolder.get());
+				chain.doFilter(arg0, arg1);
+			}
+		});
 		
-		assertNotNull(UserAssertionHolder.get());
+		assertNull(UserAssertionHolder.get());
 	}
 	
 	@Test
