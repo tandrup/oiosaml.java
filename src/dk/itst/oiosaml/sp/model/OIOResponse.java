@@ -92,6 +92,10 @@ public class OIOResponse extends OIOAbstractResponse {
 			throw new ValidationException("Response must contain an Assertion. If the Response contains an encrypted Assertion, decrypt it before calling validate.");
 		}
 		
+		if (!hasSignature() && isPassive()) {
+			return;
+		}
+		
 		if (hasSignature() || isPassive()) {
 			boolean valid = false;
 			for (Certificate certificate : certificates) {
