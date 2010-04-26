@@ -183,10 +183,14 @@ public class SPFilter implements Filter {
 			
 			Audit.log(Operation.ACCESS, servletRequest.getRequestURI());
 
-			UserAssertionHolder.set(ua);
-			HttpServletRequestWrapper requestWrap = new SAMLHttpServletRequest(servletRequest, ua, hostname);
-			chain.doFilter(requestWrap, response);
-			return;
+			try {
+				UserAssertionHolder.set(ua);
+				HttpServletRequestWrapper requestWrap = new SAMLHttpServletRequest(servletRequest, ua, hostname);
+				chain.doFilter(requestWrap, response);
+				return;
+			} finally {
+				UserAssertionHolder.set(null);
+			}
 		} else {
 			session.removeAttribute(Constants.SESSION_USER_ASSERTION);
 			UserAssertionHolder.set(null);
