@@ -32,10 +32,13 @@ import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
+import dk.itst.oiosaml.sp.AuthenticationHandler;
+import dk.itst.oiosaml.sp.LogoutAuthenticationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class LogoutHandler implements SAMLHandler{
 
@@ -69,6 +72,8 @@ public class LogoutHandler implements SAMLHandler{
 
 		context.getSessionHandler().registerRequest(lr.getID(), metadata.getEntityID());
 		context.getSessionHandler().logOut(session);
+		
+		invokeAuthenticationHandler(context);
 
 		if (log.isDebugEnabled()) log.debug("Redirect to..:" + redirectURL);
 		Audit.log(Operation.LOGOUT, assertion.getSubjectNameIDValue());
@@ -78,6 +83,20 @@ public class LogoutHandler implements SAMLHandler{
 
 	public void handlePost(RequestContext context) throws ServletException, IOException {
 		throw new UnsupportedOperationException();
+	}
+
+	private void invokeAuthenticationHandler(RequestContext ctx) {
+		String handlerClass = ctx.getConfiguration().getString(Constants.PROP_AUTHENTICATION_HANDLER, null);
+		if (handlerClass != null) {
+			log.debug("Authentication handler: " + handlerClass);
+			
+			AuthenticationHandler handler = (AuthenticationHandler) Utils.newInstance(ctx.getConfiguration(), Constants.PROP_AUTHENTICATION_HANDLER);
+			if (handler instanceof LogoutAuthenticationHandler) {
+				((LogoutAuthenticationHandler)handler).userLoggedOut(ctx.getRequest(), ctx.getResponse());
+			}
+		} else {
+			log.debug("No authentication handler configured");
+		}
 	}
 
 }

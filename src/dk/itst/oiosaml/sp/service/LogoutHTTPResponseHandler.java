@@ -33,9 +33,12 @@ import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
+import dk.itst.oiosaml.sp.AuthenticationHandler;
+import dk.itst.oiosaml.sp.LogoutAuthenticationHandler;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 /**
  * Servlet used to end a SLO - i.e. receiving the &lt;LogoutResponse&gt; from the
@@ -74,6 +77,9 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 		logoutResponse.validate(null, ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectResponseLocation(), request.getParameter(Constants.SAML_SIGNATURE), request.getQueryString(), metadata.getPublicKeys());
 
 		ctx.getSessionHandler().logOut(session);
+		
+		invokeAuthenticationHandler(ctx);
+		
 		Audit.log(Operation.LOGOUT, null);
 
 		String homeUrl = ctx.getConfiguration().getString(Constants.PROP_HOME);
@@ -89,4 +95,19 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 	public void handlePost(RequestContext ctx) throws ServletException, IOException {
 		throw new UnsupportedOperationException();
 	}
+	
+	private void invokeAuthenticationHandler(RequestContext ctx) {
+		String handlerClass = ctx.getConfiguration().getString(Constants.PROP_AUTHENTICATION_HANDLER, null);
+		if (handlerClass != null) {
+			log.debug("Authentication handler: " + handlerClass);
+			
+			AuthenticationHandler handler = (AuthenticationHandler) Utils.newInstance(ctx.getConfiguration(), Constants.PROP_AUTHENTICATION_HANDLER);
+			if (handler instanceof LogoutAuthenticationHandler) {
+				((LogoutAuthenticationHandler)handler).userLoggedOut(ctx.getRequest(), ctx.getResponse());
+			}
+		} else {
+			log.debug("No authentication handler configured");
+		}
+	}
+
 }
