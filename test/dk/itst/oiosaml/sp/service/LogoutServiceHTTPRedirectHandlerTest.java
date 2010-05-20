@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -40,7 +41,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	@Before
 	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException {
 		logoutServiceHttpRedirectHandler = new LogoutServiceHTTPRedirectHandler();
-		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, null, handler, bindingHandlerFactory);
+		ctx = new RequestContext(req, res, idpMetadata, spMetadata, credential, TestHelper.buildConfiguration(new HashMap<String, String>()), handler, bindingHandlerFactory);
 	}
 
 	@Test
