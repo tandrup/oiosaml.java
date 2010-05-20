@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.itst.oiosaml</groupId>
     <artifactId>oiosaml</artifactId>
-    <version>5354</version>
+    <version>5590</version>
     <packaging>jar</packaging>
 
     <name>oiosaml</name>
