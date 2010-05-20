@@ -52,7 +52,7 @@ public class SingleVMSessionHandler implements SessionHandler {
 	private final Map<String, TimeOutWrapper<String>> sessionIndexMap = new ConcurrentHashMap<String, TimeOutWrapper<String>>();
 	private final Map<String, TimeOutWrapper<String>> requestIds = new ConcurrentHashMap<String, TimeOutWrapper<String>>();
 	private final Map<String, TimeOutWrapper<Request>> requests = new ConcurrentHashMap<String, TimeOutWrapper<Request>>();
-	private Map<String, OIOAssertion> usedAssertionIds = new LRUMap(10000);
+	private Map<String, String> usedAssertionIds = new LRUMap(10000);
 
 	public synchronized void setAssertion(String sessionId, OIOAssertion assertion) throws IllegalArgumentException{
 		Issuer issuer = assertion.getAssertion().getIssuer();
@@ -60,7 +60,7 @@ public class SingleVMSessionHandler implements SessionHandler {
 		if(usedAssertionIds.containsKey(key)) {
 			throw new IllegalArgumentException("Assertion ID begin replayed: " + key);
 		}
-		usedAssertionIds.put(key, assertion);
+		usedAssertionIds.put(key, assertion.getAssertion().getID());
 		sessionMap.put(sessionId, new TimeOutWrapper<OIOAssertion>(assertion));
 
 		String sessionIndex = assertion.getSessionIndex();
