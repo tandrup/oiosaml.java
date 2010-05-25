@@ -154,6 +154,11 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			Audit.log(Operation.LOGIN_SESSION, Integer.toString(session.getMaxInactiveInterval()));
 			
 			// Store the assertion in the session store
+			
+			// release the DOM tree now the signature is validated - due to large memory consumption
+			Assertion assertion2 = assertion.getAssertion();
+			assertion2.releaseChildrenDOM(true);
+			
 			ctx.getSessionHandler().setAssertion(session.getId(), assertion);
 			session.setAttribute(Constants.SESSION_USER_ASSERTION, userAssertion);
 		}
