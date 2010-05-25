@@ -158,6 +158,8 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 			// release the DOM tree now the signature is validated - due to large memory consumption
 			Assertion assertion2 = assertion.getAssertion();
 			assertion2.releaseChildrenDOM(true);
+            assertion2.releaseDOM();
+            assertion2.detach();
 			
 			ctx.getSessionHandler().setAssertion(session.getId(), assertion);
 			session.setAttribute(Constants.SESSION_USER_ASSERTION, userAssertion);
@@ -170,7 +172,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 		}
 	}
 
-	private boolean invokeAuthenticationHandler(RequestContext ctx, UserAssertion userAssertion) {
+    private boolean invokeAuthenticationHandler(RequestContext ctx, UserAssertion userAssertion) {
 		String handlerClass = ctx.getConfiguration().getString(Constants.PROP_AUTHENTICATION_HANDLER, null);
 		if (handlerClass != null) {
 			log.debug("Authentication handler: " + handlerClass);
