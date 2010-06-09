@@ -45,7 +45,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 public class LogoutHTTPResponseHandler implements SAMLHandler{
 
 	private static final long serialVersionUID = 2487601130738744767L;
-	private static final Logger log = Logger.getLogger(LogoutServiceHTTPRedirectHandler.class);
+	private static final Logger log = Logger.getLogger(LogoutHTTPResponseHandler.class);
 	public static final String VERSION = "$Id: LogoutHTTPResponseHandler.java 2950 2008-05-28 08:22:34Z jre $";
 	
 	/**
