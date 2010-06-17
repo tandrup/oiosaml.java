@@ -272,7 +272,7 @@ public class JdbcSessionHandler implements SessionHandler {
 			ps.setString(1, sessionId);
 			ps.setString(2, assertion.getSessionIndex());
 			if (ps.executeUpdate() > 0) {
-				log.debug("Overwriting exising session info for session " + sessionId);
+				log.debug("Overwriting existing session info for session " + sessionId);
 			}
 			
 			ps = con.prepareStatement("INSERT INTO assertions (id, assertion, assertionid, sessionindex, timestamp) VALUES (?, ?, ?, ?, ?)");

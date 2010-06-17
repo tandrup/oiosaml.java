@@ -161,7 +161,7 @@ public class SecurityHelper {
         return keyPair;
     }
     
-    public static X509Certificate generateCertificate(Credential credential, String entityId) {
+    public static X509Certificate generateCertificate(Credential credential, String entityId) throws Exception {
     	String issuer = "o=keymanager, ou=oiosaml-sp";
     	String subject = "cn=" + entityId + ", ou=oiosaml-sp";
     	X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
@@ -173,14 +173,10 @@ public class SecurityHelper {
     	gen.setPublicKey(credential.getPublicKey());
     	gen.setSignatureAlgorithm("SHA1WithRSA");
     	
-		try {
-	    	gen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(credential.getPublicKey()));
-	    	gen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(credential.getPublicKey()));
+    	gen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(credential.getPublicKey()));
+    	gen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(credential.getPublicKey()));
 	    	
-			return gen.generate(credential.getPrivateKey());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+    	return gen.generate(credential.getPrivateKey());
     }
     
 }

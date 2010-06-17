@@ -203,7 +203,7 @@ public class ConfigurationHandler implements SAMLHandler {
 				keystore = bos.toByteArray();
 				bos.close();
 			} catch (Exception e) {
-				log.error("Unable to generate credential", e);
+                log.error("Unable to generate credential", e);
 				throw new RuntimeException("Unable to generate credential", e);
 			}
 		}
