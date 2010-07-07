@@ -19,7 +19,9 @@
         <dependency org="commons-lang" name="commons-lang" rev="2.3" conf="*->master" />
         <dependency org="commons-configuration" name="commons-configuration" rev="1.5" conf="*->master,runtime" />
         <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="*->*,!sources,!javadoc" transitive="false" />
-        <dependency org="joda-time" name="joda-time" rev="1.6" />
+        <dependency org="joda-time" name="joda-time" rev="1.6">
+			<artifact name="joda-time" type="jar"/>
+		</dependency>
         <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="build->default" />
         <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" conf="*->*,!sources,!javadoc" />
         <dependency org="org.apache.velocity" name="velocity" rev="1.5" transitive="false">
