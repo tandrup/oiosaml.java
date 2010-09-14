@@ -110,7 +110,9 @@ public class JdbcSessionHandler implements SessionHandler {
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
-		}
+        } finally {
+            closeConnection(con);
+        }
 	}
 	
 	private void updateTimestamp(String id, Connection con) throws SQLException {
@@ -158,7 +160,9 @@ public class JdbcSessionHandler implements SessionHandler {
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}
+        } finally {
+            closeConnection(con);
+        }
 	}
 
 	public boolean isLoggedIn(String sessionId) {
