@@ -456,7 +456,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		File homeDir = new File(home);
 		String[] files = homeDir.list();
-		if (files == null || files.length > 0) {
+		if (files != null && files.length > 0) {
 			return true;
 		} else {
 			return false;

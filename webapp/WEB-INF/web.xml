@@ -16,17 +16,15 @@
 		</param-value>
 	</context-param>
 	 -->
-	 <!-- 
 	<context-param>
 		<description>
 			Name of the configuration dir for oiosaml
 		</description>
 		<param-name>oiosaml-j.name</param-name>
 		<param-value>
-			application
+			demo
 		</param-value>
 	</context-param>
-	 -->
 
 	<listener>
 		<listener-class>dk.itst.oiosaml.sp.service.session.SessionDestroyListener</listener-class>
