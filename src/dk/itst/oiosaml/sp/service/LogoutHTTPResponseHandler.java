@@ -88,7 +88,7 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 	}
 
 	public void handlePost(RequestContext ctx) throws ServletException, IOException {
-		throw new UnsupportedOperationException();
+	    handleGet(ctx);
 	}
 	
 

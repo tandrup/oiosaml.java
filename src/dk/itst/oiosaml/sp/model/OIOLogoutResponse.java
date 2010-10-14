@@ -204,8 +204,8 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 	}
 	
 	protected static class Encoder extends HTTPRedirectDeflateEncoder {
-		
-		@Override
+
+        @Override
 		public String deflateAndBase64Encode(SAMLObject obj) throws MessageEncodingException {
             String messageStr = XMLHelper.nodeToString(marshallMessage(obj));
 
@@ -221,15 +221,19 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 
             return Base64.encodeBytes(bytesOut.toByteArray(), Base64.DONT_BREAK_LINES);
 		}
-		
-		@Override
-		public String getSignatureAlgorithmURI(Credential arg0, SecurityConfiguration arg1) throws MessageEncodingException {
-			return super.getSignatureAlgorithmURI(arg0, arg1);
-		}
-		
-		@Override
-		public String generateSignature(Credential arg0, String arg1, String arg2) throws MessageEncodingException {
-			return super.generateSignature(arg0, arg1, arg2);
-		}
+
+        @Override
+        protected String generateSignature(Credential signingCredential, String algorithmURI, String queryString)
+                throws MessageEncodingException {
+            return super.generateSignature(signingCredential, algorithmURI, queryString);
+        }
+
+        @Override
+        protected String getSignatureAlgorithmURI(Credential credential, SecurityConfiguration config)
+                throws MessageEncodingException {
+            return super.getSignatureAlgorithmURI(credential, config);
+        }
+	
 	}
+
 }

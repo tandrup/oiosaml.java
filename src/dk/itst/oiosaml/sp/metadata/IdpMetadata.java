@@ -265,8 +265,18 @@ public class IdpMetadata {
 		 */
 		public String getSingleLogoutServiceResponseLocation() {
 			if (idpSSODescriptor.getSingleLogoutServices().size() > 0) {
-				SingleLogoutService singleLogoutService = idpSSODescriptor.getSingleLogoutServices().get(0);
-				String location = singleLogoutService.getResponseLocation();
+			    List<SingleLogoutService> singleLogoutServices = idpSSODescriptor.getSingleLogoutServices();
+
+                // Prefer POST binding - due to browser redirect limitations.
+			    SingleLogoutService singleLogoutService = idpSSODescriptor.getSingleLogoutServices().get(0);
+			    for (SingleLogoutService sls : singleLogoutServices) {
+			        if(sls.getBinding().equals(SAMLConstants.SAML2_POST_BINDING_URI)) {
+			            singleLogoutService = sls;
+			            break;
+			        }
+                }
+
+			    String location = singleLogoutService.getResponseLocation();
 				if (location == null) {
 					location = singleLogoutService.getLocation();
 				}

@@ -155,11 +155,9 @@ public class OIOAssertion extends OIOSamlObject {
     	if (assertion != null && assertion.getAuthnStatements() != null) {
 			if (assertion.getAuthnStatements().size() > 0) {
 				// We only look into the first AuthnStatement
-				AuthnStatement authnStatement = (AuthnStatement) assertion
-						.getAuthnStatements().get(0);
+				AuthnStatement authnStatement = (AuthnStatement) assertion.getAuthnStatements().get(0);
 				if (authnStatement.getSessionNotOnOrAfter() != null) {
-					retVal = authnStatement.getSessionNotOnOrAfter()
-							.isBeforeNow();
+					retVal = authnStatement.getSessionNotOnOrAfter().isBeforeNow();
 				} else {
 					retVal = false;
 				}
@@ -205,7 +203,7 @@ public class OIOAssertion extends OIOSamlObject {
 		} catch (org.opensaml.xml.validation.ValidationException e) {
 			throw new ValidationException(e);
 		}
-		// The SAML versioni must be 2.0
+		// The SAML version must be 2.0
 		if (!SAMLVersion.VERSION_20.equals(assertion.getVersion())) {  
 			throw new ValidationException("The assertion must be version 2.0. Was " + assertion.getVersion());
 		}

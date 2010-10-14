@@ -30,7 +30,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.opensaml.common.SAMLObject;
+import org.opensaml.common.binding.BasicSAMLMessageContext;
+import org.opensaml.saml2.binding.encoding.HTTPPostEncoder;
+import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.ws.message.encoder.MessageEncodingException;
+import org.opensaml.ws.transport.http.HttpServletRequestAdapter;
 
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
@@ -41,6 +47,7 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
@@ -127,7 +134,81 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 	}
 
 	public void handlePost(RequestContext ctx) throws ServletException, IOException {
-		throw new UnsupportedOperationException();
+        HttpServletRequest request = ctx.getRequest();
+        HttpSession session = ctx.getSession();
+
+        String samlRequest = request.getParameter(Constants.SAML_SAMLREQUEST);
+        String relayState = request.getParameter(Constants.SAML_RELAYSTATE);
+        String sigAlg = request.getParameter(Constants.SAML_SIGALG);
+        String sig = request.getParameter(Constants.SAML_SIGNATURE);
+
+        if (log.isDebugEnabled()) {
+            log.debug("samlRequest...:" + samlRequest);
+            log.debug("relayState....:" + relayState);
+            log.debug("sigAlg........:" + sigAlg);
+            log.debug("signature.....:" + sig);
+        }
+
+        OIOLogoutRequest logoutRequest = OIOLogoutRequest.fromPostRequest(request);
+        if (log.isDebugEnabled()) {
+            log.debug("Got InboundSAMLMessage..:" + logoutRequest.toXML());
+        }
+        
+        Audit.log(Operation.LOGOUTREQUEST, false, logoutRequest.getID(), logoutRequest.toXML());
+
+        String statusCode = StatusCode.SUCCESS_URI;
+        String consent = null;
+
+        OIOAssertion assertion = ctx.getSessionHandler().getAssertion(session.getId());
+        String idpEntityId = null;
+        if (assertion != null) {
+            idpEntityId = assertion.getIssuer();
+        }
+        if (idpEntityId == null) {
+            log.warn("LogoutRequest received but user is not logged in");
+            idpEntityId = logoutRequest.getIssuer();
+        }
+        if (idpEntityId == null) {
+            throw new RuntimeException("User is not logged in, and there is no Issuer in the LogoutRequest. Unable to continue.");
+        } else {
+            Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
+
+            try {
+                logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getPublicKeys(), ctx.getSpMetadata().getSingleLogoutServiceHTTPPostLocation(), metadata.getEntityID());
+
+                // Logging out
+                if (assertion != null) {
+                    log.info("Logging user out via SLO HTTP Redirect: " + assertion.getSubjectNameIDValue());
+                } else {
+                    log.info("Logging user out via SLO HTTP Redirect without active session");
+                }
+                ctx.getSessionHandler().logOut(session);
+                invokeAuthenticationHandler(ctx);
+            } catch (LogoutRequestValidationException e1) {
+                consent = e1.getMessage();
+                statusCode = StatusCode.AUTHN_FAILED_URI;
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Logout status: " + statusCode + ", message: " + consent);
+            }
+
+            OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
+
+            HTTPPostEncoder encoder = new HTTPPostEncoder(HTTPUtils.getEngine(), "/dk/itst/oiosaml/sp/service/postform.vm");
+            
+            Audit.log(Operation.LOGOUTRESPONSE, true, res.getID(), res.toXML());
+
+            // Unpack the <LogoutRequest> from the request
+            BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = new BasicSAMLMessageContext<LogoutRequest, SAMLObject, SAMLObject>();
+            messageContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
+
+            try {
+                encoder.encode(messageContext);
+            } catch (MessageEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }
 	}
 	
 	private void invokeAuthenticationHandler(RequestContext ctx) {

@@ -26,6 +26,7 @@ only once. If possible, the configuration files will be written automatically to
 <tr><td>Receive single logout response</td><td class="monospace">$logoutResponseUrl</td></tr>
 <tr><td>Receive single logout request</td><td class="monospace">$logoutRequestUrl</td></tr>
 <tr><td>Receive SOAP single logout request</td><td class="monospace">$logoutSoapRequestUrl</td></tr>
+<tr><td>Receive HTTP POST single logout request</td><td class="monospace">$logoutPostRequestUrl</td></tr>
 </table>
 
 #if ($error != "") 
@@ -74,6 +75,10 @@ only once. If possible, the configuration files will be written automatically to
 		<td><label for="enableSoap">Enable SOAP Single Logout?</label></td>
 		<td><input type="checkbox" name="enableSoap" id="enableSoap" value="true" /></td>
 	</tr>
+    <tr>
+        <td><label for="enablePostSLO">Enable POST Single Logout?</label></td>
+        <td><input type="checkbox" name="enablePostSLO" id="enablePostSLO" value="true" /></td>
+    </tr>
 	<tr>
 		<td><label for="supportOCESAttributeProfile">Support OCES Attribute Profile?</label></td>
 		<td><input type="checkbox" name="supportOCESAttributeProfile" id="supportOCESAttributeProfile" value="true" /></td>

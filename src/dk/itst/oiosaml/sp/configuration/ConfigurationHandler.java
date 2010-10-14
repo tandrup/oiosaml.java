@@ -195,8 +195,7 @@ public class ConfigurationHandler implements SAMLHandler {
 				X509Certificate cert = dk.itst.oiosaml.security.SecurityHelper.generateCertificate(credential, getEntityId(request));
 				cred.setEntityCertificate(cert);
 				
-				ks.setKeyEntry("oiosaml", credential.getPrivateKey(), password.toCharArray(), new Certificate[] { 
-					cert });
+				ks.setKeyEntry("oiosaml", credential.getPrivateKey(), password.toCharArray(), new Certificate[] { cert });
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				ks.store(bos, password.toCharArray());
 				
@@ -211,6 +210,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		EntityDescriptor descriptor = generateSPDescriptor(getBaseUrl(request), entityId, credential, orgName, orgUrl, email, 
 				Boolean.valueOf(extractParameter("enableArtifact", parameters)), Boolean.valueOf(extractParameter("enablePost", parameters)), 
 				Boolean.valueOf(extractParameter("enableSoap", parameters)),
+                Boolean.valueOf(extractParameter("enablePostSLO", parameters)),
 				Boolean.valueOf(extractParameter("supportOCESAttributeProfile", parameters)));
 		File zipFile = generateZipFile(request.getContextPath(), password, metadata, keystore, descriptor);
 		
@@ -288,7 +288,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		return zipFile;
 	}
 
-	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean supportOCESAttributes) {
+	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean enablePostSLO, boolean supportOCESAttributes) {
 		EntityDescriptor descriptor = SAMLUtil.buildXMLObject(EntityDescriptor.class);
 		descriptor.setEntityID(entityId);
 		
@@ -332,6 +332,10 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		if (enableSoap) {
 			spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceSOAP", null, SAMLConstants.SAML2_SOAP11_BINDING_URI));
+		}
+		
+		if(enablePostSLO) {
+            spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPPost", null, SAMLConstants.SAML2_POST_BINDING_URI));
 		}
 		
 		if (enableArtifact) {
@@ -534,6 +538,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		params.put("logoutResponseUrl", base + "/LogoutServiceHTTPRedirectResponse");
 		params.put("logoutRequestUrl", base + "/LogoutServiceHTTPRedirect");
 		params.put("logoutSoapRequestUrl", base + "/LogoutServiceSOAP");
+        params.put("logoutPostRequestUrl", base + "/LogoutServiceHTTPPost");
 		params.put("home", getHome(servletContext));
 		params.put("entityId", getEntityId(request));
 		return params;

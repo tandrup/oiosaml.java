@@ -11,6 +11,7 @@ webDir = 'webapp'
 version = 'unknown'
 
 ant.property(name: 'ivy.checksums', value: '')
+ant.property(name: 'ivy.settings.file', value: '/Users/kfr/projects/trifork-common/ivyconf.xml')
 
 includeTargets << gant.targets.Clean
 
@@ -83,7 +84,7 @@ target (publish: 'Publish build') {
 	}
 	copy (file: "${distDir}/${system}-${version}.jar", tofile: "${distDir}/${system}.jar", overwrite: true)
 	
-	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'local', pubrevision: version, overwrite: true)
+	ivy.publish (artifactspattern: "${distDir}/[artifact].[ext]", status: 'integration', resolver: 'intranet-internal', pubrevision: version, overwrite: true)
 	
 	ivyxml.publications.artifact.findAll { it.'@name' != null }.each { a ->
 		delete (file: "${distDir}/${a.'@name'}.jar")

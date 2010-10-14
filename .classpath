@@ -39,9 +39,9 @@
 	<classpathentry kind="lib" path="lib/openws-wstrust.jar"/>
 	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/org.mortbay.jetty-jsp-api-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/build/org.apache.santuario-xmlsec.jar"/>
-	<classpathentry kind="lib" path="lib/opensaml-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/xmltooling-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.apache.santuario-xmlsec.jar" sourcepath="/Users/kfr/products/xml-security-1_4_3 2/src"/>
+	<classpathentry kind="lib" path="lib/opensaml-2.3.1.jar" sourcepath="/Users/kfr/products/opensaml-2.3.1/src/main/java"/>
+	<classpathentry kind="lib" path="lib/xmltooling-1.2.1.jar" sourcepath="/Users/kfr/products/xmltooling-1.2.1/src/main/java"/>
 	<classpathentry kind="lib" path="lib/build/xalan-serializer.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.apache.velocity-velocity.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.bouncycastle-bcprov-jdk15.jar"/>
