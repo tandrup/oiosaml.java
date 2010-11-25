@@ -30,13 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.opensaml.common.SAMLObject;
-import org.opensaml.common.binding.BasicSAMLMessageContext;
-import org.opensaml.saml2.binding.encoding.HTTPPostEncoder;
-import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.ws.message.encoder.MessageEncodingException;
-import org.opensaml.ws.transport.http.HttpServletRequestAdapter;
 
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
@@ -47,7 +41,6 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
@@ -71,7 +64,7 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 		String relayState = request.getParameter(Constants.SAML_RELAYSTATE);
 		String sigAlg = request.getParameter(Constants.SAML_SIGALG);
 		String sig = request.getParameter(Constants.SAML_SIGNATURE);
-
+		
 		if (log.isDebugEnabled()) {
 			log.debug("samlRequest...:" + samlRequest);
 			log.debug("relayState....:" + relayState);
@@ -118,9 +111,11 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 				statusCode = StatusCode.AUTHN_FAILED_URI;
 			}
 
-			if (log.isDebugEnabled()) log.debug("Logout status: " + statusCode + ", message: " + consent);
-			// Returning.....
-
+			if (log.isDebugEnabled()) {
+				log.debug("Logout status: " + statusCode + ", message: " + consent);
+			}
+			
+			// returning...
 			OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
 			String url = res.getRedirectURL(ctx.getCredential(), relayState);
 			
@@ -129,7 +124,6 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 			if (log.isDebugEnabled())
 				log.debug("sendRedirect to..:" + url);
 			ctx.getResponse().sendRedirect(url);
-			return;
 		}
 	}
 
@@ -170,7 +164,8 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
         }
         if (idpEntityId == null) {
             throw new RuntimeException("User is not logged in, and there is no Issuer in the LogoutRequest. Unable to continue.");
-        } else {
+        }
+        else {
             Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 
             try {
@@ -178,9 +173,9 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 
                 // Logging out
                 if (assertion != null) {
-                    log.info("Logging user out via SLO HTTP Redirect: " + assertion.getSubjectNameIDValue());
+                    log.info("Logging user out via SLO HTTP POST: " + assertion.getSubjectNameIDValue());
                 } else {
-                    log.info("Logging user out via SLO HTTP Redirect without active session");
+                    log.info("Logging user out via SLO HTTP POST without active session");
                 }
                 ctx.getSessionHandler().logOut(session);
                 invokeAuthenticationHandler(ctx);
@@ -193,21 +188,16 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
                 log.debug("Logout status: " + statusCode + ", message: " + consent);
             }
 
-            OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
+            // respond with a http-redirect. This will not become a problem, since we are switching between redirect and post,
+            // so the browser should not reach the limit on the amount of redirects in a row
+			OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
+			String url = res.getRedirectURL(ctx.getCredential(), relayState);
+			
+			Audit.log(Operation.LOGOUTRESPONSE, true, res.getID(), res.toXML());
 
-            HTTPPostEncoder encoder = new HTTPPostEncoder(HTTPUtils.getEngine(), "/dk/itst/oiosaml/sp/service/postform.vm");
-            
-            Audit.log(Operation.LOGOUTRESPONSE, true, res.getID(), res.toXML());
-
-            // Unpack the <LogoutRequest> from the request
-            BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = new BasicSAMLMessageContext<LogoutRequest, SAMLObject, SAMLObject>();
-            messageContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
-
-            try {
-                encoder.encode(messageContext);
-            } catch (MessageEncodingException e) {
-                throw new RuntimeException(e);
-            }
+			if (log.isDebugEnabled())
+				log.debug("sendRedirect to..:" + url);
+			ctx.getResponse().sendRedirect(url);
         }
 	}
 	

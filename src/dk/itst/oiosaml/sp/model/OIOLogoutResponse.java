@@ -40,6 +40,7 @@ import org.joda.time.DateTimeZone;
 import org.opensaml.common.SAMLObject;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
+import org.opensaml.saml2.binding.decoding.HTTPPostDecoder;
 import org.opensaml.saml2.binding.decoding.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml2.binding.encoding.HTTPRedirectDeflateEncoder;
 import org.opensaml.saml2.core.LogoutResponse;
@@ -101,11 +102,32 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 
 		return new OIOLogoutResponse(logoutResponse);
 	}
+
+	public static OIOLogoutResponse fromPostRequest(HttpServletRequest request) {
+        BasicSAMLMessageContext<LogoutResponse, ?, ?> messageContext = new BasicSAMLMessageContext<LogoutResponse, SAMLObject, SAMLObject>();
+        messageContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
+
+        try {
+        	HTTPPostDecoder decoder = new HTTPPostDecoder();
+            decoder.decode(messageContext);
+        } catch (MessageDecodingException e) {
+            throw new WrappedException(Layer.CLIENT, e);
+        } catch (SecurityException e) {
+            throw new WrappedException(Layer.CLIENT, e);
+        }
+        
+		LogoutResponse logoutResponse = messageContext.getInboundSAMLMessage();
+		OIOLogoutResponse res = new OIOLogoutResponse(logoutResponse);
+		if (log.isDebugEnabled()) {
+			log.debug("Received response: " + res.toXML());
+		}
+		
+		return res;
+	}
 	
 	public static OIOLogoutResponse fromHttpRedirect(HttpServletRequest request) {
 		BasicSAMLMessageContext<LogoutResponse, ?, ?> messageContext = new BasicSAMLMessageContext<LogoutResponse, SAMLObject, SAMLObject>();
 		messageContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
-
 
 		try {
 			HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
@@ -117,9 +139,10 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		}
 
 		LogoutResponse logoutResponse = messageContext.getInboundSAMLMessage();
-		
 		OIOLogoutResponse res = new OIOLogoutResponse(logoutResponse);
-		if (log.isDebugEnabled()) log.debug("Received response: " + res.toXML());
+		if (log.isDebugEnabled()) {
+			log.debug("Received response: " + res.toXML());
+		}
 		
 		return res;
 	}
@@ -193,14 +216,34 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		for (PublicKey key : keys) {
 			if (Utils.verifySignature(signature, queryString, Constants.SAML_SAMLRESPONSE, key)) {
 				valid = true;
-			}			
+			}
 		}
 		if (!valid) {
 			throw new dk.itst.oiosaml.sp.model.validation.ValidationException("Invalid signature");
 		} else if (log.isDebugEnabled()) {
 			log.debug("...signature OK");
 		}
+	}
+	
+	/**
+	 * This method will validate the internal xmldsig signature, as well as run validate()
+	 */
+	public void validate(String requestId, String expectedDestination, Collection<PublicKey> keys) {
+		validate(requestId, expectedDestination);
+		
+		boolean valid = false;
+		for (PublicKey key : keys) {
+			if (verifySignature(key)) {
+				valid = true;
+			}
+		}
 
+		if (!valid) {
+			throw new dk.itst.oiosaml.sp.model.validation.ValidationException("Invalid signature");
+		}
+		else if (log.isDebugEnabled()) {
+			log.debug("...signature OK");
+		}
 	}
 	
 	protected static class Encoder extends HTTPRedirectDeflateEncoder {

@@ -335,7 +335,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		}
 		
 		if(enablePostSLO) {
-            spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPPost", null, SAMLConstants.SAML2_POST_BINDING_URI));
+            spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPPost", baseUrl + "/LogoutServiceHTTPRedirectResponse", SAMLConstants.SAML2_POST_BINDING_URI));
 		}
 		
 		if (enableArtifact) {
