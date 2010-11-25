@@ -136,7 +136,7 @@ public class SPMetadata {
 
     /**
 	 * 
-	 * @return The response location (URL) of {@link SingleSignOnService} at the
+	 * @return The response location (URL) of {@link SingleLogoutService} at the
 	 *         service provider for HTTP-Redirect
 	 */
     public  String getSingleLogoutServiceHTTPRedirectResponseLocation() {
@@ -150,7 +150,7 @@ public class SPMetadata {
     
     /**
 	 * 
-	 * @return The location (URL) of {@link SingleSignOnService} at the service provider for SOAP
+	 * @return The location (URL) of {@link SingleLogoutService} at the service provider for SOAP
 	 */
     public  String getSingleLogoutServiceSOAPLocation() {
     	for (SingleLogoutService singleLogoutService : spSSODescriptor.getSingleLogoutServices()) {
@@ -161,6 +161,32 @@ public class SPMetadata {
     	return null;
     }
 
+    /**
+     * 
+     * @return The location (URL) of {@link SingleLogoutService} at the service provider for POST
+     */
+    public  String getSingleLogoutServiceHTTPPostLocation() {
+        for (SingleLogoutService singleLogoutService : spSSODescriptor.getSingleLogoutServices()) {
+            if (SAMLConstants.SAML2_POST_BINDING_URI.equals(singleLogoutService.getBinding())) {
+                return singleLogoutService.getLocation();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * @return The response location (URL) of {@link SingleLogoutService} at the
+     *         service provider for POST
+     */
+    public  String getSingleLogoutServiceHTTPPostResponseLocation() {
+        for (SingleLogoutService singleLogoutService : spSSODescriptor.getSingleLogoutServices()) {
+            if (SAMLConstants.SAML2_POST_BINDING_URI.equals(singleLogoutService.getBinding())) {
+                return singleLogoutService.getResponseLocation();
+            }
+        }
+        return null;
+    }
     /**
      * Get a string representation of the signed metadata.
      * 

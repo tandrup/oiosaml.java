@@ -125,7 +125,11 @@ public abstract class OIORequest extends OIOSamlObject {
 		return request.getIssuer() != null ? request.getIssuer().getValue() : null;
 	}
 	
-	protected class Encoder extends HTTPRedirectDeflateEncoder {
+    public String getDestination() {
+        return request.getDestination();
+    }
+
+    protected class Encoder extends HTTPRedirectDeflateEncoder {
 		public String buildRedirectURL(Credential signingCredential, String relayState) throws MessageEncodingException {
 			SAMLMessageContext<?, RequestAbstractType, ?> messageContext = new BasicSAMLMessageContext<SAMLObject, RequestAbstractType, SAMLObject>();
 			// Build the parameters for the request
@@ -150,10 +154,6 @@ public abstract class OIORequest extends OIOSamlObject {
             String encoded = Base64.encodeBytes(bytesOut.toByteArray(), Base64.DONT_BREAK_LINES);
 			return super.buildRedirectURL(messageContext, request.getDestination(), encoded);
 		}
-	}
-
-	public String getDestination() {
-		return request.getDestination();
 	}
 
 }

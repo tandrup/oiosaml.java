@@ -37,6 +37,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.SAMLObject;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
+import org.opensaml.saml2.binding.decoding.HTTPPostDecoder;
 import org.opensaml.saml2.binding.decoding.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.NameID;
@@ -56,6 +57,7 @@ import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
@@ -76,9 +78,7 @@ public class OIOLogoutRequest extends OIORequest {
 	 * @throws WrappedException If the extraction fails.
 	 */
 	public static OIOLogoutRequest fromRedirectRequest(HttpServletRequest request) {
-		// Unpack the <LogoutRequest> from the request
-		BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = new BasicSAMLMessageContext<LogoutRequest, SAMLObject, SAMLObject>();
-		messageContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
+		BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = getMessageContextFromRequest(request);
 
 		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
 
@@ -89,8 +89,33 @@ public class OIOLogoutRequest extends OIORequest {
 		} catch (SecurityException e) {
 			throw new WrappedException(Layer.CLIENT, e);
 		}
+		
 		return new OIOLogoutRequest(messageContext.getInboundSAMLMessage());
 	}
+	
+	public static OIOLogoutRequest fromPostRequest(HttpServletRequest request) {
+        BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = getMessageContextFromRequest(request);
+
+        HTTPPostDecoder decoder = new HTTPPostDecoder();
+        
+        try {
+            decoder.decode(messageContext);
+        } catch (MessageDecodingException e) {
+            throw new WrappedException(Layer.CLIENT, e);
+        } catch (SecurityException e) {
+            throw new WrappedException(Layer.CLIENT, e);
+        }
+        
+        return new OIOLogoutRequest(messageContext.getInboundSAMLMessage());
+	}
+
+    private static BasicSAMLMessageContext<LogoutRequest, ?, ?> getMessageContextFromRequest(HttpServletRequest request) {
+        // Unpack the <LogoutRequest> from the request
+        BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = new BasicSAMLMessageContext<LogoutRequest, SAMLObject, SAMLObject>();
+        messageContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
+        return messageContext;
+    }
+	
 
 	/**
 	 * Get session index for a LogoutRequest.
@@ -143,7 +168,7 @@ public class OIOLogoutRequest extends OIORequest {
 		}
 		if (!errors.isEmpty()) {
 			throw new LogoutRequestValidationException(errors);
-		}
+		} 
 	}
 
 	/**
@@ -161,9 +186,7 @@ public class OIOLogoutRequest extends OIORequest {
 		logoutRequest.addNamespace(OIOSAMLConstants.SAML20_NAMESPACE);
 		logoutRequest.setDestination(logoutServiceLocation);
 		logoutRequest.setReason("urn:oasis:names:tc:SAML:2.0:logout:user");
-
 		logoutRequest.setIssuer(SAMLUtil.createIssuer(issuerEntityId));
-
 
 		OIOAssertion assertion = handler.getAssertion(session.getId());
 		if (assertion != null) {
@@ -176,11 +199,13 @@ public class OIOLogoutRequest extends OIORequest {
 		}
 
 		try {
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("Validate the logoutRequest...");
+			}
 			logoutRequest.validate(true);
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("...OK");
+			}
 		} catch (ValidationException e) {
 			throw new WrappedException(Layer.CLIENT, e);
 		}
@@ -195,7 +220,7 @@ public class OIOLogoutRequest extends OIORequest {
 	 * The url will be signed and formatted correctly according to the HTTP Redirect SAML binding.
 	 *
 	 * @param signingCredential Credential to use for signing the url.
-	 * @return A URL containing an &lt;LogoutRequest&gt; for the current user.
+	 * @return A URL containing a &lt;LogoutRequest&gt; for the current user.
 	 */
 	public String getRedirectRequestURL(Credential signingCredential) {
 		Encoder enc = new Encoder();
@@ -206,8 +231,8 @@ public class OIOLogoutRequest extends OIORequest {
 			throw new WrappedException(Layer.CLIENT, e);
 		}
 	}
-
-	/**
+	
+    /**
 	 * Set the logout reason. Defaults to urn:oasis:names:tc:SAML:2.0:logout:user.
 	 */
 	public void setReason(String reason) {

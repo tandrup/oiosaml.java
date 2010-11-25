@@ -64,7 +64,7 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 		String relayState = request.getParameter(Constants.SAML_RELAYSTATE);
 		String sigAlg = request.getParameter(Constants.SAML_SIGALG);
 		String sig = request.getParameter(Constants.SAML_SIGNATURE);
-
+		
 		if (log.isDebugEnabled()) {
 			log.debug("samlRequest...:" + samlRequest);
 			log.debug("relayState....:" + relayState);
@@ -111,9 +111,11 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 				statusCode = StatusCode.AUTHN_FAILED_URI;
 			}
 
-			if (log.isDebugEnabled()) log.debug("Logout status: " + statusCode + ", message: " + consent);
-			// Returning.....
-
+			if (log.isDebugEnabled()) {
+				log.debug("Logout status: " + statusCode + ", message: " + consent);
+			}
+			
+			// returning...
 			OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
 			String url = res.getRedirectURL(ctx.getCredential(), relayState);
 			
@@ -122,12 +124,81 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 			if (log.isDebugEnabled())
 				log.debug("sendRedirect to..:" + url);
 			ctx.getResponse().sendRedirect(url);
-			return;
 		}
 	}
 
 	public void handlePost(RequestContext ctx) throws ServletException, IOException {
-		throw new UnsupportedOperationException();
+        HttpServletRequest request = ctx.getRequest();
+        HttpSession session = ctx.getSession();
+
+        String samlRequest = request.getParameter(Constants.SAML_SAMLREQUEST);
+        String relayState = request.getParameter(Constants.SAML_RELAYSTATE);
+        String sigAlg = request.getParameter(Constants.SAML_SIGALG);
+        String sig = request.getParameter(Constants.SAML_SIGNATURE);
+
+        if (log.isDebugEnabled()) {
+            log.debug("samlRequest...:" + samlRequest);
+            log.debug("relayState....:" + relayState);
+            log.debug("sigAlg........:" + sigAlg);
+            log.debug("signature.....:" + sig);
+        }
+
+        OIOLogoutRequest logoutRequest = OIOLogoutRequest.fromPostRequest(request);
+        if (log.isDebugEnabled()) {
+            log.debug("Got InboundSAMLMessage..:" + logoutRequest.toXML());
+        }
+        
+        Audit.log(Operation.LOGOUTREQUEST, false, logoutRequest.getID(), logoutRequest.toXML());
+
+        String statusCode = StatusCode.SUCCESS_URI;
+        String consent = null;
+
+        OIOAssertion assertion = ctx.getSessionHandler().getAssertion(session.getId());
+        String idpEntityId = null;
+        if (assertion != null) {
+            idpEntityId = assertion.getIssuer();
+        }
+        if (idpEntityId == null) {
+            log.warn("LogoutRequest received but user is not logged in");
+            idpEntityId = logoutRequest.getIssuer();
+        }
+        if (idpEntityId == null) {
+            throw new RuntimeException("User is not logged in, and there is no Issuer in the LogoutRequest. Unable to continue.");
+        }
+        else {
+            Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
+
+            try {
+                logoutRequest.validateRequest(sig, request.getQueryString(), metadata.getPublicKeys(), ctx.getSpMetadata().getSingleLogoutServiceHTTPPostLocation(), metadata.getEntityID());
+
+                // Logging out
+                if (assertion != null) {
+                    log.info("Logging user out via SLO HTTP POST: " + assertion.getSubjectNameIDValue());
+                } else {
+                    log.info("Logging user out via SLO HTTP POST without active session");
+                }
+                ctx.getSessionHandler().logOut(session);
+                invokeAuthenticationHandler(ctx);
+            } catch (LogoutRequestValidationException e1) {
+                consent = e1.getMessage();
+                statusCode = StatusCode.AUTHN_FAILED_URI;
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Logout status: " + statusCode + ", message: " + consent);
+            }
+
+            // respond with a http-redirect. This will not become a problem, since we are switching between redirect and post,
+            // so the browser should not reach the limit on the amount of redirects in a row
+			OIOLogoutResponse res = OIOLogoutResponse.fromRequest(logoutRequest, statusCode, consent, ctx.getSpMetadata().getEntityID(), metadata.getSingleLogoutServiceResponseLocation());
+			String url = res.getRedirectURL(ctx.getCredential(), relayState);
+			
+			Audit.log(Operation.LOGOUTRESPONSE, true, res.getID(), res.toXML());
+
+			if (log.isDebugEnabled())
+				log.debug("sendRedirect to..:" + url);
+			ctx.getResponse().sendRedirect(url);
+        }
 	}
 	
 	private void invokeAuthenticationHandler(RequestContext ctx) {

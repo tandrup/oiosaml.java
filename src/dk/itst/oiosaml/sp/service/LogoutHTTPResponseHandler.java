@@ -52,7 +52,6 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 	 * Receive a &lt;LogoutResponse&gt;
 	 */
 	public void handleGet(RequestContext ctx) throws ServletException, IOException {
-
 		HttpServletRequest request = ctx.getRequest();
 		HttpSession session = ctx.getSession();
 		if (log.isDebugEnabled()) {
@@ -88,8 +87,33 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 	}
 
 	public void handlePost(RequestContext ctx) throws ServletException, IOException {
-		throw new UnsupportedOperationException();
-	}
-	
+		HttpServletRequest request = ctx.getRequest();
+		HttpSession session = ctx.getSession();
 
+		if (log.isDebugEnabled()) {
+			log.debug("samlResponse...:" + request.getParameter(Constants.SAML_SAMLRESPONSE));
+		}
+
+		OIOLogoutResponse logoutResponse = OIOLogoutResponse.fromPostRequest(request);
+
+		Audit.log(Operation.LOGOUTREQUEST, false, logoutResponse.getInResponseTo(), logoutResponse.toXML());
+
+		String idpEntityId = ctx.getSessionHandler().removeEntityIdForRequest(logoutResponse.getInResponseTo());
+		Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
+
+		logoutResponse.validate(null, ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectResponseLocation(), metadata.getPublicKeys());
+
+		ctx.getSessionHandler().logOut(session);
+		
+		Audit.log(Operation.LOGOUT, null);
+
+		String homeUrl = ctx.getConfiguration().getString(Constants.PROP_HOME);
+		if (log.isDebugEnabled()) {
+			log.debug("sendRedirect to..:" + homeUrl);
+		}
+		if (homeUrl == null) homeUrl = request.getContextPath();
+		
+		// Go to the default page after logout
+		ctx.getResponse().sendRedirect(homeUrl);
+	}
 }
