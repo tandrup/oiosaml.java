@@ -59,12 +59,12 @@ public class DevelModeImpl implements DevelMode {
 
 	public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain fc, Configuration conf) throws IOException, ServletException {
 
+	    // Inserted to avoid loginpage when a samlhandler is requested in develmode
         if (req.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
             log.debug("Develmode: Request to SAML servlet, access granted");
             fc.doFilter(req, res);
             return;
         }
-	    
 	    
 	    UserAssertionHolder.set(null);
 		UserAssertion ua = (UserAssertion) req.getSession().getAttribute(Constants.SESSION_USER_ASSERTION);

@@ -68,19 +68,20 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		UserAssertionHolder.set(null);
 	}
 	
-	@Ignore @Test
+	@Test
 	public void testNotConfigured() throws Exception {
 		expectNotLoggedIn();
 		final StringWriter sw = new StringWriter();
 		context.checking(new Expectations() {{
 			one(res).setStatus(500);
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
+	        one(req).getServletPath(); will(returnValue("/Test"));
 		}});
 		expectCacheHeaders();
 		dmi.doFilter(req, res, chain, cfg);
 	}
 	
-    @Ignore @Test
+    @Test
 	public void testOneUserNoInteractions() throws Exception {
 		expectNotLoggedIn();
 		
@@ -97,7 +98,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		assertEquals(0, ua.getAllAttributes().size());
 	}
 	
-    @Ignore @Test
+    @Test
 	public void testUserAttributes() throws Exception {
 		expectNotLoggedIn();
 		conf.put("oiosaml-sp.develmode.users", "test");
@@ -122,7 +123,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		assertEquals("value2", attr.getValues().get(1));
 	}
 
-    @Ignore @Test
+    @Test
 	public void multipleUsernamesMustInteract() throws Exception {
 		expectNotLoggedIn();
 		
@@ -133,6 +134,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 			one(req).getParameter("__oiosaml_devel"); will(returnValue(null));
 			one(res).getWriter(); will(returnValue(new PrintWriter(sw)));
 			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>()));
+	        one(req).getServletPath(); will(returnValue("/Test"));
 		}});
 		expectCacheHeaders();
 		dmi.doFilter(req, res, chain, cfg);
@@ -140,7 +142,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		assertNull(UserAssertionHolder.get());
 	}
 	
-    @Ignore @Test
+    @Test
 	public void noInteractionsIfUsernameSelected() throws Exception {
 		expectNotLoggedIn();
 		
@@ -152,13 +154,14 @@ public class DevelModeImplTest extends AbstractServiceTests {
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
 			one(res).sendRedirect("/test/more?test=1");
 			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>() {{ put("test", new String[] {"1"}); }}));
+	        one(req).getServletPath(); will(returnValue("/Test"));
 		}});
 		expectCacheHeaders();
 		
 		dmi.doFilter(req, res, chain, cfg);
 	}
 	
-    @Ignore @Test
+    @Test
 	public void filterIfSessionExists() throws Exception {
 		context.checking(new Expectations() {{
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(TestHelper.buildAssertion("test", "test")))));
@@ -173,6 +176,7 @@ public class DevelModeImplTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(chain).doFilter(with(any(HttpServletRequest.class)), with(equal(res)));
 			one(session).setAttribute(with(equal(Constants.SESSION_USER_ASSERTION)), with(any(UserAssertion.class)));
+			one(req).getServletPath(); will(returnValue("/Test"));
 		}});
 	}
 	
