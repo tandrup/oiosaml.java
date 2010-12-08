@@ -58,7 +58,15 @@ public class DevelModeImpl implements DevelMode {
 	private static final Logger log = Logger.getLogger(DevelModeImpl.class);
 
 	public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain fc, Configuration conf) throws IOException, ServletException {
-		UserAssertionHolder.set(null);
+
+        if (req.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
+            log.debug("Develmode: Request to SAML servlet, access granted");
+            fc.doFilter(req, res);
+            return;
+        }
+	    
+	    
+	    UserAssertionHolder.set(null);
 		UserAssertion ua = (UserAssertion) req.getSession().getAttribute(Constants.SESSION_USER_ASSERTION);
 		if (ua == null) {
 			String[] users = conf.getStringArray("oiosaml-sp.develmode.users");
