@@ -24,3 +24,18 @@ Building the project:
 When importing the project into Eclipse, remember to run gant build_everything
 to download the necessary jar files.
   
+
+Maven
+=====
+To build the project with maven, you will have to compile the following
+projects first, to ensure that your local maven repository contains the
+required dependencies
+
+mvn -f commons-ssl.pom clean install
+mvn -f xmltooling.pom clean install
+mvn -f opensaml.pom clean install
+mvn -f openws.pom clean install
+
+And then compile the main project as usual
+
+mvn clean install
