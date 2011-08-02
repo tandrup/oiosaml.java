@@ -32,6 +32,7 @@ import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.ws.soap.soap11.Body;
 import org.opensaml.ws.soap.soap11.Envelope;
+import org.opensaml.security.SAMLSignatureProfileValidator;
 import org.opensaml.xml.ElementExtensibleXMLObject;
 import org.opensaml.xml.Namespace;
 import org.opensaml.xml.XMLObject;
@@ -172,6 +173,18 @@ public class OIOSamlObject {
 			log.warn("No signature present in object " + obj);
 			return false;
 		}
+		
+		// verify signature element according to SAML profile
+		SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
+		try {
+			profileValidator.validate(signature);
+		}
+		catch (Exception e) {
+			log.warn("The signature does not meet the requirements indicated by the SAML profile of the XML signature", e);
+			return false;
+		}
+
+		// verify signature
 		BasicX509Credential credential = new BasicX509Credential();
 		credential.setPublicKey(publicKey);
 		SignatureValidator validator = new SignatureValidator(credential);
