@@ -7,10 +7,12 @@ import javax.xml.namespace.QName;
 
 import org.opensaml.common.SAMLObject;
 import org.opensaml.xml.Namespace;
+import org.opensaml.xml.NamespaceManager;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.IDIndex;
 import org.opensaml.xml.validation.ValidationException;
 import org.opensaml.xml.validation.Validator;
+import org.opensaml.xml.schema.XSBooleanValue;
 import org.w3c.dom.Element;
 
 public class AbstractStub implements SAMLObject {
@@ -113,4 +115,28 @@ public class AbstractStub implements SAMLObject {
 	public void setSchemaLocation(String arg0) {
 	}
 
+    public NamespaceManager getNamespaceManager() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Boolean isNil() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public XSBooleanValue isNilXSBoolean() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void setNil(Boolean arg0) {
+        // TODO Auto-generated method stub
+       
+    }
+
+    public void setNil(XSBooleanValue arg0) {
+        // TODO Auto-generated method stub
+       
+    }
 }
