@@ -101,7 +101,7 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 		String idpEntityId = ctx.getSessionHandler().removeEntityIdForRequest(logoutResponse.getInResponseTo());
 		Metadata metadata = ctx.getIdpMetadata().getMetadata(idpEntityId);
 
-		logoutResponse.validate(null, ctx.getSpMetadata().getSingleLogoutServiceHTTPRedirectResponseLocation(), metadata.getPublicKeys());
+		logoutResponse.validate(null, ctx.getSpMetadata().getSingleLogoutServiceHTTPPostResponseLocation(), metadata.getPublicKeys());
 
 		ctx.getSessionHandler().logOut(session);
 		
