@@ -181,4 +181,10 @@ public interface Constants {
 	 * Property controlling if the service is running in developer mode. 
 	 */
 	static final String PROP_DEVEL_MODE = "oiosaml-sp.develmode";
+	
+	/**
+	 * Property controlling if the service will show errormessages/stacktraces to the user
+	 * NOTE! Should always be false in production, to void security issues with XML Encryption
+	 */
+	static final String PROP_SHOW_ERROR = "oiosaml-sp.showerror";
 }

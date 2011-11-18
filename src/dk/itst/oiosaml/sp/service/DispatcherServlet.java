@@ -87,6 +87,7 @@ public class DispatcherServlet extends HttpServlet {
 		
 		servletContext = config.getServletContext();
 		initServlet();
+		
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
 		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -203,22 +204,42 @@ public class DispatcherServlet extends HttpServlet {
 		this.sessionHandlerFactory = sessionHandlerFactory;
 	}
 	
+	/* Generic error handling for SAML requests/responses - due to a security issue with XML Encryption,
+	 * all error messages are anonymized - so exception stacktraces and exception messages are no longer
+	 * shown to the user (unless configured to do so) - they are still auditlogged though.
+	 */
 	private void handleError(HttpServletRequest request, HttpServletResponse response, Exception e) throws ServletException, IOException {
+		String DEFAULT_MESSAGE = "Unable to validate SAML message!";
+
 		log.error("Unable to validate Response", e);
 
 		String err = null;
 		if (configuration != null) {
 			err = configuration.getString(Constants.PROP_ERROR_SERVLET, null);
 		}
+		
 		if (err != null) {
-			request.setAttribute(Constants.ATTRIBUTE_ERROR, e.getMessage());
-			request.setAttribute(Constants.ATTRIBUTE_EXCEPTION, e);
+			if (configuration.getBoolean(Constants.PROP_SHOW_ERROR, false)) {
+				request.setAttribute(Constants.ATTRIBUTE_ERROR, e.getMessage());
+				request.setAttribute(Constants.ATTRIBUTE_EXCEPTION, e);
+			}
+			else {
+				request.setAttribute(Constants.ATTRIBUTE_ERROR, DEFAULT_MESSAGE);
+				request.setAttribute(Constants.ATTRIBUTE_EXCEPTION, null);
+			}
 			request.getRequestDispatcher(err).forward(request, response);
 		} else {
 			VelocityContext ctx = new VelocityContext();
-			ctx.put(Constants.ATTRIBUTE_ERROR, e.getMessage());
-			ctx.put(Constants.ATTRIBUTE_EXCEPTION, e);
-			
+
+			if (configuration.getBoolean(Constants.PROP_SHOW_ERROR, false)) {
+				ctx.put(Constants.ATTRIBUTE_ERROR, e.getMessage());
+				ctx.put(Constants.ATTRIBUTE_EXCEPTION, e);
+			}
+			else {
+				ctx.put(Constants.ATTRIBUTE_ERROR, DEFAULT_MESSAGE);
+				ctx.put(Constants.ATTRIBUTE_EXCEPTION, null);
+			}
+
 			response.setContentType("text/html");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
