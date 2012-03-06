@@ -1,7 +1,5 @@
 package dk.itst.oiosaml.sp.service;
 
-import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +18,7 @@ import org.opensaml.xml.util.XMLHelper;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 	
@@ -103,11 +102,11 @@ public class LogoutHTTPResponseHandlerTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/"));
 			allowing(req).getQueryString(); will(returnValue(responseUrl.substring(responseUrl.indexOf('?') + 1)));
-			allowing(req).getParameter("SAMLResponse"); will(returnValue(URLDecoder.decode(getParameter("SAMLResponse", responseUrl), "UTF-8")));
+			allowing(req).getParameter("SAMLResponse"); will(returnValue(URLDecoder.decode(Utils.getParameter("SAMLResponse", responseUrl), "UTF-8")));
 			allowing(req).getParameter("SAMLRequest"); will(returnValue(null));
-			allowing(req).getParameter("RelayState"); will(returnValue(URLDecoder.decode(getParameter("RelayState", responseUrl), "UTF-8")));
-			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(getParameter("SigAlg", responseUrl), "UTF-8")));
-			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(getParameter("Signature", responseUrl), "UTF-8")));
+			allowing(req).getParameter("RelayState"); will(returnValue(URLDecoder.decode(Utils.getParameter("RelayState", responseUrl), "UTF-8")));
+			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(Utils.getParameter("SigAlg", responseUrl), "UTF-8")));
+			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(Utils.getParameter("Signature", responseUrl), "UTF-8")));
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(requestUrl)));
 		}});

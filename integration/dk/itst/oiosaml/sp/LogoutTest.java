@@ -59,12 +59,12 @@ public class LogoutTest extends IntegrationTests {
 		assertNotNull(handler.url);
 		assertTrue(handler.url.toString().startsWith(idpMetadata.getFirstMetadata().getSingleSignonServiceLocation(SAMLConstants.SAML2_REDIRECT_BINDING_URI)));
 		
-		Document document = TestHelper.parseBase64Encoded(TestHelper.getParameter("SAMLRequest", logoutRedirect));
+		Document document = TestHelper.parseBase64Encoded(Utils.getParameter("SAMLRequest", logoutRedirect));
 		LogoutRequest lr = (LogoutRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(document.getDocumentElement()).unmarshall(document.getDocumentElement());
 		assertEquals("joetest", lr.getNameID().getValue());
 		
 		OIOLogoutResponse response = OIOLogoutResponse.fromRequest(new OIOLogoutRequest(lr), StatusCode.SUCCESS_URI, null, idpMetadata.getFirstMetadata().getEntityID(), spMetadata.getSingleLogoutServiceHTTPRedirectResponseLocation());
-		String redirectURL = response.getRedirectURL(credential, TestHelper.getParameter("RelayState", handler.url.toString()));
+		String redirectURL = response.getRedirectURL(credential, Utils.getParameter("RelayState", handler.url.toString()));
 		
 		Page responsePage = client.getPage(redirectURL);
 		assertEquals(302, responsePage.getWebResponse().getStatusCode());

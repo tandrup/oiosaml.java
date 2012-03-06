@@ -62,6 +62,7 @@ import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 public class LoginHandlerTest extends AbstractServiceTests {
@@ -172,7 +173,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 			public void handle(HttpServletRequest req, HttpServletResponse response, Credential credential, OIOAuthnRequest authnRequest) throws IOException, ServletException {
 				String url = authnRequest.getRedirectURL(credential);
 				try {
-					Document doc = TestHelper.parseBase64Encoded(TestHelper.getParameter("SAMLRequest", url));
+					Document doc = TestHelper.parseBase64Encoded(Utils.getParameter("SAMLRequest", url));
 					AuthnRequest ar = (AuthnRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
 					
 					assertNotNull(ar.getNameIDPolicy());

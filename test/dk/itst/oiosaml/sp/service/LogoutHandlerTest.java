@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 
 import dk.itst.oiosaml.sp.service.LogoutHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class LogoutHandlerTest extends AbstractServiceTests {
 
@@ -45,7 +46,7 @@ public class LogoutHandlerTest extends AbstractServiceTests {
 		
 		assertTrue(val.getValue().contains("?SAMLRequest"));
 		
-		String req = TestHelper.getParameter("SAMLRequest", val.getValue());
+		String req = Utils.getParameter("SAMLRequest", val.getValue());
 		Document doc = TestHelper.parseBase64Encoded(req, true);
 		LogoutRequest lr = (LogoutRequest) org.opensaml.xml.Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
 		

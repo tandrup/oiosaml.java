@@ -80,14 +80,14 @@ public class TestHelper {
 
 	public static void validateUrlSignature(Credential cred, String url, String req, String type) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 //		check the signature
-		String signatureAlg = getParameter("SigAlg", url);
-		String signature = getParameter("Signature", url);
+		String signatureAlg = Utils.getParameter("SigAlg", url);
+		String signature = Utils.getParameter("Signature", url);
 		assertNotNull(signature);
 		assertEquals("http://www.w3.org/2000/09/xmldsig#rsa-sha1", URLDecoder.decode(signatureAlg, "UTF-8"));
 
 		String signed = type + "=" + req;
-		if (getParameter("RelayState", url) != null) {
-			signed += "&RelayState=" + getParameter("RelayState", url);
+		if (Utils.getParameter("RelayState", url) != null) {
+			signed += "&RelayState=" + Utils.getParameter("RelayState", url);
 		}
 		signed += "&SigAlg=" + signatureAlg;
 		Signature sig = Signature.getInstance("SHA1withRSA");
@@ -126,19 +126,6 @@ public class TestHelper {
         	throw new RuntimeException(e);
         }
 		return credential;
-	}
-
-	public static String getParameter(String name, String url)  {
-		int qpos = url.indexOf('?') + 1;
-		String[] parts = url.substring(qpos).split("&");
-		for (String part : parts) {
-			int pos = part.indexOf('=');
-			String key = part.substring(0, pos);
-			if (name.equals(key)) {
-				return part.substring(pos + 1);
-			}
-		}
-		return null;
 	}
 
 	public static String signObject(SignableSAMLObject obj, Credential credential) throws MarshallingException, org.opensaml.xml.signature.SignatureException {

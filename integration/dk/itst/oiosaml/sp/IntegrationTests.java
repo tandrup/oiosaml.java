@@ -66,6 +66,7 @@ import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 
 public abstract class IntegrationTests {
@@ -110,6 +111,7 @@ public abstract class IntegrationTests {
 		fos.close();
 		
 		Properties props = new Properties();
+        props.setProperty(Constants.PROP_SHOW_ERROR, "true");
 		props.setProperty(Constants.PROP_CERTIFICATE_LOCATION, "keystore");
 		props.setProperty(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		props.setProperty(Constants.PROP_LOG_FILE_NAME, "oiosaml-sp.log4j.xml");
@@ -169,7 +171,7 @@ public abstract class IntegrationTests {
 	}
 
 	protected WebRequestSettings buildResponse(String status, int assuranceLevel) throws Exception {
-		Document document = TestHelper.parseBase64Encoded(TestHelper.getParameter("SAMLRequest", handler.url.toString()));
+		Document document = TestHelper.parseBase64Encoded(Utils.getParameter("SAMLRequest", handler.url.toString()));
 		AuthnRequest ar = (AuthnRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(document.getDocumentElement()).unmarshall(document.getDocumentElement());
 		
 		Assertion assertion = TestHelper.buildAssertion(spMetadata.getDefaultAssertionConsumerService().getLocation(), spMetadata.getEntityID());
@@ -186,7 +188,7 @@ public abstract class IntegrationTests {
 		WebRequestSettings req = new WebRequestSettings(new URL(BASE + "/saml/SAMLAssertionConsumer"), SubmitMethod.POST);
 		req.setRequestParameters(Arrays.asList(
 				new NameValuePair("SAMLResponse", response.toBase64()),
-				new NameValuePair("RelayState", TestHelper.getParameter("RelayState", handler.url.toString()))));
+				new NameValuePair("RelayState", Utils.getParameter("RelayState", handler.url.toString()))));
 		return req;
 	}
 

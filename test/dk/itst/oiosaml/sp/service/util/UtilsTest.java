@@ -1,6 +1,5 @@
 package dk.itst.oiosaml.sp.service.util;
 
-import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -137,14 +136,15 @@ public class UtilsTest extends AbstractServiceTests {
 		OIOAuthnRequest request = OIOAuthnRequest.buildAuthnRequest("http://ssoServiceLocation", "spEntityId", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, handler, "state", "http://localhost");
 		String url = request.getRedirectURL(credential);
 		credential.getPublicKey().getEncoded();
-		String signature = getParameter("Signature", url);
+		String signature = Utils.getParameter("Signature", url);
 		
-       byte[] data = url.substring(url. indexOf(Constants.SAML_SAMLREQUEST), url.lastIndexOf("&")).getBytes();
-
-       final PublicKey key = credential.getPublicKey();
-       byte[] sig = Base64.decode(URLDecoder.decode(signature, "UTF-8"));
+        String signedQueryString = Utils.parseSignedQueryString(url, Constants.SAML_SAMLREQUEST);
+        byte[] data = signedQueryString.getBytes();
+        
+        final PublicKey key = credential.getPublicKey();
+        byte[] sig = Base64.decode(URLDecoder.decode(signature, "UTF-8"));
 		assertTrue(Utils.verifySignature(data, key, sig));
-		
+
 		assertFalse(Utils.verifySignature(new byte[] {}, key, sig));
 		assertFalse(Utils.verifySignature(data, key, new byte[] {}));
 	}

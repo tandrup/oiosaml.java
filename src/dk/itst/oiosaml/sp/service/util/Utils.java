@@ -94,7 +94,7 @@ public final class Utils {
 	 * @return true if the queryString in the request has been signed correctly
 	 *         by the Login Site
 	 */
-	public static boolean verifySignature(String signature, String queryString, String firstQueryParameter, PublicKey publicKey) {
+	public static boolean verifySignature(String signature, String queryString, String queryParameter, PublicKey publicKey) {
 		// Verifying the signature....
 		if (log.isDebugEnabled())
 			log.debug("signature..:" + signature);
@@ -103,8 +103,10 @@ public final class Utils {
 		}
 
 		byte[] buffer = Base64.decode(signature);
+		
+		String data = parseSignedQueryString(queryString, queryParameter);
 
-        String data = queryString.substring(queryString.indexOf(firstQueryParameter), queryString.lastIndexOf("&"));
+//        String data = queryString.substring(queryString.indexOf(firstQueryParameter), queryString.lastIndexOf("&"));
 		if (log.isDebugEnabled())
 			log.debug("data.......:" + data);
 
@@ -114,7 +116,7 @@ public final class Utils {
 		return verifySignature(data.getBytes(), publicKey, buffer);
 	}
 
-	/**
+    /**
 	 * Check if a SAML HTTP Redirect has been signed by the expected certificate
 	 * 
 	 * @param data
@@ -301,4 +303,44 @@ public final class Utils {
 		
 		return handlers;
 	}
+	
+    public static String parseSignedQueryString(String queryString, String queryParameter) {
+        StringBuilder s = new StringBuilder();
+        
+        String samlRequestOrResponse = Utils.getParameter(queryParameter, queryString);
+        String relayState = Utils.getParameter(Constants.SAML_RELAYSTATE, queryString);
+        String sigAlg = Utils.getParameter(Constants.SAML_SIGALG, queryString);
+
+        // see order in http://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf line 601->605
+        s.append(queryParameter);
+        s.append("=");
+        s.append(samlRequestOrResponse);
+        if(relayState != null) {
+            s.append("&");
+            s.append(Constants.SAML_RELAYSTATE);
+            s.append("=");
+            s.append(relayState);
+        }
+        s.append("&");
+        s.append(Constants.SAML_SIGALG);
+        s.append("=");
+        s.append(sigAlg);
+
+        return s.toString();
+    }
+
+    
+    public static String getParameter(String name, String url) {
+        int qpos = url.indexOf('?') + 1;
+        String[] parts = url.substring(qpos).split("&");
+        for (String part : parts) {
+            int pos = part.indexOf('=');
+            String key = part.substring(0, pos);
+            if (name.equals(key)) {
+                return part.substring(pos + 1);
+            }
+        }
+        return null;
+    }
+
 }

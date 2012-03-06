@@ -23,7 +23,6 @@
  */
 package dk.itst.oiosaml.sp.model;
 
-import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
 import static dk.itst.oiosaml.sp.service.TestHelper.validateUrlSignature;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -54,6 +53,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.NameIDFormat;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 public class OIOAuthnRequestTest extends AbstractServiceTests {
@@ -65,9 +65,9 @@ public class OIOAuthnRequestTest extends AbstractServiceTests {
 		
 		URI u = new URI(url);
 		assertEquals("ssoServiceLocation", u.getHost());
-		assertNotNull(getParameter("RelayState", url));
+		assertNotNull(Utils.getParameter("RelayState", url));
 
-		String req = getParameter("SAMLRequest", url);
+		String req = Utils.getParameter("SAMLRequest", url);
 		assertNotNull(req);
 
 		// check the request document

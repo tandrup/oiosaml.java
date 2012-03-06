@@ -51,6 +51,9 @@
         
         <exclude org="avalon-framework" />
         <exclude org="commons-beanutils" />
+        <exclude org="javax.jms" />
+        <exclude org="com.sun.jmx" />
+        <exclude org="com.sun.jdmk" />
     </dependencies>
 </ivy-module>
 

@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 
 public class RedirectBindingHandlerTest extends AbstractServiceTests {
@@ -38,7 +39,7 @@ public class RedirectBindingHandlerTest extends AbstractServiceTests {
 		rh.handle(req, res, credential, request);
 		
 		String url = sw.toString().substring(sw.toString().indexOf("url=") + 4, sw.toString().indexOf(">", sw.toString().indexOf("url=")) - 1);
-		String r = TestHelper.getParameter("SAMLRequest", url);
+		String r = Utils.getParameter("SAMLRequest", url);
 		TestHelper.validateUrlSignature(credential, url, r, "SAMLRequest");
 		
 		Document document = TestHelper.parseBase64Encoded(r);

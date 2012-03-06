@@ -1,6 +1,5 @@
 package dk.itst.oiosaml.sp.model;
 
-import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
 import static dk.itst.oiosaml.sp.service.TestHelper.parseBase64Encoded;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,6 +23,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
 public class OIOLogoutRequestTest extends AbstractServiceTests {
@@ -62,7 +62,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		String issuer = "entityId";
 		String url = OIOLogoutRequest.buildLogoutRequest(session, location, issuer, handler).getRedirectRequestURL(credential);
 		
-		Document doc = parseBase64Encoded(getParameter("SAMLRequest", url));
+		Document doc = parseBase64Encoded(Utils.getParameter("SAMLRequest", url));
 		LogoutRequest lr = (LogoutRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
 		lh = new OIOLogoutRequest(lr);
 		
@@ -74,14 +74,14 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		}
 		
 		try {
-			lh.validateRequest(URLDecoder.decode(getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(), "dest", "issuer");
+			lh.validateRequest(URLDecoder.decode(Utils.getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(), "dest", "issuer");
 			fail();
 		} catch (LogoutRequestValidationException e) {
 			assertEquals(2, e.getErrors().size());
 		}
 		
 		try {
-			lh.validateRequest(URLDecoder.decode(getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(),location, "issuer");
+			lh.validateRequest(URLDecoder.decode(Utils.getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(),location, "issuer");
 			fail();
 		} catch (LogoutRequestValidationException e) {
 			assertEquals(1, e.getErrors().size());
@@ -89,14 +89,14 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		
 		lr.setNotOnOrAfter(new DateTime().minusMinutes(1));
 		try {
-			lh.validateRequest(URLDecoder.decode(getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(),location, lr.getIssuer().getValue());
+			lh.validateRequest(URLDecoder.decode(Utils.getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(),location, lr.getIssuer().getValue());
 			fail("message is expired");
 		} catch (LogoutRequestValidationException e) {
 			assertEquals(1, e.getErrors().size());
 		}
 
 		lr.setNotOnOrAfter(new DateTime().plusHours(1));
-		lh.validateRequest(URLDecoder.decode(getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(),location, issuer);
+		lh.validateRequest(URLDecoder.decode(Utils.getParameter("Signature", url), "UTF-8"), url.substring(url.indexOf('?') + 1), credential.getPublicKey(),location, issuer);
 	}
 
 	@Test
@@ -106,7 +106,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 		Credential cred = TestHelper.getCredential();
 		String url = lh.getRedirectRequestURL(cred);
 		
-		String req = TestHelper.getParameter(Constants.SAML_SAMLREQUEST, url);
+		String req = Utils.getParameter(Constants.SAML_SAMLREQUEST, url);
 		
 		TestHelper.validateUrlSignature(cred, url, req, Constants.SAML_SAMLREQUEST);
 		
@@ -126,7 +126,7 @@ public class OIOLogoutRequestTest extends AbstractServiceTests {
 
 		Credential cred = TestHelper.getCredential();
 		String url = lr.getRedirectRequestURL(cred);
-		String req = TestHelper.getParameter(Constants.SAML_SAMLREQUEST, url);
+		String req = Utils.getParameter(Constants.SAML_SAMLREQUEST, url);
 		Document document = TestHelper.parseBase64Encoded(req);
 		LogoutRequest logoutRequest = (LogoutRequest) Configuration.getUnmarshallerFactory().getUnmarshaller(document.getDocumentElement()).unmarshall(document.getDocumentElement());
 

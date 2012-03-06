@@ -1,6 +1,5 @@
 package dk.itst.oiosaml.sp.service;
 
-import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
 import static dk.itst.oiosaml.sp.service.TestHelper.parseBase64Encoded;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +30,7 @@ import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.service.LogoutServiceHTTPRedirectHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	
@@ -72,10 +72,10 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
-			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
+			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(Utils.getParameter("SAMLRequest", requestURL), "UTF-8")));
 			allowing(req).getParameter("RelayState"); will(returnValue(null));
-			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(getParameter("SigAlg", requestURL), "UTF-8")));
-			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(getParameter("Signature", requestURL), "UTF-8")));
+			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(Utils.getParameter("SigAlg", requestURL), "UTF-8")));
+			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(Utils.getParameter("Signature", requestURL), "UTF-8")));
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectLocation())));
 			allowing(req).getQueryString(); will(returnValue(requestURL.substring(requestURL.indexOf('?') + 1)));
@@ -96,12 +96,12 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
-			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
+			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(Utils.getParameter("SAMLRequest", requestURL), "UTF-8")));
 			allowing(req).getParameter("RelayState"); will(returnValue(null));
-			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(getParameter("SigAlg", requestURL), "UTF-8")));
+			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(Utils.getParameter("SigAlg", requestURL), "UTF-8")));
 			
 			// destroy the signature value to make it fail
-			allowing(req).getParameter("Signature"); will(returnValue("test" + URLDecoder.decode(getParameter("Signature", requestURL), "UTF-8")));
+			allowing(req).getParameter("Signature"); will(returnValue("test" + URLDecoder.decode(Utils.getParameter("Signature", requestURL), "UTF-8")));
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectLocation())));
 			allowing(req).getQueryString(); will(returnValue(requestURL.substring(requestURL.indexOf('?') + 1)));
@@ -120,10 +120,10 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
-			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
+			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(Utils.getParameter("SAMLRequest", requestURL), "UTF-8")));
 			allowing(req).getParameter("RelayState"); will(returnValue(null));
-			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(getParameter("SigAlg", requestURL), "UTF-8")));
-			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(getParameter("Signature", requestURL), "UTF-8")));
+			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(Utils.getParameter("SigAlg", requestURL), "UTF-8")));
+			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(Utils.getParameter("Signature", requestURL), "UTF-8")));
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectLocation())));
 			allowing(req).getQueryString(); will(returnValue(requestURL.substring(requestURL.indexOf('?') + 1)));
@@ -138,10 +138,10 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 		final String requestURL = lr.getRedirectRequestURL(credential);
 		
 		context.checking(new Expectations() {{
-			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(getParameter("SAMLRequest", requestURL), "UTF-8")));
+			allowing(req).getParameter("SAMLRequest"); will(returnValue(URLDecoder.decode(Utils.getParameter("SAMLRequest", requestURL), "UTF-8")));
 			allowing(req).getParameter("RelayState"); will(returnValue(null));
-			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(getParameter("SigAlg", requestURL), "UTF-8")));
-			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(getParameter("Signature", requestURL), "UTF-8")));
+			allowing(req).getParameter("SigAlg"); will(returnValue(URLDecoder.decode(Utils.getParameter("SigAlg", requestURL), "UTF-8")));
+			allowing(req).getParameter("Signature"); will(returnValue(URLDecoder.decode(Utils.getParameter("Signature", requestURL), "UTF-8")));
 			allowing(req).getMethod(); will(returnValue("GET"));
 			allowing(req).getRequestURL(); will(returnValue(new StringBuffer(spMetadata.getSingleLogoutServiceHTTPRedirectLocation())));
 			allowing(req).getQueryString(); will(returnValue(requestURL.substring(requestURL.indexOf('?') + 1)));
@@ -153,7 +153,7 @@ public class LogoutServiceHTTPRedirectHandlerTest extends AbstractServiceTests {
 	private LogoutResponse parseResponse() throws ParserConfigurationException,
 			SAXException, IOException, UnsupportedEncodingException,
 			UnmarshallingException {
-		Document doc = parseBase64Encoded(getParameter("SAMLResponse", urlExtractor.getValue()));
+		Document doc = parseBase64Encoded(Utils.getParameter("SAMLResponse", urlExtractor.getValue()));
 		LogoutResponse lr = (LogoutResponse) Configuration.getUnmarshallerFactory().getUnmarshaller(doc.getDocumentElement()).unmarshall(doc.getDocumentElement());
 		return lr;
 	}

@@ -1,7 +1,6 @@
 package dk.itst.oiosaml.sp.model;
 
 import static dk.itst.oiosaml.sp.service.TestHelper.getCredential;
-import static dk.itst.oiosaml.sp.service.TestHelper.getParameter;
 import static dk.itst.oiosaml.sp.service.TestHelper.parseBase64Encoded;
 import static dk.itst.oiosaml.sp.service.TestHelper.validateUrlSignature;
 import static org.junit.Assert.*;
@@ -23,6 +22,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.OIOLogoutRequest;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
+import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class OIOLogoutResponseTest extends AbstractServiceTests {
 	
@@ -64,7 +64,7 @@ public class OIOLogoutResponseTest extends AbstractServiceTests {
 		URI u = new URI(url);
 		assertEquals("destination", u.getHost());
 
-		String req = getParameter("SAMLResponse", url);
+		String req = Utils.getParameter("SAMLResponse", url);
 		assertNotNull(req);
 		
 		Document doc = parseBase64Encoded(req);
