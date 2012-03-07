@@ -26,6 +26,7 @@ import org.opensaml.xml.encryption.KeyEncryptionParameters;
 import org.opensaml.xml.security.SecurityTestHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.util.XMLHelper;
+import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
@@ -138,16 +139,18 @@ public class OIOResponseTest extends AbstractTests {
 	}
 	
 	
-	// TODO - When upgrading to opensaml 2.5.1 this happens:
-	// org.opensaml.xml.validation.ValidationException: SignableSAMLObject does not have a cached DOM Element.
 	@Test
-	@Ignore
 	public void validatePassiveAllowed() throws Exception {
 		srt.getAssertions().clear();
 		srt.setStatus(SAMLUtil.createStatus(StatusCode.RESPONDER_URI));
 		StatusCode code = SAMLUtil.buildXMLObject(StatusCode.class);
 		code.setValue(StatusCode.NO_PASSIVE_URI);
 		srt.getStatus().getStatusCode().setStatusCode(code);
+		
+		Element elm = SAMLUtil.marshallObject(srt);
+		srt.setDOM(elm);
+        OIOResponse oioResponse = new OIOResponse(srt);
+        oioResponse.sign(credential);
 
 		response.validateResponse(srt.getDestination(), cert, true);
 	}

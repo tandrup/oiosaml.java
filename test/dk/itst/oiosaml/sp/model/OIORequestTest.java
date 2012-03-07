@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.xml.security.credential.Credential;
+import org.w3c.dom.Element;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.AbstractTests;
@@ -28,6 +29,7 @@ public class OIORequestTest extends AbstractTests{
 		ar.getIssuer().setValue("issuerValue");
 		
 		this.request = new OIOAuthnRequest(ar, "state");
+		
 		credential = TestHelper.getCredential();
 
 		this.request.sign(credential);
@@ -73,15 +75,6 @@ public class OIORequestTest extends AbstractTests{
 		request.validateRequest(request.getIssuer(), "dest", credential.getPublicKey(), errors);
 		assertEquals(1, errors.size());
 
-	    // TODO - When upgrading to opensaml 2.5.1 this happens:
-	    // org.opensaml.xml.validation.ValidationException: SignableSAMLObject does not have a cached DOM Element.
-		/*
-		errors.clear();
-		ar.setIssuer(SAMLUtil.createIssuer("test"));
-		request.validateRequest("issuer", "dest", credential.getPublicKey(), errors);
-		assertEquals(2, errors.size());
-		*/
-		
 		errors.clear();
 		request.validateRequest("issuer", "dest", TestHelper.getCredential().getPublicKey(), errors);
 		assertEquals(3, errors.size());
@@ -91,4 +84,20 @@ public class OIORequestTest extends AbstractTests{
 		request.validateRequest("issuer", "dest", TestHelper.getCredential().getPublicKey(), errors);
 		assertEquals(2, errors.size());
 	}
+
+    @Test
+    public void testValidateRequestNemIssuer() throws Exception {
+        ArrayList<String> errors = new ArrayList<String>();
+
+        errors.clear();
+        ar.setIssuer(SAMLUtil.createIssuer("test"));
+        Element elm = SAMLUtil.marshallObject(ar);
+        ar.setDOM(elm);
+
+        OIOAuthnRequest oioAuthnRequest = new OIOAuthnRequest(ar, "state");
+        oioAuthnRequest.sign(credential);
+        
+        oioAuthnRequest.validateRequest("issuer", "dest", credential.getPublicKey(), errors);
+        assertEquals(2, errors.size());
+    }
 }
