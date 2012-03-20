@@ -64,6 +64,7 @@ import org.opensaml.saml2.metadata.ContactPerson;
 import org.opensaml.saml2.metadata.ContactPersonTypeEnumeration;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.security.SecurityHelper;
@@ -338,7 +339,11 @@ public class ConfigurationHandler implements SAMLHandler {
             spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPPost", baseUrl + "/LogoutServiceHTTPRedirectResponse", SAMLConstants.SAML2_POST_BINDING_URI));
 		}
 		
-		if (enableArtifact) {
+        NameIDFormat x509SubjectNameIDFormat = SAMLUtil.createNameIDFormat(OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
+        List<NameIDFormat> nameIDFormats = spDescriptor.getNameIDFormats();
+        nameIDFormats.add(x509SubjectNameIDFormat);
+
+        if (enableArtifact) {
 			spDescriptor.getArtifactResolutionServices().add(SAMLUtil.createArtifactResolutionService(baseUrl + "/SAMLAssertionConsumer"));
 		}
 		
@@ -362,6 +367,7 @@ public class ConfigurationHandler implements SAMLHandler {
 				OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME,
 				OIOSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME,
 				OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME,
+				OIOSAMLConstants.ATTRIBUTE_CERTIFICATE_ISSUER,
 		};
 		
 		String[] optional = {

@@ -109,6 +109,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(config).getServletContext(); will(returnValue(servletContext));
 			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(dir.getAbsolutePath()));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
+            one(session).getCreationTime(); will(returnValue(0l));
 		}});
 		System.clearProperty(SAMLUtil.OIOSAML_HOME);
 		filter.init(config);
@@ -136,6 +137,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>()));
 			one(dispatcher).forward(with(any(HttpServletRequest.class)), with(equal(res)));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
+            one(session).getCreationTime(); will(returnValue(0l));
 		}});
 		
 		filter.doFilter(req, res, chain);
@@ -153,6 +155,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(chain).doFilter(with(baseMatcher) , with(any(HttpServletResponse.class)));
+            one(session).getCreationTime(); will(returnValue(0l));
 		}});
 		filter.doFilter(req, res, new FilterChain() {
 			public void doFilter(ServletRequest arg0, ServletResponse arg1) throws IOException, ServletException {
@@ -172,6 +175,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
+            one(session).getCreationTime(); will(returnValue(0l));
 		}});
 		try {
 			filter.doFilter(req, res, chain);
@@ -185,6 +189,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(chain).doFilter(with(any(HttpServletRequest.class)), with(equal(res)));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
+            one(session).getCreationTime(); will(returnValue(0l));
 		}});
 		
 		filter.doFilter(req, res, chain);
@@ -200,6 +205,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
 			one(develMode).doFilter(with(equal(req)), with(equal(res)), with(equal(chain)), with(any(Configuration.class)));
+            one(session).getCreationTime(); will(returnValue(0l));
 		}});
 		
 		filter.doFilter(req, res, chain);

@@ -64,6 +64,7 @@ import org.opensaml.saml2.metadata.AttributeConsumingService;
 import org.opensaml.saml2.metadata.Company;
 import org.opensaml.saml2.metadata.EmailAddress;
 import org.opensaml.saml2.metadata.LocalizedString;
+import org.opensaml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml2.metadata.Organization;
 import org.opensaml.saml2.metadata.OrganizationDisplayName;
 import org.opensaml.saml2.metadata.OrganizationName;
@@ -565,6 +566,12 @@ public class SAMLUtil {
 		attr.setNameFormat(format);
 		
 		return attr;
+	}
+	
+	public static NameIDFormat createNameIDFormat(String format) {
+	    NameIDFormat nameIdFormat = buildXMLObject(NameIDFormat.class);
+	    nameIdFormat.setFormat(format);
+	    return nameIdFormat;
 	}
 	
 	public static AttributeConsumingService createAttributeConsumingService(String serviceName) {

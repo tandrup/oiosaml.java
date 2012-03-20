@@ -141,5 +141,8 @@ public interface OIOSAMLConstants {
 	public static final String ATTRIBUTE_PSEUDONYM_NAME = "urn:oid:2.5.4.65";
 	
 	public static final String ATTRIBUTE_YOUTH_CERTIFICATE_NAME = "dk:gov:saml:attribute:IsYouthCert";
-
+	
+    public static final String ATTRIBUTE_CERTIFICATE_ISSUER = "urn:oid:2.5.29.29";
+	
+    public static final String NAMEIDFORMAT_X509SUBJECTNAME = "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName";
 }

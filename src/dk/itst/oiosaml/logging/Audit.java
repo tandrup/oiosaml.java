@@ -111,6 +111,8 @@ public class Audit {
 	}
 
 	public static void init(HttpServletRequest request) {
+        log.info("Session created "+request.getSession().getCreationTime()+", timeout after "+request.getSession().getMaxInactiveInterval()+" seconds");
+	    
 		remoteAddress.set(request.getRemoteAddr());
 		session.set(request.getSession().getId());
 		
