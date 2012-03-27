@@ -7,6 +7,7 @@
     </configurations>
     <publications>
     	<artifact />
+        <artifact name="esapi-2.0GA" type="jar" conf="*" />
     	<artifact name="opensaml-2.5.1" type="jar" conf="*" />
     	<artifact name="openws-1.4.2" type="jar" conf="*" />
     	<artifact name="xmltooling-1.3.2" type="jar" conf="*" />
