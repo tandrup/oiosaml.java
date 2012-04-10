@@ -182,7 +182,11 @@ public class OIOLogoutResponse extends OIOAbstractResponse {
 		queryParams.clear();
 		queryParams.add(new Pair<String, String>(Constants.SAML_SAMLRESPONSE, message));
 
-		queryParams.add(new Pair<String, String>(Constants.SAML_RELAYSTATE, relayState));
+		// Quick patch made because Microsoft ADFS cannot handle an empty relaystate param
+		// Beware that ADFS sends an errormessage, but is not logging the user out, so the errormessage SHOULD tell the end users to close their browsers
+		if(relayState != null) {
+	        queryParams.add(new Pair<String, String>(Constants.SAML_RELAYSTATE, relayState));
+		}
 
 		Encoder enc = new Encoder();
 		if (signingCredential != null) {
