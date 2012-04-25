@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.service.session.SingleVMSessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -46,6 +47,10 @@ public class DispatcherServletTest extends AbstractServiceTests {
 	public void failGetOnNoHandler() throws Exception {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/void"));
+            one(session).getCreationTime(); will(returnValue(0l));
+            one(session).getMaxInactiveInterval(); will(returnValue(0));
+            one(req).getRemoteAddr(); will(returnValue(""));
+            one(session).getAttribute("dk.itst.oiosaml.userassertion"); will(returnValue(null));
 		}});
 		servlet.doGet(req, res);		
 	}
@@ -54,6 +59,10 @@ public class DispatcherServletTest extends AbstractServiceTests {
 	public void failPostOnNoHandler() throws Exception {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/void"));
+            one(session).getCreationTime(); will(returnValue(0l));
+            one(session).getMaxInactiveInterval(); will(returnValue(0));
+            one(req).getRemoteAddr(); will(returnValue(""));
+            one(session).getAttribute("dk.itst.oiosaml.userassertion"); will(returnValue(null));
 		}});
 		servlet.doGet(req, res);		
 	}
@@ -94,6 +103,11 @@ public class DispatcherServletTest extends AbstractServiceTests {
 			one(res).setContentType("text/html");
 			one(res).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			one(res).getWriter(); will(returnValue(new PrintWriter(new StringWriter())));
+
+			one(session).getCreationTime(); will(returnValue(0l));
+            one(session).getMaxInactiveInterval(); will(returnValue(0));
+            one(req).getRemoteAddr(); will(returnValue(""));
+            one(session).getAttribute("dk.itst.oiosaml.userassertion"); will(returnValue(null));
 			
 		}});
 		
@@ -115,6 +129,11 @@ public class DispatcherServletTest extends AbstractServiceTests {
 			one(req).setAttribute(with(equal(Constants.ATTRIBUTE_EXCEPTION)), with(any(Expectations.class)));
 			one(req).getRequestDispatcher("/error.jsp"); will(returnValue(dispatcher));
 			one(dispatcher).forward(req, res);
+
+            one(session).getCreationTime(); will(returnValue(0l));
+            one(session).getMaxInactiveInterval(); will(returnValue(0));
+            one(req).getRemoteAddr(); will(returnValue(""));
+            one(session).getAttribute("dk.itst.oiosaml.userassertion"); will(returnValue(null));
 		}});
 		
 		conf.put(Constants.PROP_ERROR_SERVLET, "/error.jsp");
@@ -128,6 +147,10 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/base/" + servletPath));
 			one(handler).handleGet(with(any(RequestContext.class)));
+            one(session).getCreationTime(); will(returnValue(0l));
+            one(session).getMaxInactiveInterval(); will(returnValue(0));
+            one(req).getRemoteAddr(); will(returnValue(""));
+            one(session).getAttribute("dk.itst.oiosaml.userassertion"); will(returnValue(null));
 		}});
 		servlet.doGet(req, res);
 
@@ -135,6 +158,10 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		context.checking(new Expectations() {{
 			allowing(req).getRequestURI(); will(returnValue("/base/" + servletPath));
 			one(handler).handlePost(with(any(RequestContext.class)));
+            one(session).getCreationTime(); will(returnValue(0l));
+            one(session).getMaxInactiveInterval(); will(returnValue(0));
+            one(req).getRemoteAddr(); will(returnValue(""));
+            one(session).getAttribute("dk.itst.oiosaml.userassertion"); will(returnValue(null));
 		}});
 		servlet.doPost(req, res);
 	}

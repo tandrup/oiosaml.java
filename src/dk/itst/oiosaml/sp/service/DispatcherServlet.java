@@ -135,6 +135,7 @@ public class DispatcherServlet extends HttpServlet {
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		initServlet();
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
+	    Audit.init(req); // This is needed if DispatcherServlet isn't protected by the SPFilter
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
@@ -153,6 +154,7 @@ public class DispatcherServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		initServlet();
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
+        Audit.init(req); // This is needed if DispatcherServlet isn't protected by the SPFilter
 		if(handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
