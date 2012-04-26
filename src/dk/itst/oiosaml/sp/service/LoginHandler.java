@@ -85,9 +85,11 @@ public class LoginHandler implements SAMLHandler {
 				} else {
 					if (conf.getBoolean(Constants.PROP_DISCOVERY_PROMPT, false)) {
 						String url = request.getRequestURL().toString();
-						url += "?RelayState=" + request.getParameter(Constants.SAML_RELAYSTATE);
+						String relayState = request.getParameter(Constants.SAML_RELAYSTATE);
+						if (relayState != null) {
+						    url += "?RelayState=" + relayState;
+						} 
 						promptIdp(context, url);
-						
 						return;
 					} else {
 						log.debug("No IdP discovered, using first from metadata");
