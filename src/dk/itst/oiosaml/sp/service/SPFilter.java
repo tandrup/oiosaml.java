@@ -195,22 +195,27 @@ public class SPFilter implements Filter {
 			session.removeAttribute(Constants.SESSION_USER_ASSERTION);
 			UserAssertionHolder.set(null);
 
-			String relayState = sessionHandler.saveRequest(Request.fromHttpRequest(servletRequest));
-
-			String protocol = conf.getString(Constants.PROP_PROTOCOL, "saml20");
-			String loginUrl = conf.getString(Constants.PROP_SAML_SERVLET, "/saml");
-			
-			String protocolUrl = conf.getString(Constants.PROP_PROTOCOL + "." + protocol);
-			if (protocolUrl == null) {
-				throw new RuntimeException("No protocol url configured for " + Constants.PROP_PROTOCOL + "." + protocol);
-			}
-			loginUrl += protocolUrl;
-			if (log.isDebugEnabled()) log.debug("Redirecting to " + protocol + " login handler at " + loginUrl);
-			
-			RequestDispatcher dispatch = servletRequest.getRequestDispatcher(loginUrl);
-			dispatch.forward(new SAMLHttpServletRequest(servletRequest, hostname, relayState), response);
+			saveRequestAndGotoLogin((HttpServletResponse)response, servletRequest);
 		}
 	}
+
+    protected void saveRequestAndGotoLogin(HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
+        SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
+        String relayState = sessionHandler.saveRequest(Request.fromHttpRequest(request));
+
+        String protocol = conf.getString(Constants.PROP_PROTOCOL, "saml20");
+        String loginUrl = conf.getString(Constants.PROP_SAML_SERVLET, "/saml");
+        
+        String protocolUrl = conf.getString(Constants.PROP_PROTOCOL + "." + protocol);
+        if (protocolUrl == null) {
+        	throw new RuntimeException("No protocol url configured for " + Constants.PROP_PROTOCOL + "." + protocol);
+        }
+        loginUrl += protocolUrl;
+        if (log.isDebugEnabled()) log.debug("Redirecting to " + protocol + " login handler at " + loginUrl);
+        
+        RequestDispatcher dispatch = request.getRequestDispatcher(loginUrl);
+        dispatch.forward(new SAMLHttpServletRequest(request, hostname, relayState), response);
+    }
 
 	public void init(FilterConfig filterConfig) throws ServletException {
 		String homeParam = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_HOME);
