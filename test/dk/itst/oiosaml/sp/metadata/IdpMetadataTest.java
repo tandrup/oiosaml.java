@@ -3,6 +3,7 @@ package dk.itst.oiosaml.sp.metadata;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -74,9 +75,9 @@ public class IdpMetadataTest extends AbstractTests {
 		assertEquals("ed2", metadata.getEntityID());
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
-	public void findSupportedEntityShouldFailOnNoMatch() {
-		md.findSupportedEntity("test1", "test2", "test3");
+	@Test
+	public void findSupportedEntityShouldReturnNullOnNoMatch() {
+		assertNull(md.findSupportedEntity("test1", "test2", "test3"));
 	}
 
 	@Test

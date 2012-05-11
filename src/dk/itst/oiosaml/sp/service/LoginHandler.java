@@ -100,7 +100,12 @@ public class LoginHandler implements SAMLHandler {
 				String[] entityIds = SAMLUtil.decodeDiscoveryValue(samlIdp);
 				Audit.log(Operation.DISCOVER, false, "", Arrays.asList(entityIds).toString());
 				metadata = idpMetadata.findSupportedEntity(entityIds);
-				log.debug("Discovered idp " + metadata.getEntityID());
+				if (metadata != null) {
+					log.debug("Discovered idp " + metadata.getEntityID());
+				} else {
+					log.debug("No supported IdP discovered, using first from metadata");
+					metadata = idpMetadata.getFirstMetadata();
+				}
 			}
 		} else {
 			metadata = idpMetadata.getFirstMetadata();
@@ -113,7 +118,7 @@ public class LoginHandler implements SAMLHandler {
 			log.error(msg);
 			throw new RuntimeException(msg);
 		}
-		log.debug("Signing on at " + signonLocation);
+		log.debug("Signing on at " + signonLocation.getLocation());
 		
 		BindingHandler bindingHandler = context.getBindingHandlerFactory().getBindingHandler(signonLocation.getBinding());
 		log.info("Using idp " + metadata.getEntityID() + " at " + signonLocation.getLocation() + " with binding " + signonLocation.getBinding());

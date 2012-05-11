@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.text.StringStartsWith;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,7 @@ import org.w3c.dom.Document;
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
+import dk.itst.oiosaml.sp.bindings.ArtifactBindingHandler;
 import dk.itst.oiosaml.sp.bindings.BindingHandler;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
@@ -107,13 +109,19 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		assertTrue(sw.toString().contains("0;url=http://discovery?r=" + URLEncoder.encode("http://test", "UTF-8")));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void failWhenNoSupportedIdpDiscovered() throws Exception {
+	@Test
+	public void testUseDefaultIdPWhenNoSupportedIdpDiscovered() throws Exception {
 		final String enc = Base64.encodeBytes("dummyidp".getBytes());
+		final BindingHandler bHandler = new ArtifactBindingHandler(); //context.mock(BindingHandler.class);
+		
 		IdpMetadata md = getDiscoveryMetadata();
+		final String expectedRedirectLocation = md.getFirstMetadata().getSingleSignonServiceLocation(SAMLConstants.SAML2_ARTIFACT_BINDING_URI);
 		
 		context.checking(new Expectations() {{
-			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(enc));
+			allowing(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(enc));
+			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
+			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
+			one(res).sendRedirect(with(new StringStartsWith(expectedRedirectLocation)));
 		}});
 		lh.handleGet(getContext(md));
 	}

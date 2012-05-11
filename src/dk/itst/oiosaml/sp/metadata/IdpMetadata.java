@@ -168,7 +168,8 @@ public class IdpMetadata {
 				return md;
 			}
 		}
-		throw new IllegalArgumentException("No supported idp found in " + Arrays.toString(entityIds) + ". Supported ids: " + metadata.keySet());
+		log.debug("No supported idp found in " + Arrays.toString(entityIds) + ". Supported ids: " + metadata.keySet());
+		return null;
 	}
 
 	public static class Metadata {
