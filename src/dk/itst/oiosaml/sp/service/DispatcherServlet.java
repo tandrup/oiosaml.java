@@ -131,6 +131,14 @@ public class DispatcherServlet extends HttpServlet {
 			}
 		}
 	}
+
+	protected final void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		doPost(req, res);
+	}
+	
+	protected final void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		doGet(req, res);
+	}
 	
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		initServlet();

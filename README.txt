@@ -19,7 +19,7 @@ Quick start:
 
 Building the project:
  - Download and install Gant (http://gant.codehaus.org)
- - Run gant build_everything
+ - Run gant build_everything  (note that you will need gant 1.9.5 or earlier, later versions have issues)
  
 When importing the project into Eclipse, remember to run gant build_everything
 to download the necessary jar files.
