@@ -16,7 +16,6 @@ Quick start:
  Apache License 2.0.
 
 
-
 Building the project:
  - Download and install Gant (http://gant.codehaus.org)
  - Run gant build_everything  (note that you will need gant 1.9.5 or earlier, later versions have issues)
