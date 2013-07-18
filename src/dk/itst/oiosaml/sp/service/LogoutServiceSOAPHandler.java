@@ -65,7 +65,7 @@ public class LogoutServiceSOAPHandler implements SAMLHandler {
 		InputStream is = request.getInputStream();
 		
 		// Unpack the <LogoutRequest>
-		String xml = IOUtils.toString(is);
+		String xml = IOUtils.toString(is, "UTF-8");
 		XMLObject xmlObject = SAMLUtil.unmarshallElementFromString(xml);
 
 		if (log.isDebugEnabled()) log.debug("Request..:" + xml);

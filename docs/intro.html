@@ -42,17 +42,18 @@ received assertion and its attributes through a programming API.</p>
 <p>There are only a few requirements for OIOSAML.java:</p>
 <ul>
 	<li>Java 5+. If Java 5 is used, the endorsed dirs mechanism must be used (<a href="endorsement.html">more details</a>). This is not necessary in Java 6.</li>
+	<li>Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files</li>
 	<li>A web container, for example <a href="http://tomcat.apache.org">Tomcat</a> supporting at least Servlet 2.4.</li>
 	<li>A SAML 2.0 compliant IdP. Assertions must be signed, as must SLO requests and responses.</li>
 </ul>
 <p>OIOSAML.java has been tested with:
 <ul>
+<li>Java 1.6.0_45 and Tomcat 7.0.42</li>
 <li>Java 1.6.0_03 and Tomcat 6.0.16</li>
 <li>Java 1.5.0_13 and Tomcat 6.0.16</li>
 <li>Java 1.5.0_13 and Tomcat 5.5.26</li>
 <li>Java 1.6.0_03 and Trifork P4</li>
 </ul></p>
-
 
 <h3>Dependencies</h3>
 <p>OIOSAML.java is built on the following technologies:</p>
