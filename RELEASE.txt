@@ -1,4 +1,4 @@
-Release note, r9118p1
+Release note, r11147
 
 This release contains a fix for an encoding bug in the SOAP Single Sign Out (SSO) function
 causing users with language-specific characters in their names to receive an error.
