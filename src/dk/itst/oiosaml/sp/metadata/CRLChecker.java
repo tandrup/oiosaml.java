@@ -26,14 +26,32 @@ package dk.itst.oiosaml.sp.metadata;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
+import java.security.cert.CertPathValidatorException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.PKIXCertPathValidatorResult;
+import java.security.cert.PKIXParameters;
+import java.security.cert.PolicyNode;
+import java.security.cert.TrustAnchor;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
@@ -54,82 +72,124 @@ import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
+/**
+ * Revocation of certificates are done using the follow methods.
+ * 
+ *   OCSP with Distribution Point from configuration.
+ *   OCSP with Distribution Point from certificates.
+ *   CRL with Distribution Point from configuration.
+ *   CRL with Distribution Point from certificates.
+ *
+ * Methods are evaluated from top to bottom until a suitable method is found.
+ * In case none of the methods are applicable a log entry will be generated
+ * specifying the lack of CLR validation.
+ * 
+ */
 public class CRLChecker {
 	private static final Logger log = Logger.getLogger(CRLChecker.class);
 	
 	private Timer timer;
-
+	
 	public void checkCertificates(IdpMetadata metadata, Configuration conf) {
 		for (String entityId : metadata.getEntityIDs()) {
 			Metadata md = metadata.getMetadata(entityId);
 
 			for (X509Certificate certificate : md.getAllCertificates()) {
-				String url = getCRLUrl(conf, entityId, certificate);
-				if (url == null) {
-					log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate");
-					continue;
-				}
-
+				
 				try {
-					URL u = new URL(url);
-					InputStream is = u.openStream();
-
-					CertificateFactory  cf = CertificateFactory.getInstance("X.509");
-					X509CRL crl = (X509CRL) cf.generateCRL(is);
-					is.close();
-
-
-					if (log.isDebugEnabled()) log.debug("CRL for " + url + ": " + crl);
-
-					if (!checkCRLSignature(crl, certificate, conf)) {
-						md.setCertificateValid(certificate, false);
-					} else {
-						X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
-						boolean revoked = revokedCertificate != null;
-						log.debug("Certificate status for " + entityId + ": " + revoked + " - cert: " + certificate);
-						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: " + revoked);
-
-						md.setCertificateValid(certificate, !revoked);
+					if (!doOCSPCheck(conf, entityId, md, certificate))
+					{
+						log.debug("No OCSP configured in oiosaml-sp.properties, and no OCSP found in certificate.");
 					}
-				} catch (MalformedURLException e) {
-					log.error("Unable to parse url " + url, e);
-					throw new WrappedException(Layer.BUSINESS, e);
-				} catch (IOException e) {
-					log.error("Unable to read CRL from " + url, e);
-					throw new WrappedException(Layer.BUSINESS, e);
-				} catch (GeneralSecurityException e) {
+					else
+					{
+						continue;
+					}
+						
+					if (!doCLRCheck(conf, entityId, md, certificate))
+					{
+						log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate.");
+						log.debug("No revokation check was done. Permenent failure.");
+						
+						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: YES");
+
+						md.setCertificateValid(certificate, false);
+					}
+					
+					Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
+					log.debug("Certificate status for " + entityId + ": revoked - cert: " + certificate);
+					
+					md.setCertificateValid(certificate, true);
+				}
+				catch (Exception e)
+				{
 					throw new WrappedException(Layer.BUSINESS, e);
 				}
 			}
 		}
 	}
 	
-	
-	private boolean checkCRLSignature(X509CRL crl, X509Certificate certificate, Configuration conf) {
-		if (conf.getString(Constants.PROP_CRL_TRUSTSTORE, null) == null) return true;
+	/**
+	 * Perform revocation check using CRL
+	 * @param conf
+	 * @param entityId
+	 * @param md
+	 * @param certificate
+	 * @return true if a CRL check was performed, otherwise false.
+	 */
+	private boolean doCLRCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate)
+	{
+		String url = getCRLUrl(conf, entityId, certificate);
 		
-		CredentialRepository cr = new CredentialRepository();
-		String location = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_CRL_TRUSTSTORE);
-		cr.getCertificate(location, conf.getString(Constants.PROP_CRL_TRUSTSTORE_PASSWORD), null);
-
-		for (X509Credential cred : cr.getCredentials()) {
-			try {
-				crl.verify(cred.getPublicKey());
-				return true;
-			} catch (Exception e) {
-				log.debug("CRL not signed by " + cred);
-			}
+		if (url == null) {
+			return false;
 		}
-		return false;
+
+		try {
+			URL u = new URL(url);
+			InputStream is = u.openStream();
+
+			CertificateFactory  cf = CertificateFactory.getInstance("X.509");
+			X509CRL crl = (X509CRL) cf.generateCRL(is);
+			is.close();
+
+			if (log.isDebugEnabled()) log.debug("CRL for " + url + ": " + crl);
+
+			if (!checkCRLSignature(crl, certificate, conf)) {
+				md.setCertificateValid(certificate, false);
+			} else {
+				X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
+				boolean revoked = revokedCertificate != null;
+				return !revoked;
+			}
+		} catch (MalformedURLException e) {
+			log.error("Unable to parse url " + url, e);
+			throw new WrappedException(Layer.BUSINESS, e);
+		} catch (IOException e) {
+			log.error("Unable to read CRL from " + url, e);
+			throw new WrappedException(Layer.BUSINESS, e);
+		} catch (GeneralSecurityException e) {
+			throw new WrappedException(Layer.BUSINESS, e);
+		}
+		
+		return true;
 	}
-
-
+	
+	/**
+	 * Get an URL to use when downloading CRL
+	 * @param conf
+	 * @param entityId
+	 * @param certificate
+	 * @return
+	 */
 	private String getCRLUrl(Configuration conf, String entityId, X509Certificate certificate) {
 		String url = conf.getString(Constants.PROP_CRL + entityId);
 		log.debug("Checking CRL for " + entityId + " at " + url);
+		
 		if (url == null) {
 			log.debug("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId + " in configuration");
 			byte[] val = certificate.getExtensionValue("2.5.29.31");
+			
 			if (val != null) {
 				try {
 					CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
@@ -153,8 +213,171 @@ public class CRLChecker {
 		return url;
 	}
 	
+	private boolean checkCRLSignature(X509CRL crl, X509Certificate certificate, Configuration conf) {
+		if (conf.getString(Constants.PROP_CRL_TRUSTSTORE, null) == null) return true;
+		
+		CredentialRepository cr = new CredentialRepository();
+		String location = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_CRL_TRUSTSTORE);
+		cr.getCertificate(location, conf.getString(Constants.PROP_CRL_TRUSTSTORE_PASSWORD), null);
+
+		for (X509Credential cred : cr.getCredentials()) {
+			try {
+				crl.verify(cred.getPublicKey());
+				return true;
+			} catch (Exception e) {
+				log.debug("CRL not signed by " + cred);
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Check the revocation status of a public key certificate using OCSP.
+	 * @param  conf
+	 * @param  entityId
+	 * @param  md
+	 * @param  certificate
+	 * @return true if an OCSP check was performed, otherwise false.
+	 * @throws CertificateException 
+	 */
+	private boolean doOCSPCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate) throws CertificateException
+	{
+		String ocspServer = getOCSPUrl(conf, entityId, certificate);
+		
+		if (ocspServer == null) {
+			return false;
+		}
+
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate ca = null;
+		
+		try {
+			// Fetch CA certificate		
+			URL u = new URL(Constants.PROP_OCSP_CA);
+			InputStream is = u.openStream();
+			ca = (X509Certificate) cf.generateCertificate(is);
+			is.close();
+		}
+		catch (IOException e)
+		{
+					
+		}
+		catch (CertificateException e)
+		{
+			
+		}
+		
+		// Create certificate chain
+        List certList = new Vector();
+        certList.add(certificate);
+        certList.add(ca);
+		CertPath cp;
+		
+		cf = CertificateFactory.getInstance("X.509");
+		cp = cf.generateCertPath(certList);
+
+	    // Enable OCSP
+	    Security.setProperty("ocsp.enable", "true");
+		Security.setProperty("ocsp.responderURL", ocspServer);
+		//Security.setProperty("ocsp.responderCertSubjectName", ocspCert.getSubjectX500Principal().getName());
+	    
+        try {
+    		TrustAnchor anchor = new TrustAnchor(ca, null);
+    		PKIXParameters params = new PKIXParameters(Collections.singleton(anchor));
+	        params.setRevocationEnabled(true);
+        	
+	        // Validate and obtain results
+        	CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
+    		PKIXCertPathValidatorResult result = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
+    			
+    	    X509Certificate trustedCert = (X509Certificate) result.getTrustAnchor().getTrustedCert();
+            PolicyNode policyTree = result.getPolicyTree();
+            PublicKey subjectPublicKey = result.getPublicKey();
+
+            // Logging
+    	    if (trustedCert == null) {
+    	    	log.debug("Trsuted Cert = NULL");
+    	    } else {
+    	    	log.debug("Trusted CA DN = " + trustedCert.getSubjectDN());
+    	    }
+    		
+    	    log.debug("Certificate validated");
+    	    log.debug("Policy Tree:\n" + policyTree);
+    	    log.debug("Subject Public key:\n" + subjectPublicKey);
+        } catch (CertPathValidatorException cpve) {
+        	log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
+        	return false;
+        } catch (NoSuchAlgorithmException e) {
+        	log.debug(e.getStackTrace());
+        	return false;
+		} catch (InvalidAlgorithmParameterException e) {
+        	log.debug(e.getStackTrace());
+        	return false;
+		}
+
+        // Change to lower case
+        log.debug("OCSP CERTIFICATE VALIDATION SUCCEEDED.");
+        
+		return true;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param  conf
+	 * @param  entityId
+	 * @param  certificate
+	 * @return
+	 * @see    http://oid-info.com/get/1.3.6.1.5.5.7.48.1
+	 */
+	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
+		String url = conf.getString(Constants.PROP_OCSP_RESPONDER + entityId);
+		log.debug("Checking OCSP for " + entityId + " at " + url);
+		
+		if (url == null) {
+			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + entityId + " in configuration");
+			byte[] val = certificate.getExtensionValue("1.3.6.1.5.5.7.48.1");
+			
+			if (val != null) {
+				try {
+					CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
+					
+					for (DistributionPoint dp : point.getDistributionPoints()) {
+						if (dp.getDistributionPoint() == null) continue;
+						
+						if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
+							GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
+							for (GeneralName g : gn.getNames()) {
+								if (g.getName() instanceof DERIA5String) {
+									url =((DERIA5String)g.getName()).getString();
+								}
+							}
+						}
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		
+		return url;
+	}
+	
 	public void startChecker(long period, final IdpMetadata metadata, final Configuration conf) {
 		if (timer != null) return;
+		
+		String proxyHost = conf.getString(Constants.PROP_HTTP_PROXY_HOST);
+		String proxyPort = conf.getString(Constants.PROP_HTTP_PROXY_PORT);
+		
+		if (proxyHost != null && proxyPort != null)
+		{
+			log.debug("Enabling use of proxy " + proxyHost + " port " + proxyPort + " when checking revocation of certificates.");
+			
+			System.setProperty("http.proxyHost", proxyHost);
+			System.setProperty("http.proxyPort", proxyPort);
+		}
 		
 		log.info("Starting CRL checker, running with " + period + " seconds interval. Checking " + metadata.getEntityIDs().size() + " certificates");
 		timer = new Timer("CRLChecker");
@@ -169,7 +392,6 @@ public class CRLChecker {
 				}
 			}
 		}, 1000L, 1000L * period);
-		
 	}
 	
 	public void stopChecker() {
