@@ -130,12 +130,12 @@ public class CRLChecker {
 	}
 	
 	/**
-	 * Perform revocation check using CRL
+	 * Perform revocation check using CRL.
 	 * @param conf
 	 * @param entityId
 	 * @param md
 	 * @param certificate
-	 * @return true if a CRL check was performed, otherwise false.
+	 * @return true if CRL check was completed and the certificate is not revoked.
 	 */
 	private boolean doCLRCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate)
 	{
@@ -159,8 +159,7 @@ public class CRLChecker {
 				md.setCertificateValid(certificate, false);
 			} else {
 				X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
-				boolean revoked = revokedCertificate != null;
-				return !revoked;
+				return (revokedCertificate == null);
 			}
 		} catch (MalformedURLException e) {
 			log.error("Unable to parse url " + url, e);
@@ -180,7 +179,7 @@ public class CRLChecker {
 	 * @param conf
 	 * @param entityId
 	 * @param certificate
-	 * @return
+	 * @return the URL to use
 	 */
 	private String getCRLUrl(Configuration conf, String entityId, X509Certificate certificate) {
 		String url = conf.getString(Constants.PROP_CRL + entityId);
@@ -213,6 +212,13 @@ public class CRLChecker {
 		return url;
 	}
 	
+	/**
+	 * Check whether a certificate revocation list (CRL) has a valid signature.
+	 * @param crl
+	 * @param certificate
+	 * @param conf
+	 * @return true if signature is valid, otherwise false.
+	 */
 	private boolean checkCRLSignature(X509CRL crl, X509Certificate certificate, Configuration conf) {
 		if (conf.getString(Constants.PROP_CRL_TRUSTSTORE, null) == null) return true;
 		
@@ -223,13 +229,13 @@ public class CRLChecker {
 		for (X509Credential cred : cr.getCredentials()) {
 			try {
 				crl.verify(cred.getPublicKey());
-				return true;
 			} catch (Exception e) {
 				log.debug("CRL not signed by " + cred);
+				return false;
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	/**
@@ -238,7 +244,7 @@ public class CRLChecker {
 	 * @param  entityId
 	 * @param  md
 	 * @param  certificate
-	 * @return true if an OCSP check was performed, otherwise false.
+	 * @return true if an OCSP check was completed, otherwise false.
 	 * @throws CertificateException 
 	 */
 	private boolean doOCSPCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate) throws CertificateException
@@ -260,12 +266,14 @@ public class CRLChecker {
 			is.close();
 		}
 		catch (IOException e)
-		{
-					
+		{			
+			log.debug(e.getStackTrace());
+			return false;
 		}
 		catch (CertificateException e)
 		{
-			
+			log.debug(e.getStackTrace());
+			return false;
 		}
 		
 		// Create certificate chain
@@ -306,6 +314,7 @@ public class CRLChecker {
     	    log.debug("Policy Tree:\n" + policyTree);
     	    log.debug("Subject Public key:\n" + subjectPublicKey);
         } catch (CertPathValidatorException cpve) {
+        	
         	log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
         	return false;
         } catch (NoSuchAlgorithmException e) {
@@ -323,13 +332,11 @@ public class CRLChecker {
 	}
 	
 	/**
-	 * 
-	 * 
-	 * 
+	 * Gets an URL to use when performing an OCSP validation of a certificate.
 	 * @param  conf
 	 * @param  entityId
 	 * @param  certificate
-	 * @return
+	 * @return the URL to use.
 	 * @see    http://oid-info.com/get/1.3.6.1.5.5.7.48.1
 	 */
 	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
