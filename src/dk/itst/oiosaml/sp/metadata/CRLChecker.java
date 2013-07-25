@@ -26,7 +26,6 @@ package dk.itst.oiosaml.sp.metadata;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
@@ -36,7 +35,6 @@ import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
 import java.security.cert.CertPathValidatorException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXCertPathValidatorResult;
@@ -48,18 +46,25 @@ import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1Object;
+import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERTaggedObject;
+import org.bouncycastle.asn1.x509.AccessDescription;
+import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.opensaml.xml.security.x509.X509Credential;
 
@@ -259,21 +264,21 @@ public class CRLChecker {
 		X509Certificate ca = null;
 		
 		try {
+			log.debug("Using CA certificate located at: " +  conf.getString(Constants.PROP_OCSP_CA));
+			
 			// Fetch CA certificate		
-			URL u = new URL(Constants.PROP_OCSP_CA);
+			URL u = new URL(conf.getString(Constants.PROP_OCSP_CA));
 			InputStream is = u.openStream();
 			ca = (X509Certificate) cf.generateCertificate(is);
 			is.close();
 		}
 		catch (IOException e)
 		{			
-			log.debug(e.getStackTrace());
-			return false;
+			throw new WrappedException(Layer.BUSINESS, e);
 		}
 		catch (CertificateException e)
 		{
-			log.debug(e.getStackTrace());
-			return false;
+			throw new WrappedException(Layer.BUSINESS, e);
 		}
 		
 		// Create certificate chain
@@ -298,35 +303,28 @@ public class CRLChecker {
 	        // Validate and obtain results
         	CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
     		PKIXCertPathValidatorResult result = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
-    			
-    	    X509Certificate trustedCert = (X509Certificate) result.getTrustAnchor().getTrustedCert();
-            PolicyNode policyTree = result.getPolicyTree();
-            PublicKey subjectPublicKey = result.getPublicKey();
-
+  
             // Logging
+    	    log.debug("Certificate validated");
+    	    X509Certificate trustedCert = (X509Certificate) result.getTrustAnchor().getTrustedCert();
+    	    
     	    if (trustedCert == null) {
     	    	log.debug("Trsuted Cert = NULL");
     	    } else {
     	    	log.debug("Trusted CA DN = " + trustedCert.getSubjectDN());
     	    }
-    		
-    	    log.debug("Certificate validated");
-    	    log.debug("Policy Tree:\n" + policyTree);
+
+    	    PublicKey subjectPublicKey = result.getPublicKey();
     	    log.debug("Subject Public key:\n" + subjectPublicKey);
+    	    
         } catch (CertPathValidatorException cpve) {
-        	
         	log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
         	return false;
         } catch (NoSuchAlgorithmException e) {
-        	log.debug(e.getStackTrace());
-        	return false;
+        	throw new WrappedException(Layer.BUSINESS, e);
 		} catch (InvalidAlgorithmParameterException e) {
-        	log.debug(e.getStackTrace());
-        	return false;
+			throw new WrappedException(Layer.BUSINESS, e);
 		}
-
-        // Change to lower case
-        log.debug("OCSP CERTIFICATE VALIDATION SUCCEEDED.");
         
 		return true;
 	}
@@ -340,23 +338,34 @@ public class CRLChecker {
 	 * @see    http://oid-info.com/get/1.3.6.1.5.5.7.48.1
 	 */
 	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
-		String url = conf.getString(Constants.PROP_OCSP_RESPONDER + entityId);
+		//String url = conf.getString(Constants.PROP_OCSP_RESPONDER + entityId);
+		String url = conf.getString(Constants.PROP_OCSP_RESPONDER);
 		log.debug("Checking OCSP for " + entityId + " at " + url);
 		
 		if (url == null) {
-			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + entityId + " in configuration");
+			//log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + entityId + " in configuration");
+			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + " in configuration");
 			byte[] val = certificate.getExtensionValue("1.3.6.1.5.5.7.48.1");
-			
+
+			log.debug("Searching for certificate OCSP responder.");
+
 			if (val != null) {
 				try {
-					CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
+					AuthorityInformationAccess point = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(val));
 					
-					for (DistributionPoint dp : point.getDistributionPoints()) {
-						if (dp.getDistributionPoint() == null) continue;
+					log.debug("AuthorityInformationAccess found: " + point);
+					
+					for (AccessDescription ad : point.getAccessDescriptions()) {
+						if (ad.getAccessLocation() == null) continue;
+						log.debug("AccessDescription found: " + ad);
 						
-						if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
-							GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
+						if (ad.getAccessLocation().getName() instanceof GeneralNames) {
+							GeneralNames gn = (GeneralNames) ad.getAccessLocation().getName();
+							log.debug("GeneralNames found: " + gn);
+							
 							for (GeneralName g : gn.getNames()) {
+								log.debug("GeneralName found: " + g);
+								
 								if (g.getName() instanceof DERIA5String) {
 									url =((DERIA5String)g.getName()).getString();
 								}
