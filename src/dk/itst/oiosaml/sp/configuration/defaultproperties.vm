@@ -15,10 +15,9 @@ common.saml2.metadata.sp.filename=SPMetadata.xml
 # URI References to the current service provider
 $homename=$servletPath
 
-# Whether to validate server certificates. Set to false in production.
-# Used for artifact resolution.
-oiosaml-sp.resolve.ignorecert=true
+# Force login
+#oiosaml-sp.authn.force=/login
 
-# Artifact resolution username and password. Only used the artifact profile is active.
-oiosaml-sp.resolve.username=rolf.trifork.com
-oiosaml-sp.resolve.password=rolf.trifork.com
+# OCSP validation.
+#oiosaml-sp.ocsp.ca=https://www.certifikat.dk/export/sites/dk.certifikat.oc/da/developer/eksempler/oces_I_eksempler/oces_I_certifikater/tdc_systemtest_2.cer
+#oiosaml-sp.ocsp.responder=http://test.ocsp.certifikat.dk/ocsp/status
