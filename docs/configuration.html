@@ -86,6 +86,8 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.resolve.ignorecert: Set to true to ignore certificate validation errors when using a SOAP backchannel to the IdP (used for ArtifactResolve requests)</li>
 <li>oiosaml-sp.resolve.username: Username to use when using a SOAP backchannel to the IdP (used for ArtifactResolve requests)</li>
 <li>oiosaml-sp.resolve.password: Password for SOAP backchannel</li>
+<li>oiosaml-sp.http.proxy.host: Hostname or IP address of HTTP proxy.</li>
+<li>oiosaml-sp.http.proxy.port: Port number on HTTP proxy.</li>
 <li>oiosaml-sp.discovery: URL pointing to the OIOSAML discovery service. Only relevant when multiple IdPs are configured.</li>
 <li>oiosaml-sp.discovery.default: The IdP entity ID to use for SSO if none was discovered using the discovery service.</li>
 <li>oiosaml-sp.discovery.prompt: Set to false to turn off user prompting when no IdP can be discovered automatically. This is not used if oiosaml-sp.discovery.default is set</li>
@@ -94,6 +96,8 @@ a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet
 <li>oiosaml-sp.crl.&lt;entityId&gt;: Location of the CRL for a specific IdP, specified by entityId. This overwrites the CRL from the certificate's CRLDistributionPoint extension value.</li>
 <li>oiosaml-sp.crl.truststore: Location of the truststore used for checking the CRL signature. The path is relative to oiosaml.home. If more than one IdP is used, the truststore should contain certificates for all CRL issuers.</li>
 <li>oiosaml-sp.crl.truststore.password: Password for the CRL truststore.</li>
+<li>oiosaml-sp.crl.ocsp.ca: URL pointing to public certificate for Certificate Authority. Used for validating OCSP responses.</li>
+<li>oiosaml-sp.crl.ocsp.responder: URL pointing to OCSP responder. Only used to validate IdP certificate.</li>
 <li>oiosaml-sp.encryption.force: Only allow encrypted assertions to be processed. If set to false, unencrypted assertions are allowed, but encrypted assertions are still supported.</li>
 <li>oiosaml-sp.nameid.policy: Value to use as NameIDPolicy format in AuthnRequests. Set to persistent or transient. Defaults to blank, ie no NameIDPolicy is sent.</li>
 <li>oiosaml-sp.nameid.allowcreate: Set to true to allow creation of new identifiers. Only relevant when NameID policy has been set.</li>

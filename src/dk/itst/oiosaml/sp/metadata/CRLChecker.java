@@ -39,7 +39,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXCertPathValidatorResult;
 import java.security.cert.PKIXParameters;
-import java.security.cert.PolicyNode;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
@@ -52,19 +51,13 @@ import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1Object;
-import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.opensaml.xml.security.x509.X509Credential;
 
@@ -264,10 +257,10 @@ public class CRLChecker {
 		X509Certificate ca = null;
 		
 		try {
-			log.debug("Using CA certificate located at: " +  conf.getString(Constants.PROP_OCSP_CA));
+			log.debug("Using CA certificate located at: " +  conf.getString(Constants.PROP_CRL_OCSP_CA));
 			
 			// Fetch CA certificate		
-			URL u = new URL(conf.getString(Constants.PROP_OCSP_CA));
+			URL u = new URL(conf.getString(Constants.PROP_CRL_OCSP_CA));
 			InputStream is = u.openStream();
 			ca = (X509Certificate) cf.generateCertificate(is);
 			is.close();
@@ -339,12 +332,12 @@ public class CRLChecker {
 	 */
 	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
 		//String url = conf.getString(Constants.PROP_OCSP_RESPONDER + entityId);
-		String url = conf.getString(Constants.PROP_OCSP_RESPONDER);
+		String url = conf.getString(Constants.PROP_CRL_OCSP_RESPONDER);
 		log.debug("Checking OCSP for " + entityId + " at " + url);
 		
 		if (url == null) {
 			//log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + entityId + " in configuration");
-			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + " in configuration");
+			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_CRL_OCSP_RESPONDER + " in configuration");
 			byte[] val = certificate.getExtensionValue("1.3.6.1.5.5.7.48.1");
 
 			log.debug("Searching for certificate OCSP responder.");
