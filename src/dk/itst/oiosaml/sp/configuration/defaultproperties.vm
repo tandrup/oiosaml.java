@@ -19,5 +19,5 @@ $homename=$servletPath
 #oiosaml-sp.authn.force=/login
 
 # OCSP validation.
-#oiosaml-sp.ocsp.ca=https://www.certifikat.dk/export/sites/dk.certifikat.oc/da/developer/eksempler/oces_I_eksempler/oces_I_certifikater/tdc_systemtest_2.cer
-#oiosaml-sp.ocsp.responder=http://test.ocsp.certifikat.dk/ocsp/status
+#oiosaml-sp.crl.ocsp.ca=https://www.certifikat.dk/export/sites/dk.certifikat.oc/da/developer/eksempler/oces_I_eksempler/oces_I_certifikater/tdc_systemtest_2.cer
+#oiosaml-sp.crl.ocsp.responder=http://test.ocsp.certifikat.dk/ocsp/status
