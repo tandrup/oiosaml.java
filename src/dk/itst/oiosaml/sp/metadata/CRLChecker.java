@@ -43,21 +43,26 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.i18n.filter.UntrustedUrlInput;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.opensaml.xml.security.x509.X509Credential;
 
@@ -103,7 +108,7 @@ public class CRLChecker {
 					{
 						continue;
 					}
-						
+					
 					if (!doCLRCheck(conf, entityId, md, certificate))
 					{
 						log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate.");
@@ -275,7 +280,7 @@ public class CRLChecker {
 		}
 		
 		// Create certificate chain
-        List certList = new Vector();
+		List<X509Certificate> certList = new ArrayList<X509Certificate>();
         certList.add(certificate);
         certList.add(ca);
 		CertPath cp;
@@ -322,6 +327,8 @@ public class CRLChecker {
 		return true;
 	}
 	
+	private static final String AUTH_INFO_ACCESS = X509Extensions.AuthorityInfoAccess.getId();
+	
 	/**
 	 * Gets an URL to use when performing an OCSP validation of a certificate.
 	 * @param  conf
@@ -338,41 +345,63 @@ public class CRLChecker {
 		if (url == null) {
 			//log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER + entityId + " in configuration");
 			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_CRL_OCSP_RESPONDER + " in configuration");
-			byte[] val = certificate.getExtensionValue("1.3.6.1.5.5.7.48.1");
+			
+			AuthorityInformationAccess authInfoAcc = null;
+			try
+            {
+					byte[]  bytes = certificate.getExtensionValue(AUTH_INFO_ACCESS);
+					ASN1InputStream aIn = new ASN1InputStream(bytes);
+				    ASN1OctetString octs = (ASN1OctetString)aIn.readObject();
+				    aIn = new ASN1InputStream(octs.getOctets());
+				    DERObject auth_info_acc = (DERObject)aIn.readObject();
+				
+                 if (auth_info_acc != null)
+                 {
+                     authInfoAcc = AuthorityInformationAccess.getInstance(auth_info_acc);
+                 }
+             }
+             catch (Exception e)
+             {
 
-			log.debug("Searching for certificate OCSP responder.");
-
-			if (val != null) {
-				try {
-					AuthorityInformationAccess point = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(val));
-					
-					log.debug("AuthorityInformationAccess found: " + point);
-					
-					for (AccessDescription ad : point.getAccessDescriptions()) {
-						if (ad.getAccessLocation() == null) continue;
-						log.debug("AccessDescription found: " + ad);
-						
-						if (ad.getAccessLocation().getName() instanceof GeneralNames) {
-							GeneralNames gn = (GeneralNames) ad.getAccessLocation().getName();
-							log.debug("GeneralNames found: " + gn);
-							
-							for (GeneralName g : gn.getNames()) {
-								log.debug("GeneralName found: " + g);
-								
-								if (g.getName() instanceof DERIA5String) {
-									url =((DERIA5String)g.getName()).getString();
-								}
-							}
-						}
-					}
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
+             }
+			
+			List<String> ocspUrls = getOCSPUrls(authInfoAcc);
+			Iterator<String> urlIt = ocspUrls.iterator();
+			
+             while (urlIt.hasNext())
+             {
+            	 // Just return the first URL            	 
+            	 Object ocspUrl = new UntrustedUrlInput(urlIt.next());
+            	 return ocspUrl.toString();
+             }
 		}
-		
-		return url;
+    
+		return null;
 	}
+	
+	private List<String> getOCSPUrls(AuthorityInformationAccess authInfoAccess)
+	    {
+			List<String> urls = new ArrayList<String>();
+			
+	        if (authInfoAccess != null)
+	        {
+	            AccessDescription[] ads = authInfoAccess.getAccessDescriptions();
+	            for (int i = 0; i < ads.length; i++)
+	            {
+	                if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
+	                {
+	                    GeneralName name = ads[i].getAccessLocation();
+	                    if (name.getTagNo() == GeneralName.uniformResourceIdentifier)
+	                    {
+	                        String url = ((DERIA5String) name.getName()).getString();
+	                        urls.add(url);
+	                    }
+	                }
+	            }
+	        }
+	        
+	        return urls;
+	    }
 	
 	public void startChecker(long period, final IdpMetadata metadata, final Configuration conf) {
 		if (timer != null) return;
