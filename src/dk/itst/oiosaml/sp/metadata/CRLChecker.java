@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.metadata;
@@ -66,7 +67,7 @@ import org.bouncycastle.i18n.filter.UntrustedUrlInput;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.opensaml.xml.security.x509.X509Credential;
 
-import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.Audit;
@@ -226,8 +227,7 @@ public class CRLChecker {
 		if (conf.getString(Constants.PROP_CRL_TRUSTSTORE, null) == null) return true;
 		
 		CredentialRepository cr = new CredentialRepository();
-		String location = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_CRL_TRUSTSTORE);
-		cr.getCertificate(location, conf.getString(Constants.PROP_CRL_TRUSTSTORE_PASSWORD), null);
+		cr.getCertificate(SAMLConfigurationFactory.getConfiguration().getKeystore(), conf.getString(Constants.PROP_CRL_TRUSTSTORE_PASSWORD),null);
 
 		for (X509Credential cred : cr.getCredentials()) {
 			try {

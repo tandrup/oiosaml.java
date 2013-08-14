@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.service;
@@ -41,7 +42,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
@@ -62,6 +63,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
  * 
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
+ * @author Aage Nielsen <ani@openminds.dk>
  *
  */
 public class DispatcherServlet extends HttpServlet {
@@ -101,8 +103,8 @@ public class DispatcherServlet extends HttpServlet {
 	private void initServlet() {
 		try {
 			if (initialized  == false) {
-				setConfiguration(SAMLConfiguration.getSystemConfiguration());
-				Audit.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_LOG_FILE_NAME));
+				setConfiguration(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration());
+				Audit.configureLog4j(SAMLConfigurationFactory.getConfiguration().getLoggerConfiguration());
 				
 				handlers.putAll(Utils.getHandlers(configuration, servletContext));
 				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
@@ -118,14 +120,13 @@ public class DispatcherServlet extends HttpServlet {
 				setBindingHandler(new DefaultBindingHandlerFactory());
 				setIdPMetadata(IdpMetadata.getInstance());
 				setSPMetadata(SPMetadata.getInstance());
-				setCredential(new CredentialRepository().getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(configuration, Constants.PROP_CERTIFICATE_LOCATION), 
-						configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
-				
+				setCredential(new CredentialRepository().getCredential(SAMLConfigurationFactory.getConfiguration().getKeystore(),configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
+
 				initialized = true;
 			}
 		} catch (IllegalStateException e) {
 			try {
-				handlers.putAll(Utils.getHandlers(SAMLConfiguration.getCommonConfiguration(), servletContext));
+				handlers.putAll(Utils.getHandlers(SAMLConfigurationFactory.getConfiguration().getCommonConfiguration(), servletContext));
 			} catch (IOException e1) {
 				log.error("Unable to load config", e);
 			}

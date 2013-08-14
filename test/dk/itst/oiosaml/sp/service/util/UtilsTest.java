@@ -1,3 +1,27 @@
+/*
+ * The contents of this file are subject to the Mozilla Public 
+ * License Version 1.1 (the "License"); you may not use this 
+ * file except in compliance with the License. You may obtain 
+ * a copy of the License at http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an 
+ * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express 
+ * or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ *
+ * The Original Code is OIOSAML Java Service Provider.
+ * 
+ * The Initial Developer of the Original Code is Trifork A/S. Portions 
+ * created by Trifork A/S are Copyright (C) 2008 Danish National IT 
+ * and Telecom Agency (http://www.itst.dk). All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   Joakim Recht <jre@trifork.com>
+ *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk> 
+ *
+ */
 package dk.itst.oiosaml.sp.service.util;
 
 import static org.junit.Assert.assertEquals;
@@ -8,8 +32,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.KeyStore;
@@ -44,8 +70,6 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.model.OIORequest;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
-import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class UtilsTest extends AbstractServiceTests {
 	RequestAbstractType request;
@@ -68,7 +92,7 @@ public class UtilsTest extends AbstractServiceTests {
 		
 		ByteArrayOutputStream bos = generateKeystore(cred, cert);
 		
-		BasicX509Credential newCredential = CredentialRepository.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
+		BasicX509Credential newCredential = CredentialRepository.createCredential(getKeystore(new ByteArrayInputStream(bos.toByteArray())), "test");
 		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
 		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
 		
@@ -80,7 +104,7 @@ public class UtilsTest extends AbstractServiceTests {
 		store.store(bos, "test".toCharArray());
 		bos.close();
 
-		newCredential = CredentialRepository.createCredential(new ByteArrayInputStream(bos.toByteArray()), "test");
+		newCredential = CredentialRepository.createCredential(getKeystore(new ByteArrayInputStream(bos.toByteArray())), "test");
 		assertTrue(Arrays.equals(cred.getPublicKey().getEncoded(), newCredential.getPublicKey().getEncoded()));
 		assertTrue(Arrays.equals(cred.getPrivateKey().getEncoded(), newCredential.getPrivateKey().getEncoded()));
 	}
@@ -109,8 +133,16 @@ public class UtilsTest extends AbstractServiceTests {
 		file.deleteOnExit();
 		IOUtils.write(bos.toByteArray(), new FileOutputStream(file));
 		
-		assertNotNull(new CredentialRepository().getCertificate(file.getAbsolutePath(), "test", null));
+		KeyStore ks = getKeystore(new FileInputStream(file));
+		assertNotNull(new CredentialRepository().getCertificate(ks,"test",null));
 	}
+
+	private KeyStore getKeystore(InputStream is) throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
+		KeyStore ks=KeyStore.getInstance("JKS");
+		ks.load(is,"test".toCharArray());
+		return ks;
+	}
+
 
 	@Test
 	public void testMakeXML() {

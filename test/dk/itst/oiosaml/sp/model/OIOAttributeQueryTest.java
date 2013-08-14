@@ -19,12 +19,21 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk> 
  *
  */
 package dk.itst.oiosaml.sp.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import org.jmock.Expectations;
 import org.junit.Before;
@@ -80,7 +89,12 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 		OIOAssertion res = q.executeQuery(client, credential, "username", "password", true, idpMetadata.getFirstMetadata().getCertificates(), true);
 		assertNotNull(res);
 	}
-	
+	private KeyStore getKeystore(InputStream is) throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
+		KeyStore ks=KeyStore.getInstance("JKS");
+		ks.load(is,"test".toCharArray());
+		return ks;
+	}
+
 	public void testIntegration() throws Exception {
 		q.addAttribute("uid", null);
 		
@@ -88,7 +102,9 @@ public class OIOAttributeQueryTest extends AbstractServiceTests {
 		EntityDescriptor d = (EntityDescriptor) SAMLUtil.unmarshallElementFromFile("/tmp/env/metadata/IdP/IdPMetadata.xml.old");
 		IdpMetadata md = new IdpMetadata(SAMLConstants.SAML20P_NS, d);
 		
-		BasicX509Credential credential = credentialRepository.getCredential("/tmp/env/certificate/keystore", "test");
+		InputStream streamToKeystore=new FileInputStream("/tmp/env/certificate/keystore");
+		
+		BasicX509Credential credential = credentialRepository.getCredential(getKeystore(streamToKeystore), "test");
 		
 		OIOAssertion res = q.executeQuery(client, credential, null, null, true, md.getFirstMetadata().getCertificates(), false);
 		System.out.println(res.toXML());

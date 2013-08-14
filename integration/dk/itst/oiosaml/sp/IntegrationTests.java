@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp;
@@ -31,6 +32,8 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.httpclient.NameValuePair;
@@ -59,7 +62,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOResponse;
@@ -131,13 +133,16 @@ public abstract class IntegrationTests {
 		fos = new FileOutputStream(new File(tmpdir, "oiosaml-sp.properties"));
 		props.store(fos, "Generated");
 		fos.close();
-		
-		SAMLConfiguration.setSystemConfiguration(null);
+
+		Map<String,String> params=new HashMap<String, String>();
+		params.put(Constants.INIT_OIOSAML_FILE, tmpdir+"/oiosaml-sp.properties");
+
 		IdpMetadata.setMetadata(null);
 		SPMetadata.setMetadata(null);
 		System.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		server = new Server(8808);
 		WebAppContext wac = new WebAppContext();
+		wac.setInitParams(params);
 		wac.setClassLoader(Thread.currentThread().getContextClassLoader());
 		wac.setContextPath("/saml");
 		wac.setWar("webapp/");

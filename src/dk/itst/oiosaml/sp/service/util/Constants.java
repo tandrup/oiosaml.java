@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.service.util;
@@ -143,7 +144,9 @@ public interface Constants {
 	static final String INIT_OIOSAML_HOME = "oiosaml-j.home";
 	
 	static final String INIT_OIOSAML_NAME = "oiosaml-j.name";
-	
+
+	static final String INIT_OIOSAML_FILE = "oiosaml-j.file";
+
 	/**
 	 * Configuration parameter pointing to the URL for the discovery service.
 	 */
@@ -191,4 +194,16 @@ public interface Constants {
 	 * NOTE! Should always be false in production, to void security issues with XML Encryption
 	 */
 	static final String PROP_SHOW_ERROR = "oiosaml-sp.showerror";
+
+	/*
+	 * Properties used when using filereferences to SP data files
+	 * 
+	 * */
+	static final String SP_METADATA_FILE = "common.saml2.metadata.sp.filename";
+	static final String SP_METADATA_DIRECTORY = "common.saml2.metadata.sp.directory";
+
+	static final String IDP_METADATA_FILE = "common.saml2.metadata.idp.filename";
+	static final String IDP_METADATA_DIRECTORY = "common.saml2.metadata.idp.directory";
+
+	
 }

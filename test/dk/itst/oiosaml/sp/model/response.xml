@@ -1,25 +1,25 @@
-<samlp:ArtifactResponse InResponseTo="_F499B815F2BA7AB15F1207741931904"
+<ArtifactResponse InResponseTo="_F499B815F2BA7AB15F1207741931904"
 	IssueInstant="2008-04-09T11:52:11.000Z"
 	ID="akBvEmBbYA74JbE_hIDPL.w7IWy" Version="2.0"
-	xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
+	xmlns="urn:oasis:names:tc:SAML:2.0:protocol">
 	<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
 		idp1.test.oio.dk
 	</saml:Issuer>
-	<samlp:Status>
-		<samlp:StatusCode
+	<Status>
+		<StatusCode
 			Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
-	</samlp:Status>
-	<samlp:Response InResponseTo="_F499B815F2BA7AB15F1207741929643"
+	</Status>
+	<Response InResponseTo="_F499B815F2BA7AB15F1207741929643"
 		IssueInstant="2008-04-09T11:52:09.484Z"
-		ID="gf8b65pFRW3JOvrV9z8_fjCJJtO" Version="2.0">
+		ID="gf8b65pFRW3JOvrV9z8_fjCJJtO" Version="2.0" xmlns="urn:oasis:names:tc:SAML:2.0:protocol">
 		<saml:Issuer
 			xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
 			idp1.test.oio.dk
 		</saml:Issuer>
-		<samlp:Status>
-			<samlp:StatusCode
+		<Status>
+			<StatusCode
 				Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
-		</samlp:Status>
+		</Status>
 		<saml:Assertion Version="2.0"
 			IssueInstant="2008-04-09T11:52:09.500Z"
 			ID="xv5BP-.Sl_aNbpsNwMX259HTgxL"
@@ -53,9 +53,9 @@
 					m1BRfjU1vm0uJbHQYIbClmQtfELkv+va8chGKF92Gxsr9SCfjHwtver4pP3TFvSHbXx0ch5G7AuN
 					EoHdm9RxPaYip2nFk6s+CUH6GoMWVRIs9gKcZA==
 				</ds:SignatureValue>
-				<ds:KeyInfo>
-					<ds:X509Data>
-						<ds:X509Certificate>
+				<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+					<X509Data>
+						<X509Certificate>
 							MIIDDjCCAfagAwIBAgICAPswDQYJKoZIhvcNAQEFBQAwSjELMAkGA1UEBhMCREsxHTAbBgNVBAoT
 							FElULSBvZyBUZWxlc3R5cmVsc2VuMRwwGgYDVQQDExNDb25maWcgU2lnbmluZyBDZXJ0MB4XDTA3
 							MDIxMzEyNTk1NVoXDTA4MDIxMzEyNTk1NVowSjELMAkGA1UEBhMCREsxHTAbBgNVBAoTFElULSBv
@@ -70,21 +70,21 @@
 							Sdene+hj+42QYwfbNXx0tHNiFF284QVszbBxucU/78xNQ3RT6hJqpfezXUyfVHoW9sFKsDYIg5Qo
 							oFMGoN5NihPOjkgu2WHSHoyzex0PvE1hV60Ip7LG0kMrHifrTk3OqAiuqjiUaIkMiZHpd97kJ3LW
 							M/UbL4WUxF6TIg5Kjbm/TftP+/Coo0bUrreq7QeaM7rt1JPzRB+c/NdWRlbM
-						</ds:X509Certificate>
-					</ds:X509Data>
-					<ds:KeyValue>
-						<ds:RSAKeyValue>
-							<ds:Modulus>
+						</X509Certificate>
+					</X509Data>
+					<KeyValue>
+						<RSAKeyValue>
+							<Modulus>
 								lfYRt38iCe9j/4gosgGM/74c1jNSQ7dctSOMFmnUBaSsCcuyqg/mgi2YXKY/zyaJXafa1M+MZpqO
 								VCCt1w65DAADMpYi2BJVmJurJ5WuiKbc/9AY/9zLJN4CskZ+L0Am/e2G1Wh7l030XTxiAMWCG1K0
 								gvMRG8u2puN6bSwYNvnRP1QQ3E3EOHk+bdnaLxTZvscoUsz0SYPfN8CMR6S4C56spAcGfuV6XBS7
 								FuJQsWC0wR64skOz8EcfJPurWsR8+5ouda37an9ed6CAPsPD5MK/PeNa4qkRjEgQ7zPlVruwT4X5
 								LCjGNg1Zpqn3/lh8ZJjXirys8A0OMRfhZ2ku1Q==
-							</ds:Modulus>
-							<ds:Exponent>AQAB</ds:Exponent>
-						</ds:RSAKeyValue>
-					</ds:KeyValue>
-				</ds:KeyInfo>
+							</Modulus>
+							<Exponent>AQAB</Exponent>
+						</RSAKeyValue>
+					</KeyValue>
+				</KeyInfo>
 			</ds:Signature>
 			<saml:Subject>
 				<saml:NameID
@@ -133,5 +133,5 @@
 				</saml:Attribute>
 			</saml:AttributeStatement>
 		</saml:Assertion>
-	</samlp:Response>
-</samlp:ArtifactResponse>
+	</Response>
+</ArtifactResponse>

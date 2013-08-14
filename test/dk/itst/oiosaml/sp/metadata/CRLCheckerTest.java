@@ -2,7 +2,6 @@ package dk.itst.oiosaml.sp.metadata;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +16,7 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
@@ -31,7 +31,8 @@ import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.x509.X509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.error.InvalidCertificateException;
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.sp.AbstractTests;
 import dk.itst.oiosaml.sp.service.TestHelper;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -123,8 +124,16 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL + idp.getFirstMetadata().getEntityID(), crlFile.toURI().toString());
 			put(Constants.PROP_CRL_TRUSTSTORE, keystore.getAbsolutePath());
 			put(Constants.PROP_CRL_TRUSTSTORE_PASSWORD, "password");
+			put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 			put(SAMLUtil.OIOSAML_HOME, "");
+			put(Constants.PROP_CERTIFICATE_LOCATION,keystore.getAbsolutePath());
 		}});
+
+		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
+		Map<String,String> params=new HashMap<String, String>();
+		params.put(Constants.INIT_OIOSAML_HOME, null);
+		sc.setInitConfiguration(params);
+		sc.setConfiguration(conf);
 
 		checker.checkCertificates(idp, conf);
 		
@@ -146,9 +155,17 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL + idp.getFirstMetadata().getEntityID(), crlFile.toURI().toString());
 			put(Constants.PROP_CRL_TRUSTSTORE, keystore.getAbsolutePath());
 			put(Constants.PROP_CRL_TRUSTSTORE_PASSWORD, "password");
+			put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 			put(SAMLUtil.OIOSAML_HOME, "");
+			put(Constants.PROP_CERTIFICATE_LOCATION,keystore.getAbsolutePath());
 		}});
 
+		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
+		Map<String,String> params=new HashMap<String, String>();
+		params.put(Constants.INIT_OIOSAML_HOME, null);
+		sc.setInitConfiguration(params);
+		sc.setConfiguration(conf);
+		
 		checker.checkCertificates(idp, conf);
 		
 		assertEquals(1, idp.getFirstMetadata().getCertificates().size());
@@ -172,5 +189,6 @@ public class CRLCheckerTest extends AbstractTests {
 		fos.close();
 		return crlFile;
 	}
+
 
 }

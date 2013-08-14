@@ -19,12 +19,11 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.metadata;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -37,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Attribute;
@@ -45,7 +43,6 @@ import org.opensaml.saml2.metadata.ArtifactResolutionService;
 import org.opensaml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.opensaml.saml2.metadata.AttributeService;
 import org.opensaml.saml2.metadata.Endpoint;
-import org.opensaml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.KeyDescriptor;
@@ -54,8 +51,8 @@ import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.X509Data;
 
-import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.security.SecurityHelper;
@@ -66,7 +63,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * 
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
- *
+ * @author Aage Nielsen <ani@openminds.dk>
  */
 public class IdpMetadata {
 	public static final String VERSION = "$Id: IdpMetadata.java 2964 2008-06-02 11:34:06Z jre $";
@@ -89,37 +86,9 @@ public class IdpMetadata {
 
 	public static IdpMetadata getInstance() {
 		if (instance == null) {
-			Configuration conf = SAMLConfiguration.getSystemConfiguration();
-			String directory = SAMLConfiguration.getStringPrefixedWithBRSHome(conf, METADATA_DIRECTORY);
-			File idpDir = new File(directory);
-			File[] files = idpDir.listFiles(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".xml");
-				}
-			});
-			String protocol = conf.getString(Constants.PROP_PROTOCOL);
-			
-			List<EntityDescriptor> descriptors = new ArrayList<EntityDescriptor>();
-			for (File md : files) {
-				log.info("Loading " + protocol + " metadata from " + md);
-				try {
-					XMLObject descriptor = SAMLUtil.unmarshallElementFromFile(md.getAbsolutePath());
-					if (descriptor instanceof EntityDescriptor) {
-						descriptors.add((EntityDescriptor) descriptor);
-					} else if (descriptor instanceof EntitiesDescriptor) {
-						EntitiesDescriptor desc = (EntitiesDescriptor) descriptor;
-						descriptors.addAll(desc.getEntityDescriptors());
-					} else {
-						throw new RuntimeException("Metadata file " + md + " does not contain an EntityDescriptor. Found " + descriptor.getElementQName()  + ", expected " + EntityDescriptor.ELEMENT_QNAME);
-					}
-				} catch (RuntimeException e) {
-					log.error("Unable to load metadata from " + md + ". File must contain valid XML and have EntityDescriptor as top tag",e);
-					throw e;
-				}
-			}
-			if (descriptors.isEmpty()) {
-				throw new IllegalStateException("No IdP descriptors found in " + directory + "! At least one file is required.");
-			}
+			SAMLConfiguration configuration = SAMLConfigurationFactory.getConfiguration();
+			String protocol = configuration.getSystemConfiguration().getString(Constants.PROP_PROTOCOL);
+			List<XMLObject> descriptors = configuration.getListOfIdpMetadata();
 			instance = new IdpMetadata(protocol, descriptors.toArray(new EntityDescriptor[descriptors.size()]));
 		}
 		return instance ;

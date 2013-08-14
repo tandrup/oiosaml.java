@@ -1,0 +1,1 @@
+create table properties (conf_key varchar not null primary key, conf_value varchar)

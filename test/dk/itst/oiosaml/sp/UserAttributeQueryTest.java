@@ -19,11 +19,13 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +34,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.jmock.Expectations;
 import org.junit.After;
@@ -46,6 +49,7 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAttributeQuery;
@@ -83,7 +87,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		props.put(Constants.PROP_CERTIFICATE_LOCATION, tmp.getName());
 		props.put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		
-		SAMLConfiguration.setSystemConfiguration(TestHelper.buildConfiguration(props));
+		//FileConfiguration.setSystemConfiguration(TestHelper.buildConfiguration(props));
 		IdpMetadata.setMetadata(new IdpMetadata(SAMLConstants.SAML20P_NS, TestHelper.buildEntityDescriptor(cred)));
 		SPMetadata.setMetadata(spMetadata);
 	}
@@ -96,13 +100,29 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testDefaultFailOnNoAssertion() throws Exception {
+		SAMLConfiguration sc = getConfiguration();
+		assertTrue(sc.isConfigured());
+
 		UserAssertionHolder.set(null);
 		new UserAttributeQuery();
+	}
+
+	private SAMLConfiguration getConfiguration() {
+		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
+
+		String confFile="env/oiosaml-sp.properties";
+		Map<String,String> params=new HashMap<String, String>();
+		params.put(Constants.INIT_OIOSAML_FILE, confFile);
+		sc.setInitConfiguration(params);
+		return sc;
 	}
 	
 
 	@Test
 	public void testDefault() throws Exception {
+		SAMLConfiguration sc = getConfiguration();
+		assertTrue(sc.isConfigured());
+
 		final UserAssertion ua = context.mock(UserAssertion.class);
 		context.checking(new Expectations() {{
 			one(ua).getIssuer(); will(returnValue(idpEntityId));

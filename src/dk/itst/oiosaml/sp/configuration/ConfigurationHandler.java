@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.configuration;
@@ -98,6 +99,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * dir is writable, the generated files will also be placed there automatically.</p>
  * 
  * @author Joakim Recht <jre@trifork.com>
+ * @author Aage Nielsen <ani@openminds.dk>
  *
  */
 public class ConfigurationHandler implements SAMLHandler {
@@ -182,7 +184,14 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		Credential credential = context.getCredential();
 		if (keystore != null && keystore.length > 0) {
-			credential  = CredentialRepository.createCredential(new ByteArrayInputStream(keystore), password);
+			try {
+				KeyStore ks=KeyStore.getInstance("JKS");
+				ks.load(new ByteArrayInputStream(keystore),password.toCharArray());
+				credential  = CredentialRepository.createCredential(ks, password);
+			}catch (Exception e) {
+                log.error("Unable to use/load keystore", e);
+				throw new RuntimeException("Unable to use/load keystore", e);
+			}
 		} else if (Boolean.valueOf(extractParameter("createkeystore", parameters))) {
 			try {
 				BasicX509Credential cred = new BasicX509Credential();

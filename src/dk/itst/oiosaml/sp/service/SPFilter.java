@@ -19,11 +19,14 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.Filter;
@@ -44,7 +47,9 @@ import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 
 import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.configuration.FileConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.Audit;
@@ -66,37 +71,46 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 /**
  * Servlet filter for checking if the user is authenticated.
  * 
- * <p>If the user is authenticated, a session attribute, {@link Constants#SESSION_USER_ASSERTION} 
- * is set to contain a {@link UserAssertion} representing the user. The application layer
- * can access this object to retrieve SAML attributes for the user.</p>
+ * <p>
+ * If the user is authenticated, a session attribute,
+ * {@link Constants#SESSION_USER_ASSERTION} is set to contain a
+ * {@link UserAssertion} representing the user. The application layer can access
+ * this object to retrieve SAML attributes for the user.
+ * </p>
  * 
- * <p>If the user is not authenticated, a &lt;AuthnRequest&gt; is created and sent to the IdP.
- * The protocol used for this is selected automatically based on th available bindings
- * in the SP and IdP metadata.</p>
+ * <p>
+ * If the user is not authenticated, a &lt;AuthnRequest&gt; is created and sent
+ * to the IdP. The protocol used for this is selected automatically based on th
+ * available bindings in the SP and IdP metadata.
+ * </p>
  * 
- * <p>The atual redirects are done by {@link BindingHandler} objects.</p>
+ * <p>
+ * The atual redirects are done by {@link BindingHandler} objects.
+ * </p>
  * 
- * <p>Discovery profile is supported by looking at a request parameter named _saml_idp. If the parameter does not exist, the browser is 
- * redirected to {@link Constants#DISCOVERY_LOCATION}, which reads the domain cookie. If the returned value contains ids, one of the ids is selected.
- * If none of the ids in the list is registered, an exception is thrown. If no value has been set, the first configured IdP is selected automatically. 
+ * <p>
+ * Discovery profile is supported by looking at a request parameter named
+ * _saml_idp. If the parameter does not exist, the browser is redirected to
+ * {@link Constants#DISCOVERY_LOCATION}, which reads the domain cookie. If the
+ * returned value contains ids, one of the ids is selected. If none of the ids
+ * in the list is registered, an exception is thrown. If no value has been set,
+ * the first configured IdP is selected automatically.
  * </p>
  * 
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
+ * @author Aage Nielsen <ani@openminds.dk>
  */
 public class SPFilter implements Filter {
-
 	private static final Logger log = Logger.getLogger(SPFilter.class);
+	private static final String CONF_FILE = "oiosaml-sp.properties";
 	private CRLChecker crlChecker = new CRLChecker();
-	
 	private boolean filterInitialized;
-	private Configuration conf;
+	private SAMLConfiguration conf;
 	private String hostname;
 	private SessionHandlerFactory sessionHandlerFactory;
-	
 	private AtomicBoolean cleanerRunning = new AtomicBoolean(false);
 	private DevelMode develMode;
-
 	/**
 	 * Static initializer for bootstrapping OpenSAML.
 	 */
@@ -119,8 +133,8 @@ public class SPFilter implements Filter {
 
 	/**
 	 * Check whether the user is authenticated i.e. having session with a valid
-	 * assertion. If the user is not authenticated an &lt;AuthnRequest&gt; is sent to
-	 * the Login Site.
+	 * assertion. If the user is not authenticated an &lt;AuthnRequest&gt; is
+	 * sent to the Login Site.
 	 * 
 	 * @param request
 	 *            The servletRequest
@@ -130,49 +144,42 @@ public class SPFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		if (log.isDebugEnabled())
 			log.debug("OIOSAML-J SP Filter invoked");
-
 		if (!(request instanceof HttpServletRequest)) {
 			throw new RuntimeException("Not supported operation...");
 		}
 		HttpServletRequest servletRequest = ((HttpServletRequest) request);
 		Audit.init(servletRequest);
-
-		if(!isFilterInitialized()) {
+		if (!isFilterInitialized()) {
 			try {
-				Configuration conf = SAMLConfiguration.getSystemConfiguration();
+				Configuration conf = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
 				setRuntimeConfiguration(conf);
 			} catch (IllegalStateException e) {
 				request.getRequestDispatcher("/saml/configure").forward(request, response);
 				return;
 			}
 		}
-		if (conf.getBoolean(Constants.PROP_DEVEL_MODE, false)) {
+		if (conf.getSystemConfiguration().getBoolean(Constants.PROP_DEVEL_MODE, false)) {
 			log.warn("Running in debug mode, skipping regular filter");
-			develMode.doFilter(servletRequest, (HttpServletResponse) response, chain, conf);
+			develMode.doFilter(servletRequest, (HttpServletResponse) response, chain, conf.getSystemConfiguration());
 			return;
 		}
-		
 		if (cleanerRunning.compareAndSet(false, true)) {
-			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), ((HttpServletRequest)request).getSession().getMaxInactiveInterval(), 30);
+			SessionCleaner.startCleaner(sessionHandlerFactory.getHandler(), ((HttpServletRequest) request).getSession().getMaxInactiveInterval(), 30);
 		}
-		
 		SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
-		
-		if (servletRequest.getServletPath().equals(conf.getProperty(Constants.PROP_SAML_SERVLET))) {
+		if (servletRequest.getServletPath().equals(conf.getSystemConfiguration().getProperty(Constants.PROP_SAML_SERVLET))) {
 			log.debug("Request to SAML servlet, access granted");
 			chain.doFilter(new SAMLHttpServletRequest(servletRequest, hostname, null), response);
 			return;
 		}
-		
 		final HttpSession session = servletRequest.getSession();
 		if (log.isDebugEnabled())
 			log.debug("sessionId....:" + session.getId());
-
 		// Is the user logged in?
 		if (sessionHandler.isLoggedIn(session.getId()) && session.getAttribute(Constants.SESSION_USER_ASSERTION) != null) {
 			int actualAssuranceLevel = sessionHandler.getAssertion(session.getId()).getAssuranceLevel();
-			int assuranceLevel = conf.getInt(Constants.PROP_ASSURANCE_LEVEL);
-			if (actualAssuranceLevel < assuranceLevel) {
+			int assuranceLevel = conf.getSystemConfiguration().getInt(Constants.PROP_ASSURANCE_LEVEL);
+			if ((actualAssuranceLevel > 0) && (actualAssuranceLevel < assuranceLevel)) {
 				sessionHandler.logOut(session);
 				log.warn("Assurance level too low: " + actualAssuranceLevel + ", required: " + assuranceLevel);
 				throw new RuntimeException("Assurance level too low: " + actualAssuranceLevel + ", required: " + assuranceLevel);
@@ -180,9 +187,7 @@ public class SPFilter implements Filter {
 			UserAssertion ua = (UserAssertion) session.getAttribute(Constants.SESSION_USER_ASSERTION);
 			if (log.isDebugEnabled())
 				log.debug("Everything is ok... Assertion: " + ua);
-			
 			Audit.log(Operation.ACCESS, servletRequest.getRequestURI());
-
 			try {
 				UserAssertionHolder.set(ua);
 				HttpServletRequestWrapper requestWrap = new SAMLHttpServletRequest(servletRequest, ua, hostname);
@@ -194,48 +199,70 @@ public class SPFilter implements Filter {
 		} else {
 			session.removeAttribute(Constants.SESSION_USER_ASSERTION);
 			UserAssertionHolder.set(null);
-
-			saveRequestAndGotoLogin((HttpServletResponse)response, servletRequest);
+			saveRequestAndGotoLogin((HttpServletResponse) response, servletRequest);
 		}
 	}
 
-    protected void saveRequestAndGotoLogin(HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
-        SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
-        String relayState = sessionHandler.saveRequest(Request.fromHttpRequest(request));
-
-        String protocol = conf.getString(Constants.PROP_PROTOCOL, "saml20");
-        String loginUrl = conf.getString(Constants.PROP_SAML_SERVLET, "/saml");
-        
-        String protocolUrl = conf.getString(Constants.PROP_PROTOCOL + "." + protocol);
-        if (protocolUrl == null) {
-        	throw new RuntimeException("No protocol url configured for " + Constants.PROP_PROTOCOL + "." + protocol);
-        }
-        loginUrl += protocolUrl;
-        if (log.isDebugEnabled()) log.debug("Redirecting to " + protocol + " login handler at " + loginUrl);
-        
-        RequestDispatcher dispatch = request.getRequestDispatcher(loginUrl);
-        dispatch.forward(new SAMLHttpServletRequest(request, hostname, relayState), response);
-    }
+	protected void saveRequestAndGotoLogin(HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
+		SessionHandler sessionHandler = sessionHandlerFactory.getHandler();
+		String relayState = sessionHandler.saveRequest(Request.fromHttpRequest(request));
+		String protocol = conf.getSystemConfiguration().getString(Constants.PROP_PROTOCOL, "saml20");
+		String loginUrl = conf.getSystemConfiguration().getString(Constants.PROP_SAML_SERVLET, "/saml");
+		String protocolUrl = conf.getSystemConfiguration().getString(Constants.PROP_PROTOCOL + "." + protocol);
+		if (protocolUrl == null) {
+			throw new RuntimeException("No protocol url configured for " + Constants.PROP_PROTOCOL + "." + protocol);
+		}
+		loginUrl += protocolUrl;
+		if (log.isDebugEnabled())
+			log.debug("Redirecting to " + protocol + " login handler at " + loginUrl);
+		RequestDispatcher dispatch = request.getRequestDispatcher(loginUrl);
+		dispatch.forward(new SAMLHttpServletRequest(request, hostname, relayState), response);
+	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		String homeParam = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_HOME);
-		log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
-		if (homeParam == null) {
-			homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
+		conf = SAMLConfigurationFactory.getConfiguration();
+		if (conf instanceof FileConfiguration) {
+			String configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_FILE);
+			String homeParam = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_HOME);
+			Map<String, String> params = new HashMap<String, String>();
+			if (configurationFileName != null) {
+				log.info(Constants.INIT_OIOSAML_FILE + " set to " + configurationFileName + " in web.xml");
+				params.put(Constants.INIT_OIOSAML_FILE, configurationFileName);
+				conf.setInitConfiguration(params);
+			} else {
+				configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_NAME);
+				log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
+				log.info(Constants.INIT_OIOSAML_NAME + " set to " + homeParam + " in web.xml");
+				if (homeParam == null) {
+					homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
+				}
+				if (homeParam == null) {
+					if (configurationFileName!=null) {
+						log.info("Configuring OIOSAML with application name " + configurationFileName);
+						homeParam = System.getProperty("user.home") + "/.oiosaml-" + configurationFileName;
+					}
+				}
+				if (homeParam == null) {
+					homeParam = getAlternativeLocation();
+				}
+				log.info("Trying to retrieve configuration from folder " + configurationFileName);
+				params.put(Constants.INIT_OIOSAML_NAME, configurationFileName);
+				params.put(Constants.INIT_OIOSAML_HOME, homeParam);
+				conf.setInitConfiguration(params);
+			}
+			if (!conf.isConfigured()) {
+				log.info("Unable to use configuration from context-param. Try to locate configuration...");
+				configurationFileName = getAlternativeConfigurationFileName(configurationFileName);
+				params.put(Constants.INIT_OIOSAML_FILE, configurationFileName);
+				conf.setInitConfiguration(params);
+			}
+			log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
+		} else {
+			log.info("The OIO configuration is being configured by "+conf.getClass().getName());
 		}
-		if (homeParam == null) {
-			 String name = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_NAME);
-			 if (name != null) {
-				 log.info("Configuring OIOSAML with application name " + name);
-				 homeParam = System.getProperty("user.home") + "/.oiosaml-" + name;
-			 }
-		}
-		log.info("Trying to retrieve configuration from " + homeParam);
-		SAMLConfiguration.setHomeProperty(homeParam);
-		
-		if (SAMLConfiguration.isConfigured()) {
- 			try {
-				Configuration conf = SAMLConfiguration.getSystemConfiguration();
+		if (conf.isConfigured()) {
+			try {
+				Configuration conf = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
 				if (conf.getBoolean(Constants.PROP_DEVEL_MODE, false)) {
 					develMode = new DevelModeImpl();
 					setConfiguration(conf);
@@ -249,13 +276,55 @@ public class SPFilter implements Filter {
 				log.error("Unable to configure", e);
 			}
 		}
-		log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam  + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
 		setFilterInitialized(false);
-		
 	}
-	
+
+	/**
+	 * Returns the folder containing the ear file
+	 * 
+	 * @return ear-folder
+	 */
+	private String getAlternativeLocation() {
+		// Home is not be set or wrong try to locate it
+		String filePath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+		log.info("Found classpath: " + filePath);
+		int indexOfEar = filePath.indexOf(".ear");
+		String onlyPath = ".";
+		if (indexOfEar > 0) {
+			onlyPath = filePath.substring(0, indexOfEar);
+			int indexOfLastSlash = onlyPath.lastIndexOf("/") + 1;
+			int protocolIndex = onlyPath.lastIndexOf(':') + 1;
+			onlyPath = onlyPath.substring(protocolIndex, indexOfLastSlash); // remove
+																			// file:
+																			// from
+																			// string
+			log.info("Using only path part: " + onlyPath);
+		}
+		return onlyPath;
+	}
+
+	/**
+	 * Tries to locate the configuration in the ear file
+	 * 
+	 * @param configurationFileName
+	 * @return configurationFileName
+	 */
+	public String getAlternativeConfigurationFileName(String configurationFileName) {
+		String onlyPath = getAlternativeLocation();
+		String onlyFileName = null;
+		if (configurationFileName != null) {
+			onlyFileName = configurationFileName.substring((configurationFileName.lastIndexOf("/") + 1), configurationFileName.length());
+		}
+		log.info("And only filename part from context: " + onlyFileName);
+		if (onlyFileName == null) {
+			onlyFileName = CONF_FILE;
+		}
+		configurationFileName = onlyPath + onlyFileName;
+		return configurationFileName;
+	}
+
 	private void setRuntimeConfiguration(Configuration conf) {
-		Audit.configureLog4j(SAMLConfiguration.getStringPrefixedWithBRSHome(conf, Constants.PROP_LOG_FILE_NAME));
+		Audit.configureLog4j(SAMLConfigurationFactory.getConfiguration().getLoggerConfiguration());
 		restartCRLChecker(conf);
 		setFilterInitialized(true);
 		setConfiguration(conf);
@@ -268,8 +337,7 @@ public class SPFilter implements Filter {
 		}
 		setHostname();
 		sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(conf);
-		sessionHandlerFactory.getHandler().resetReplayProtection(conf.getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS)); 
-
+		sessionHandlerFactory.getHandler().resetReplayProtection(conf.getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
 		log.info("Home url: " + conf.getString(Constants.PROP_HOME));
 		log.info("Assurance level: " + conf.getInt(Constants.PROP_ASSURANCE_LEVEL));
 		log.info("SP entity ID: " + SPMetadata.getInstance().getEntityID());
@@ -280,7 +348,7 @@ public class SPFilter implements Filter {
 		String url = SPMetadata.getInstance().getDefaultAssertionConsumerService().getLocation();
 		setHostname(url.substring(0, url.indexOf('/', 8)));
 	}
-	
+
 	private void restartCRLChecker(Configuration conf) {
 		crlChecker.stopChecker();
 		int period = conf.getInt(Constants.PROP_CRL_CHECK_PERIOD, 600);
@@ -288,7 +356,7 @@ public class SPFilter implements Filter {
 			crlChecker.startChecker(period, IdpMetadata.getInstance(), conf);
 		}
 	}
-	
+
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
 	}
@@ -300,11 +368,12 @@ public class SPFilter implements Filter {
 	public boolean isFilterInitialized() {
 		return filterInitialized;
 	}
-	
+
 	public void setConfiguration(Configuration configuration) {
-		conf = configuration;
+		SAMLConfigurationFactory.getConfiguration().setConfiguration(configuration);
+		conf = SAMLConfigurationFactory.getConfiguration();
 	}
-	
+
 	public void setSessionHandlerFactory(SessionHandlerFactory sessionHandlerFactory) {
 		this.sessionHandlerFactory = sessionHandlerFactory;
 	}

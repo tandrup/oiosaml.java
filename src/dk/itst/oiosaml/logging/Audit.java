@@ -19,11 +19,12 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *	 Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.logging;
 
-import java.io.File;
+import java.io.InputStream;
 import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
@@ -135,18 +136,12 @@ public class Audit {
 	 *            The log4j configuration file. It must be in xml format, since
 	 *            the DomConfigurator is used unconditionally. An absolute path is expected.
 	 */
-	public static void configureLog4j(final String xmlFilename) {
-		final String dir = new File(xmlFilename).getParentFile().getAbsolutePath();
-		System.out.println("Configuring logging from " + xmlFilename + ", saving logs in " + dir);
+	public static void configureLog4j(final InputStream log4jStream) {
+		log.info("Configuring logging from log4jStream");
 		try {
-			new DOMConfigurator() {
-				@Override
-				protected String subst(String value) {
-					return value.replaceAll("\\$\\{oiosaml.home\\}", dir.replaceAll("\\\\", "\\\\\\\\"));
-				}
-			}.doConfigure(xmlFilename, LogManager.getLoggerRepository());
+			new DOMConfigurator() {}.doConfigure(log4jStream, LogManager.getLoggerRepository());
 		} catch (Exception e) {
-			log.error("Unable to configure logging from " + xmlFilename, e);
+			log.error("Unable to configure logging from log4jStream", e);
 		}
 	}
 

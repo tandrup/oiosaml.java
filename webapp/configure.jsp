@@ -1,6 +1,6 @@
 <!-- "$Id: index.jsp 2978 2008-06-10 07:39:19Z jre $"; -->
+<%@page import="dk.itst.oiosaml.configuration.SAMLConfigurationFactory"%>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@page import="dk.itst.oiosaml.configuration.SAMLConfiguration"%>
 <%@page import="org.apache.commons.configuration.Configuration"%>
 <%@page import="java.util.Iterator"%>
     <jsp:include page="head.jsp" />
@@ -8,7 +8,8 @@
 	<p>Use this to change the OIOSAML.java runtime configuration. Changes here are lost when the server is restarted. See <a href="docs/configuration.html">the documentation</a> for configuration help.</p>
 
 <%
-CompositeConfiguration conf = (CompositeConfiguration)SAMLConfiguration.getSystemConfiguration();
+
+CompositeConfiguration conf = (CompositeConfiguration) SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
 StringWriter sw = new StringWriter();
 PropertiesConfiguration c = (PropertiesConfiguration)conf.getConfiguration(1);
 

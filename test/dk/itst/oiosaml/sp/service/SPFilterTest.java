@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.sp.OIOPrincipal;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
 import dk.itst.oiosaml.sp.UserAssertionImpl;
@@ -72,7 +73,7 @@ public class SPFilterTest extends AbstractServiceTests {
 	private Map<String, String> conf = new HashMap<String, String>();
 
 	@Before
-	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException {
+	public void setUp() throws NoSuchAlgorithmException, NoSuchProviderException, IOException {
 		credential = getCredential();
 		chain = context.mock(FilterChain.class);
 		context.checking(new Expectations() {{
@@ -90,7 +91,10 @@ public class SPFilterTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "1");
 		conf.put(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
 		conf.put(Constants.PROP_PROTOCOL + ".saml20", "/login");
+		//CompositeConfiguration cc =new CompositeConfiguration();
+		
 		filter.setConfiguration(TestHelper.buildConfiguration(conf));
+		
 		filter.setSessionHandlerFactory(handlerFactory);
 		filter.setFilterInitialized(true);
 		filter.setHostname("http://trifork.com:8888");
@@ -98,7 +102,6 @@ public class SPFilterTest extends AbstractServiceTests {
 	
 	@Test
 	public void failOnNotConfigured() throws ServletException, IOException {
-		SAMLConfiguration.setSystemConfiguration(null);
 		final File dir = new File(File.createTempFile("test", "test").getAbsolutePath() + "dir");
 		dir.mkdir();
 		
@@ -106,8 +109,9 @@ public class SPFilterTest extends AbstractServiceTests {
 		final FilterConfig config = context.mock(FilterConfig.class);
 		final ServletContext servletContext = context.mock(ServletContext.class);
 		context.checking(new Expectations(){{
-			one(config).getServletContext(); will(returnValue(servletContext));
+			allowing(config).getServletContext(); will(returnValue(servletContext));
 			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(dir.getAbsolutePath()));
+			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_FILE); will(returnValue ("bad-file.properties"));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
             one(session).getCreationTime(); will(returnValue(0l));
 		}});
@@ -128,6 +132,7 @@ public class SPFilterTest extends AbstractServiceTests {
 
 	@Test
 	public void redirectWhenNotLoggedIn() throws Exception {
+		
 		final RequestDispatcher dispatcher = context.mock(RequestDispatcher.class);
 		UserAssertionHolder.set(new UserAssertionImpl(new OIOAssertion(assertion)));		
 		context.assertIsSatisfied();
@@ -198,7 +203,7 @@ public class SPFilterTest extends AbstractServiceTests {
 	@Test
 	public void testDevelModeDelegatesToDevelModeObject() throws Exception {
 		conf.put(Constants.PROP_DEVEL_MODE, "true");
-		
+		filter.setConfiguration(TestHelper.buildConfiguration(conf));
 		final DevelMode develMode = context.mock(DevelMode.class);
 		filter.setDevelMode(develMode);
 		
@@ -206,8 +211,20 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
 			one(develMode).doFilter(with(equal(req)), with(equal(res)), with(equal(chain)), with(any(Configuration.class)));
             one(session).getCreationTime(); will(returnValue(0l));
+            
 		}});
 		
 		filter.doFilter(req, res, chain);
 	}
+
+	private SAMLConfiguration getConfiguration() {
+		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
+
+		String confFile="env/oiosaml-sp.properties";
+		Map<String,String> params=new HashMap<String, String>();
+		params.put(Constants.INIT_OIOSAML_FILE, confFile);
+		sc.setInitConfiguration(params);
+		return sc;
+	}
+  		
 }

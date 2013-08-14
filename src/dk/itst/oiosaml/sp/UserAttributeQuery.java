@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp;
@@ -32,12 +33,12 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.error.InvalidCertificateException;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
-import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
+import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 import dk.itst.oiosaml.sp.model.OIOAttributeQuery;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -47,7 +48,6 @@ import dk.itst.oiosaml.sp.util.AttributeUtil;
 
 public class UserAttributeQuery {
 	private static final CredentialRepository credentialRepository = new CredentialRepository();
-
 	private final String username;
 	private final String password;
 	private final SOAPClient client;
@@ -56,28 +56,24 @@ public class UserAttributeQuery {
 	private final boolean requireEncryption;
 	private final Metadata idpMetadata;
 	private final String spEntityId;
-	
+
 	public UserAttributeQuery() {
-		this(SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
+		this(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
 	}
-	
+
 	public UserAttributeQuery(String username, String password) {
 		this(UserAssertionHolder.get() != null ? UserAssertionHolder.get().getIssuer() : null, username, password);
 	}
 
 	public UserAttributeQuery(String idpEntityId, String username, String password) {
-		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(), 
-				credentialRepository.getCredential(SAMLConfiguration.getStringPrefixedWithBRSHome(
-						SAMLConfiguration.getSystemConfiguration(), Constants.PROP_CERTIFICATE_LOCATION), 
-						SAMLConfiguration.getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD)),
-				SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
-				SAMLConfiguration.getSystemConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true),
-				SPMetadata.getInstance().getEntityID());
+		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(), credentialRepository.getCredential(SAMLConfigurationFactory.getConfiguration().getKeystore(), Constants.PROP_CERTIFICATE_PASSWORD), SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
+				SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true), SPMetadata.getInstance().getEntityID());
 	}
-	
+
 	public UserAttributeQuery(Metadata idpMetadata, String username, String password, SOAPClient client, Credential credential, boolean ignoreCertPath, boolean requireEncryption, String spEntityId) {
 		this.spEntityId = spEntityId;
-		if (idpMetadata == null) throw new IllegalArgumentException("IdP Metadata cannot be null");
+		if (idpMetadata == null)
+			throw new IllegalArgumentException("IdP Metadata cannot be null");
 		this.idpMetadata = idpMetadata;
 		this.username = username;
 		this.password = password;
@@ -86,30 +82,27 @@ public class UserAttributeQuery {
 		this.ignoreCertPath = ignoreCertPath;
 		this.requireEncryption = requireEncryption;
 	}
-	
-	public Collection<UserAttribute> query(String nameId, NameIDFormat format, String ... attributes) throws InvalidCertificateException, IOException {
+
+	public Collection<UserAttribute> query(String nameId, NameIDFormat format, String... attributes) throws InvalidCertificateException, IOException {
 		UserAttribute[] attrs = new UserAttribute[attributes.length];
 		for (int i = 0; i < attributes.length; i++) {
 			attrs[i] = UserAttribute.create(attributes[i], null);
 		}
 		return query(nameId, format, attrs);
 	}
-	
-	public Collection<UserAttribute> query(String nameId, NameIDFormat format, UserAttribute ... attributes) throws InvalidCertificateException, IOException {
+
+	public Collection<UserAttribute> query(String nameId, NameIDFormat format, UserAttribute... attributes) throws InvalidCertificateException, IOException {
 		OIOAttributeQuery q = OIOAttributeQuery.newQuery(idpMetadata.getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI), nameId, format, spEntityId);
-		
 		for (UserAttribute attribute : attributes) {
 			q.addAttribute(attribute.getName(), attribute.getFormat());
 		}
 		OIOAssertion res = q.executeQuery(client, credential, username, password, ignoreCertPath, idpMetadata.getCertificates(), !requireEncryption);
-		
 		Collection<UserAttribute> attrs = new ArrayList<UserAttribute>();
 		for (AttributeStatement attrStatement : res.getAssertion().getAttributeStatements()) {
 			for (Attribute attr : attrStatement.getAttributes()) {
 				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValues(attr), attr.getNameFormat()));
 			}
 		}
-		
 		return attrs;
 	}
 }

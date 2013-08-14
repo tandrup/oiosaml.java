@@ -19,21 +19,15 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.security;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -46,15 +40,17 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
  * Class for managing credentials.
  * 
- * Credentials can be loaded from the file system. When loaded, credentials are cached, so they are only loaded once.
+ * Credentials can be loaded from a stream. When loaded, credentials are cached, so they are only loaded once.
  * 
  * This class is thread-safe, and can be shared across threads.
  * 
  * @author recht
+ * @author Aage Nielsen <ani@openminds.dk>
  *
  */
 public class CredentialRepository {
@@ -62,34 +58,83 @@ public class CredentialRepository {
 	
 	private final Map<Key, BasicX509Credential> credentials = new ConcurrentHashMap<Key, BasicX509Credential>();
 	
+	
 	/**
 	 * Load credentials from a keystore.
 	 * 
 	 * The first private key is loaded from the keystore.
 	 * 
-	 * @param location keystore file location
-	 * @param password Keystore and private key password. 
+	 * @param streamToKeystore keystore stream
+	 * @param password Keystore and private key password.
+	 * @param credentialsCacheKey if more keystores are available this parameter is a must. Apply different keys for each keystore.
+	 *  
 	 */
-	public BasicX509Credential getCredential(String location, String password) {
-		Key key = new Key(location, password);
+	public BasicX509Credential getCredential(KeyStore keystore, String password, String credentialsCacheKey) {
+		Key key = new Key(credentialsCacheKey, password);
 		BasicX509Credential credential = credentials.get(key);
 		if (credential == null) {
-			try {
-				FileInputStream is = new FileInputStream(location);
-				credential = createCredential(is, password);
-				is.close();
+				credential = createCredential(keystore, password);
 				credentials.put(key, credential);
-			} catch (IOException e) {
-				throw new WrappedException(Layer.CLIENT, e);
-			}
-		}
+		}		
+			
 		return credential;
 	}
-
+	
+	public BasicX509Credential getCredential(KeyStore keystore, String password) {
+		return getCredential(keystore, password, Constants.PROP_CERTIFICATE_LOCATION);
+	}
+	
 	public Collection<BasicX509Credential> getCredentials() {
 		return credentials.values();
 	}
-	
+	/**
+	 * Get a x509certificate from a keystore.
+	 * 
+	 * @param streamToKeystore Keystore stream.
+	 * @param password Password for the keystore.
+	 * @param alias Alias to retrieve. If <code>null</code>, the first certificate in the keystore is retrieved.
+	 * @param credentialsCacheKey if more keystores are available this parameter is a must. Apply different keys for each keystore.
+	 * @return The certificate.
+	 */
+	public X509Certificate getCertificate(KeyStore keystore, String password, String alias, String credentialsCacheKey) {
+		BasicX509Credential credential =null;
+		if (credentialsCacheKey!=null) { 
+			Key key = new Key(credentialsCacheKey, password, alias);
+			credential = credentials.get(key);
+		} 	
+		if (credential == null) {
+			try {
+
+				if (alias == null) {
+					Enumeration<String> eAliases = keystore.aliases();
+					while (eAliases.hasMoreElements()) {
+						String strAlias = eAliases.nextElement();
+						log.debug("Trying " + strAlias);
+						if (keystore.isCertificateEntry(strAlias)) {
+							X509Certificate certificate = (X509Certificate) keystore.getCertificate(strAlias);
+							credential = new BasicX509Credential();
+							credential.setEntityCertificate(certificate);
+							if(credentialsCacheKey!=null) {
+								credentials.put(new Key(credentialsCacheKey, password, strAlias), credential);
+							}	
+							alias = strAlias;
+						}
+					}			
+				}
+				log.debug("Getting certificate from alias " + alias);
+				if (credentialsCacheKey!=null) {
+					credential = credentials.get(new Key(credentialsCacheKey, password, alias));
+				}	
+				if (credential == null) {
+					throw new NullPointerException("Unable to find certificate for " + alias);
+				}
+			} catch (GeneralSecurityException e) {
+				throw new WrappedException(Layer.CLIENT, e);
+			} 
+		}
+		return credential.getEntityCertificate();
+	}
+
 	/**
 	 * Read credentials from a inputstream.
 	 * 
@@ -100,16 +145,13 @@ public class CredentialRepository {
 	 * 
 	 * @return The {@link Credential}
 	 */
-	public static BasicX509Credential createCredential(InputStream input, String password) {
+	public static BasicX509Credential createCredential(KeyStore ks, String password) {
 		BasicX509Credential credential = new BasicX509Credential();
-
 		try {
-			KeyStore ks = loadKeystore(input, password);
-
 			Enumeration<String> eAliases = ks.aliases();
 			while (eAliases.hasMoreElements()) {
 				String strAlias = eAliases.nextElement();
-
+	
 				if (ks.isKeyEntry(strAlias)) {
 					PrivateKey privateKey = (PrivateKey) ks.getKey(strAlias, password.toCharArray());
 					credential.setPrivateKey(privateKey);
@@ -122,78 +164,11 @@ public class CredentialRepository {
 			}
 		} catch (GeneralSecurityException e) {
 			throw new WrappedException(Layer.CLIENT, e);
-		} catch (IOException e) {
-			throw new WrappedException(Layer.CLIENT, e);
 		}
+		
 		return credential;
 	}
-
-	private static KeyStore loadKeystore(InputStream input, String password) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-		input = new BufferedInputStream(input);
-		input.mark(1024*1024);
-		KeyStore ks;
-		try {
-			ks = loadStore(input, password, "PKCS12");
-		} catch (IOException e) {
-			input.reset();
-			ks = loadStore(input, password, "JKS");
-		}
-		return ks;
-	}
-
-	/**
-	 * Get a x509certificate from a keystore.
-	 * 
-	 * @param location Keystore file location.
-	 * @param password Password for the keystore.
-	 * @param alias Alias to retrieve. If <code>null</code>, the first certificate in the keystore is retrieved.
-	 * @return The certificate.
-	 */
-	public X509Certificate getCertificate(String location, String password, String alias) {
-		Key key = new Key(location, password, alias);
-		BasicX509Credential credential = credentials.get(key);
-		if (credential == null) {
-			try {
-				FileInputStream is = new FileInputStream(location);
-				KeyStore keystore = loadKeystore(is, password);
-				is.close();
-				
-				if (alias == null) {
-					Enumeration<String> eAliases = keystore.aliases();
-					while (eAliases.hasMoreElements()) {
-						String strAlias = eAliases.nextElement();
-						log.debug("Trying " + strAlias);
-						if (keystore.isCertificateEntry(strAlias)) {
-							X509Certificate certificate = (X509Certificate) keystore.getCertificate(strAlias);
-							credential = new BasicX509Credential();
-							credential.setEntityCertificate(certificate);
-							credentials.put(new Key(location, password, strAlias), credential);
-							alias = strAlias;
-						}
-					}			
-				}
-				log.debug("Getting certificate from alias " + alias);
-				credential = credentials.get(new Key(location, password, alias));
-				if (credential == null) {
-					throw new NullPointerException("Unable to find certificate for " + alias);
-				}
-			} catch (GeneralSecurityException e) {
-				throw new WrappedException(Layer.CLIENT, e);
-			} catch (IOException e) {
-				throw new WrappedException(Layer.CLIENT, e);
-			}
-		}
-		return credential.getEntityCertificate();
-	}
-
-	private static KeyStore loadStore(InputStream input, String password, String type) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-		KeyStore ks = KeyStore.getInstance(type);
-		char[] jksPassword = password.toCharArray();
-		ks.load(input, jksPassword);
-		input.close();
-		return ks;
-	}
-
+	
 	private static class Key {
 		private final String location;
 		private final String password;
@@ -239,8 +214,9 @@ public class CredentialRepository {
 			
 			return true;
 		}
-		
-		
 	}
 
+	public X509Certificate getCertificate(KeyStore keystore, String password, String alias) {
+		return getCertificate(keystore, password, alias,Constants.PROP_CERTIFICATE_LOCATION);
+	}
 }

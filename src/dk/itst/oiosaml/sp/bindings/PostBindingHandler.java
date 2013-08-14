@@ -19,6 +19,7 @@
  * Contributor(s):
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
+ *   Aage Nielsen <ani@openminds.dk>
  *
  */
 package dk.itst.oiosaml.sp.bindings;
@@ -35,7 +36,8 @@ import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.FileConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
@@ -59,6 +61,7 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
  * 
  * @author Joakim Rech <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
+ * <@author Aage Nielsen <ani@openminds.dk>
  *
  */
 public class PostBindingHandler implements BindingHandler {
@@ -67,7 +70,7 @@ public class PostBindingHandler implements BindingHandler {
 	private String dispatchPath;
 
 	public PostBindingHandler() {
-		dispatchPath = SAMLConfiguration.getSystemConfiguration().getString("POSTDispatchPath", null);
+		dispatchPath = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString("POSTDispatchPath", null);
 	}
 
 	public PostBindingHandler(String dispatchPath) {
