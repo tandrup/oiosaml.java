@@ -51,7 +51,7 @@ import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
-public class DataBaseConfiguration {
+public class DataBaseConfiguration implements SAMLConfiguration {
 	private static final Logger log = Logger.getLogger(DatabaseConfiguration.class);
 	private JdbcConfiguration jdbcConfiguration = new JdbcConfiguration(true);
 	private Configuration systemConfiguration;

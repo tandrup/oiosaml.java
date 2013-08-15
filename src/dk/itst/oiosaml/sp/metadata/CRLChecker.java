@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Security;
@@ -222,8 +223,14 @@ public class CRLChecker {
 	 * @param certificate
 	 * @param conf
 	 * @return true if signature is valid, otherwise false.
+	 * @throws IOException 
+	 * @throws KeyStoreException 
+	 * @throws IllegalStateException 
+	 * @throws CertificateException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws WrappedException 
 	 */
-	private boolean checkCRLSignature(X509CRL crl, X509Certificate certificate, Configuration conf) {
+	private boolean checkCRLSignature(X509CRL crl, X509Certificate certificate, Configuration conf) throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
 		if (conf.getString(Constants.PROP_CRL_TRUSTSTORE, null) == null) return true;
 		
 		CredentialRepository cr = new CredentialRepository();

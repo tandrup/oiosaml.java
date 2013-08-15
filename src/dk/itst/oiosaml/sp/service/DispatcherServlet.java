@@ -26,6 +26,9 @@ package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +46,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
+import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.bindings.BindingHandlerFactory;
@@ -88,7 +92,26 @@ public class DispatcherServlet extends HttpServlet {
 		setHandler(new ConfigurationHandler(config.getServletContext()), "configure");
 		
 		servletContext = config.getServletContext();
-		initServlet();
+		
+		// TODO: Find a strategy for catching configuration errors.
+		try {
+			initServlet();
+		} catch (WrappedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (CertificateException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (KeyStoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
@@ -100,7 +123,7 @@ public class DispatcherServlet extends HttpServlet {
 		}
 	}
 	
-	private void initServlet() {
+	private void initServlet() throws WrappedException, NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
 		try {
 			if (initialized  == false) {
 				setConfiguration(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration());
@@ -142,7 +165,26 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		initServlet();
+		// TODO: Find a strategy for catching configuration errors.
+		try {
+			initServlet();
+		} catch (WrappedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (CertificateException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (KeyStoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
 	    Audit.init(req); // This is needed if DispatcherServlet isn't protected by the SPFilter
 		if(handlers.containsKey(action)) {
@@ -161,7 +203,26 @@ public class DispatcherServlet extends HttpServlet {
 	}
 	
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		initServlet();
+		// TODO: Find a strategy for catching configuration errors.
+		try {
+			initServlet();
+		} catch (WrappedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (CertificateException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (KeyStoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		};
+		
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
         Audit.init(req); // This is needed if DispatcherServlet isn't protected by the SPFilter
 		if(handlers.containsKey(action)) {

@@ -25,6 +25,9 @@
 package dk.itst.oiosaml.sp;
 
 import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,6 +38,7 @@ import org.opensaml.xml.security.credential.Credential;
 
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.error.InvalidCertificateException;
+import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.security.CredentialRepository;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
@@ -57,15 +61,15 @@ public class UserAttributeQuery {
 	private final Metadata idpMetadata;
 	private final String spEntityId;
 
-	public UserAttributeQuery() {
+	public UserAttributeQuery() throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
 		this(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
 	}
 
-	public UserAttributeQuery(String username, String password) {
+	public UserAttributeQuery(String username, String password) throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
 		this(UserAssertionHolder.get() != null ? UserAssertionHolder.get().getIssuer() : null, username, password);
 	}
 
-	public UserAttributeQuery(String idpEntityId, String username, String password) {
+	public UserAttributeQuery(String idpEntityId, String username, String password) throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
 		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(), credentialRepository.getCredential(SAMLConfigurationFactory.getConfiguration().getKeystore(), Constants.PROP_CERTIFICATE_PASSWORD), SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
 				SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true), SPMetadata.getInstance().getEntityID());
 	}
