@@ -81,6 +81,7 @@ public class AttributeUtil implements OIOSAMLConstants {
 		return ep;
 	}
 
+	@SuppressWarnings("deprecation")
 	public static XSAny createAttributeValue(String value, String type) {
 		XSAny ep = createAttributeValue();
 		ep.setTextContent(String.valueOf(value));

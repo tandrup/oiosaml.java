@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.configuration.Configuration;
 import org.jmock.Expectations;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.itst.oiosaml.sp.UserAssertion;

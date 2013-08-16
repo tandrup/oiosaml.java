@@ -45,7 +45,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.FileConfiguration;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata;
 import dk.itst.oiosaml.sp.metadata.SPMetadata;
 import dk.itst.oiosaml.sp.service.TestHelper;

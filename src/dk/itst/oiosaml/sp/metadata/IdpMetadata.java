@@ -20,6 +20,7 @@
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
  *   Aage Nielsen <ani@openminds.dk>
+ *   Carsten Larsen <cas@schultz.dk>
  *
  */
 package dk.itst.oiosaml.sp.metadata;
@@ -64,6 +65,8 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
  * @author Aage Nielsen <ani@openminds.dk>
+ * @author Carsten Larsen <cas@schultz.dk>
+ * 
  */
 public class IdpMetadata {
 	public static final String VERSION = "$Id: IdpMetadata.java 2964 2008-06-02 11:34:06Z jre $";

@@ -133,6 +133,7 @@ public class ArtifactExtractor  {
 	 * @param artifactResolutionLocation 
 	 * @return An {@link ArtifactResolve} object relating to an artifact
 	 */
+	@SuppressWarnings("deprecation")
 	private ArtifactResolve buildArtifactResolve(String artifactValue, String id, String artifactResolutionLocation) {
 
 		if (log.isDebugEnabled())

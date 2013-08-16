@@ -17,16 +17,13 @@ import org.w3c.dom.Element;
 
 public class AbstractStub implements SAMLObject {
 
-	@SuppressWarnings("unchecked")
 	public void deregisterValidator(Validator arg0) {
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<Validator> getValidators() {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void registerValidator(Validator arg0) {
 	}
 

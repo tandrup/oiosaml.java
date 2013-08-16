@@ -57,7 +57,6 @@ import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
-import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
@@ -178,6 +177,7 @@ public class OIOLogoutRequest extends OIORequest {
 	 * @param logoutServiceLocation Destination for the logout request.
 	 * @param issuerEntityId Entity ID of the issuing entity.
 	 */
+	@SuppressWarnings("deprecation")
 	public static OIOLogoutRequest buildLogoutRequest(HttpSession session, String logoutServiceLocation, String issuerEntityId, SessionHandler handler) {
 		LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
 

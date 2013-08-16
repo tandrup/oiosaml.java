@@ -11,7 +11,6 @@ import java.security.NoSuchProviderException;
 import java.security.cert.X509Certificate;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opensaml.saml2.core.ArtifactResponse;
 import org.opensaml.saml2.core.EncryptedAssertion;

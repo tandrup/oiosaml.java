@@ -20,13 +20,13 @@
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
  *   Aage Nielsen <ani@openminds.dk>
+ *   Carsten Larsen <cas@schultz.dk>
  *
  */
 package dk.itst.oiosaml.sp.metadata;
 
 import java.security.cert.CertificateEncodingException;
 
-import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml2.metadata.EntityDescriptor;
@@ -54,11 +54,11 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
  * @author Aage Nielsen <ani@openminds.dk>
- * 
+ * @author Carsten Larsen <cas@schultz.dk>
+ *
  */
 public class SPMetadata {
 	public static final String VERSION = "$Id: SPMetadata.java 2950 2008-05-28 08:22:34Z jre $";
-	private static final Logger log = Logger.getLogger(SPMetadata.class);
 	private EntityDescriptor entityDescriptor;
 	private SPSSODescriptor spSSODescriptor;
 	private static SPMetadata instance;

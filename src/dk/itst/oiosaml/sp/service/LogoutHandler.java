@@ -42,6 +42,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class LogoutHandler implements SAMLHandler{
 
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 3843822219113371749L;
 	public static final String VERSION = "$Id: LogoutHandler.java 2950 2008-05-28 08:22:34Z jre $";
 	private static final Logger log = Logger.getLogger(LogoutHandler.class);

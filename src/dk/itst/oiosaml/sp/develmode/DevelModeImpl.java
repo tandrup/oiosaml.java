@@ -57,6 +57,7 @@ import dk.itst.oiosaml.sp.util.AttributeUtil;
 public class DevelModeImpl implements DevelMode {
 	private static final Logger log = Logger.getLogger(DevelModeImpl.class);
 
+	@SuppressWarnings("unchecked")
 	public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain fc, Configuration conf) throws IOException, ServletException {
 
 	    // Inserted to avoid loginpage when a samlhandler is requested in develmode

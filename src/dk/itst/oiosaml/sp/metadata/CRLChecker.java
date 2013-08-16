@@ -20,6 +20,7 @@
  *   Joakim Recht <jre@trifork.com>
  *   Rolf Njor Jensen <rolf@trifork.com>
  *   Aage Nielsen <ani@openminds.dk>
+ *   Carsten Larsen <cas@schultz.dk>
  *
  */
 package dk.itst.oiosaml.sp.metadata;

@@ -71,6 +71,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
  */
 public class SAMLAssertionConsumerHandler implements SAMLHandler {
 
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = -8417816228519917989L;
 	public static final String VERSION = "$Id: SAMLAssertionConsumerHandler.java 2910 2008-05-21 13:07:31Z jre $";
 	

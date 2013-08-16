@@ -105,7 +105,7 @@ public class FileToDatabaseConfiguration {
 	private static void saveToDb(String fileName, Connection con) throws SQLException, ConfigurationException {
 		Statement insertStatement = con.createStatement();
 		PropertiesConfiguration propertiesConfiguration = new PropertiesConfiguration(new File(fileName));
-		for (Iterator<String> iterator = propertiesConfiguration.getKeys(); iterator.hasNext();) {
+		for (@SuppressWarnings("unchecked")	Iterator<String> iterator = propertiesConfiguration.getKeys(); iterator.hasNext();) {
 			String key = iterator.next();
 			String value = propertiesConfiguration.getString(key);
 			String ins = "insert into properties  (conf_key, conf_value) VALUES ('" + key + "','" + value + "')";

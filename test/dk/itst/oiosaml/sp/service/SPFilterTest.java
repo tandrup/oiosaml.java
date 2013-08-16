@@ -217,6 +217,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		filter.doFilter(req, res, chain);
 	}
 
+	@SuppressWarnings("unused")
 	private SAMLConfiguration getConfiguration() {
 		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
 

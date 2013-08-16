@@ -36,7 +36,6 @@ import org.apache.log4j.Logger;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
-import dk.itst.oiosaml.configuration.FileConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.logging.Audit;
 import dk.itst.oiosaml.logging.Operation;

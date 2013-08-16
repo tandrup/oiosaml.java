@@ -38,14 +38,13 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class Audit {
 	private static Logger log = Logger.getLogger("OIOSAML_AUDIT_LOGGER");
-	
 	private static final ThreadLocal<MessageFormat> format = new ThreadLocal<MessageFormat>() {
 		protected MessageFormat initialValue() {
-			// format: operation direction "remote session 'assertion' 'data' 'message'"
+			// format: operation direction
+			// "remote session 'assertion' 'data' 'message'"
 			return new MessageFormat("{0} {1,choice,-1#---|0#-->|1#'<'--} {2} {3} ''{4}'' ''{5}'' ''{6}''");
 		}
 	};
-
 	private static final ThreadLocal<String> remoteAddress = new ThreadLocal<String>();
 	private static final ThreadLocal<String> session = new ThreadLocal<String>();
 	private static final ThreadLocal<String> assertionId = new ThreadLocal<String>() {
@@ -57,7 +56,7 @@ public class Audit {
 	public static void log(Operation operation, String msg) {
 		logEntry(operation.name(), null, "", msg);
 	}
-	
+
 	public static void log(Operation operation, boolean out, String id, String request) {
 		if (id != null && !"".equals(id)) {
 			logEntry(operation.name(), out, request, "RequestID " + id);
@@ -68,23 +67,24 @@ public class Audit {
 
 	private static void logEntry(String operation, Boolean out, String data, String msg) {
 		int dir = getDirection(out);
-		if (msg == null) msg = "";
-		String entry = format.get().format(new Object[] {operation, dir, remoteAddress.get(), session.get(), assertionId.get(), data, msg.replace('\n', ' ') });
+		if (msg == null)
+			msg = "";
+		String entry = format.get().format(new Object[] { operation, dir, remoteAddress.get(), session.get(), assertionId.get(), data, msg.replace('\n', ' ') });
 		log.info(entry);
 	}
 
 	public static void logSystem(String sessionId, String assertionId, Operation operation, String msg) {
 		int dir = getDirection(null);
-		if (msg == null) msg = "";
-		String entry = format.get().format(new Object[] {operation, dir, "127.0.0.1", sessionId, assertionId, "", msg.replace('\n', ' ') });
+		if (msg == null)
+			msg = "";
+		String entry = format.get().format(new Object[] { operation, dir, "127.0.0.1", sessionId, assertionId, "", msg.replace('\n', ' ') });
 		log.info(entry);
 	}
 
-	
 	public static void logError(Operation operation, boolean out, String id, Throwable t) {
 		logError(operation.name(), out, t.getMessage(), t);
 	}
-	
+
 	public static void logError(String action, boolean b, Exception e) {
 		logError("Dispatch:" + action, b, e.getMessage(), e);
 	}
@@ -92,12 +92,11 @@ public class Audit {
 	public static void logError(Operation operation, boolean out, String id, String error) {
 		logError(operation.name(), out, error, null);
 	}
-	
+
 	private static void logError(String operation, Boolean out, String msg, Throwable e) {
-		String entry = format.get().format(new Object[] {operation, getDirection(out), remoteAddress.get(), session.get(), assertionId.get(), "", msg });
+		String entry = format.get().format(new Object[] { operation, getDirection(out), remoteAddress.get(), session.get(), assertionId.get(), "", msg });
 		log.error(entry, e);
 	}
-	
 
 	private static int getDirection(Boolean out) {
 		int dir;
@@ -112,11 +111,9 @@ public class Audit {
 	}
 
 	public static void init(HttpServletRequest request) {
-        log.info("Session created at: "+request.getSession().getCreationTime()+", timeout after "+request.getSession().getMaxInactiveInterval()+" seconds");
-	    
+		log.info("Session created at: " + request.getSession().getCreationTime() + ", timeout after " + request.getSession().getMaxInactiveInterval() + " seconds");
 		remoteAddress.set(request.getRemoteAddr());
 		session.set(request.getSession().getId());
-		
 		UserAssertion ua = (UserAssertion) request.getSession().getAttribute(Constants.SESSION_USER_ASSERTION);
 		if (ua != null) {
 			assertionId.set(ua.getAssertionId());
@@ -124,7 +121,7 @@ public class Audit {
 			assertionId.set("");
 		}
 	}
-	
+
 	public static void setAssertionId(String id) {
 		assertionId.set(id);
 	}
@@ -132,19 +129,21 @@ public class Audit {
 	/**
 	 * Initialize log4j with the specified configuration file.
 	 * 
-	 * @param xmlFilename
-	 *            The log4j configuration file. It must be in xml format, since
-	 *            the DomConfigurator is used unconditionally. An absolute path is expected.
+	 * @param log4jStream
+	 *            The log4j configuration stream. It must be in xml format, since
+	 *            the DomConfigurator is used unconditionally. If the parameter
+	 *            is null - it is assumed the desired log4j configuration has
+	 *            loaded elsewhere.
+	 *            	            
 	 */
 	public static void configureLog4j(final InputStream log4jStream) {
 		log.info("Configuring logging from log4jStream");
 		try {
-			new DOMConfigurator() {}.doConfigure(log4jStream, LogManager.getLoggerRepository());
+			if (log4jStream!=null) {
+				new DOMConfigurator() {}.doConfigure(log4jStream, LogManager.getLoggerRepository());
+			}	
 		} catch (Exception e) {
 			log.error("Unable to configure logging from log4jStream", e);
 		}
 	}
-
-
-
 }

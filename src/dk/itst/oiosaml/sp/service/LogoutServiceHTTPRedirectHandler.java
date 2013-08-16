@@ -52,6 +52,7 @@ import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
  */
 public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = -6035256219067030678L;
 	public static final String VERSION = "$Id: LogoutServiceHTTPRedirectHandler.java 2890 2008-05-16 16:18:56Z jre $";
 	private static final Logger log = Logger.getLogger(LogoutServiceHTTPRedirectHandler.class);

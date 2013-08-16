@@ -95,6 +95,7 @@ public class OIOSamlObject {
 	 * 
 	 * @param signingCredential The credential used for signing the object.
 	 */
+	@SuppressWarnings("deprecation")
 	public void sign(Credential signingCredential) {
 		Signature signature = SAMLUtil.buildXMLObject(Signature.class);
 		if (!(obj instanceof SignableSAMLObject)) {

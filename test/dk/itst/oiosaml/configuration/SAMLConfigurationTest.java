@@ -32,7 +32,11 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +46,7 @@ import org.junit.Test;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 
+import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class SAMLConfigurationTest {
@@ -55,9 +60,8 @@ public class SAMLConfigurationTest {
 		SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
 	}
 	
-	
 	@Test
-	public void testFileConfiguration() {
+	public void testFileConfiguration() throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
 		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
 		
 		String confPath="/udvikler/oiosaml/";
