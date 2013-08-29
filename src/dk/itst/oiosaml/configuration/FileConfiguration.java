@@ -66,7 +66,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * @author Carsten Larsen <cas@schultz.dk>
  * 
  */
-public class FileConfiguration extends SAMLConfiguration {
+public class FileConfiguration implements SAMLConfiguration {
 	private static final Logger log = Logger.getLogger(FileConfiguration.class);
 	private String homeDir;
 	private String configurationFileName;

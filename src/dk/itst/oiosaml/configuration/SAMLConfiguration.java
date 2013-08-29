@@ -44,25 +44,25 @@ import dk.itst.oiosaml.error.WrappedException;
  * @author Carsten Larsen <cas@schultz.dk>
  * 
  */
-public abstract class SAMLConfiguration {
+public interface SAMLConfiguration {
 
-	String home = null;
+	//String home = null;
 
-	public abstract boolean isConfigured();
+	boolean isConfigured();
 
-	public abstract Configuration getSystemConfiguration();
+	Configuration getSystemConfiguration();
 
-	public abstract KeyStore getKeystore() throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, IOException, KeyStoreException;
+	KeyStore getKeystore() throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, IOException, KeyStoreException;
 
-	public abstract List<XMLObject> getListOfIdpMetadata();
+	List<XMLObject> getListOfIdpMetadata();
 
-	public abstract XMLObject getSPMetaData();
+	XMLObject getSPMetaData();
 
-	public abstract Configuration getCommonConfiguration() throws IOException;
+	Configuration getCommonConfiguration() throws IOException;
 
-	public abstract InputStream getLoggerConfiguration() throws WrappedException;
+	InputStream getLoggerConfiguration() throws WrappedException;
 
-	public abstract void setConfiguration(Configuration configuration);
+	void setConfiguration(Configuration configuration);
 
-	public abstract void setInitConfiguration(Map<String, String> params);
+	void setInitConfiguration(Map<String, String> params);
 }
