@@ -59,16 +59,16 @@ import dk.itst.oiosaml.sp.service.session.SessionHandlerFactory;
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
-
 /**
  * Main servlet for all SAML handling.
  * 
- * This servlet simply dispatches to {@link dk.itst.oiosaml.sp.model.OIOSamlObject}s based on the requested url.
+ * This servlet simply dispatches to
+ * {@link dk.itst.oiosaml.sp.model.OIOSamlObject}s based on the requested url.
  * 
  * @author Joakim Recht <jre@trifork.com>
  * @author Rolf Njor Jensen <rolf@trifork.com>
  * @author Aage Nielsen <ani@openminds.dk>
- *
+ * 
  */
 public class DispatcherServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(DispatcherServlet.class);
@@ -78,7 +78,7 @@ public class DispatcherServlet extends HttpServlet {
 	private Configuration configuration;
 	private Credential credential;
 
-	private Map<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
+	private final Map<String, SAMLHandler> handlers = new HashMap<String, SAMLHandler>();
 	private boolean initialized = false;
 	private transient VelocityEngine engine;
 
@@ -90,52 +90,42 @@ public class DispatcherServlet extends HttpServlet {
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
 		setHandler(new ConfigurationHandler(config.getServletContext()), "configure");
-		
+
 		servletContext = config.getServletContext();
-		
-		// TODO: Find a strategy for catching configuration errors.
+
 		try {
 			initServlet();
-		} catch (WrappedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (CertificateException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (KeyStoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
-		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		engine.setProperty("classpath.resource.loader.class",
+				"org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 		try {
 			engine.init();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	private void initServlet() throws WrappedException, NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
+
+	private void initServlet() throws WrappedException, NoSuchAlgorithmException, CertificateException,
+			KeyStoreException, IOException {
 		try {
-			if (initialized  == false) {
+			if (initialized == false) {
 				setConfiguration(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration());
 				Audit.configureLog4j(SAMLConfigurationFactory.getConfiguration().getLoggerConfiguration());
-				
+
 				handlers.putAll(Utils.getHandlers(configuration, servletContext));
-				if (log.isDebugEnabled()) log.debug("Found handlers: " + handlers);
-				
+				if (log.isDebugEnabled())
+					log.debug("Found handlers: " + handlers);
+
 				setHandler(new IndexHandler(), "");
 				sessionHandlerFactory = SessionHandlerFactory.Factory.newInstance(configuration);
-				sessionHandlerFactory.getHandler().resetReplayProtection(configuration.getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
-				
+				sessionHandlerFactory.getHandler().resetReplayProtection(
+						configuration.getInt(Constants.PROP_NUM_TRACKED_ASSERTIONIDS));
+
 				if (configuration.getBoolean(Constants.PROP_DEVEL_MODE, false)) {
 					log.warn("Running in devel mode");
 					return;
@@ -143,55 +133,52 @@ public class DispatcherServlet extends HttpServlet {
 				setBindingHandler(new DefaultBindingHandlerFactory());
 				setIdPMetadata(IdpMetadata.getInstance());
 				setSPMetadata(SPMetadata.getInstance());
-				setCredential(new CredentialRepository().getCredential(SAMLConfigurationFactory.getConfiguration().getKeystore(),configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
+				setCredential(new CredentialRepository().getCredential(SAMLConfigurationFactory.getConfiguration()
+						.getKeystore(), configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
 
 				initialized = true;
 			}
 		} catch (IllegalStateException e) {
 			try {
-				handlers.putAll(Utils.getHandlers(SAMLConfigurationFactory.getConfiguration().getCommonConfiguration(), servletContext));
+				handlers.putAll(Utils.getHandlers(SAMLConfigurationFactory.getConfiguration().getCommonConfiguration(),
+						servletContext));
 			} catch (IOException e1) {
 				log.error("Unable to load config", e);
 			}
 		}
 	}
 
+	@Override
 	protected final void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		doPost(req, res);
 	}
-	
+
+	@Override
 	protected final void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		doGet(req, res);
 	}
-	
+
+	@Override
 	protected final void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		// TODO: Find a strategy for catching configuration errors.
 		try {
 			initServlet();
-		} catch (WrappedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (CertificateException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (KeyStoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
-	    Audit.init(req); // This is needed if DispatcherServlet isn't protected by the SPFilter
-		if(handlers.containsKey(action)) {
+		Audit.init(req);
+
+		// This is needed if DispatcherServlet isn't protected
+		// by the SPFilter
+		if (handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
-				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, sessionHandler, bindingHandlerFactory); 
+				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler()
+						: null;
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential,
+						configuration, sessionHandler, bindingHandlerFactory);
 				handler.handleGet(context);
 			} catch (Exception e) {
 				Audit.logError(action, false, e);
@@ -201,35 +188,27 @@ public class DispatcherServlet extends HttpServlet {
 			throw new UnsupportedOperationException(action + ", allowed: " + handlers.keySet());
 		}
 	}
-	
+
+	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		// TODO: Find a strategy for catching configuration errors.
 		try {
 			initServlet();
-		} catch (WrappedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (CertificateException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (KeyStoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		};
-		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		String action = req.getRequestURI().substring(req.getRequestURI().lastIndexOf("/") + 1);
-        Audit.init(req); // This is needed if DispatcherServlet isn't protected by the SPFilter
-		if(handlers.containsKey(action)) {
+		Audit.init(req);
+
+		// This is needed if DispatcherServlet isn't protected
+		// by the SPFilter
+		if (handlers.containsKey(action)) {
 			try {
 				SAMLHandler handler = handlers.get(action);
-				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler() : null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential, configuration, sessionHandler, bindingHandlerFactory); 
+				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler()
+						: null;
+				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential,
+						configuration, sessionHandler, bindingHandlerFactory);
 				handler.handlePost(context);
 			} catch (Exception e) {
 				Audit.logError(action, false, e);
@@ -239,15 +218,15 @@ public class DispatcherServlet extends HttpServlet {
 			throw new UnsupportedOperationException(action);
 		}
 	}
-	
+
 	public void setInitialized(boolean b) {
 		initialized = b;
 	}
-	
+
 	public boolean isInitialized() {
 		return initialized;
 	}
-	
+
 	public final void setCredential(Credential credential) {
 		this.credential = credential;
 	}
@@ -263,24 +242,27 @@ public class DispatcherServlet extends HttpServlet {
 	public final void setIdPMetadata(IdpMetadata metadata) {
 		this.idpMetadata = metadata;
 	}
-	
+
 	public void setHandler(SAMLHandler handler, String dispatchPath) {
-		handlers.put(dispatchPath, handler);		
+		handlers.put(dispatchPath, handler);
 	}
-	
+
 	public void setBindingHandler(BindingHandlerFactory bindingHandlerFactory) {
 		this.bindingHandlerFactory = bindingHandlerFactory;
 	}
-	
+
 	public void setSessionHandlerFactory(SessionHandlerFactory sessionHandlerFactory) {
 		this.sessionHandlerFactory = sessionHandlerFactory;
 	}
-	
-	/* Generic error handling for SAML requests/responses - due to a security issue with XML Encryption,
-	 * all error messages are anonymized - so exception stacktraces and exception messages are no longer
-	 * shown to the user (unless configured to do so) - they are still auditlogged though.
+
+	/*
+	 * Generic error handling for SAML requests/responses - due to a security
+	 * issue with XML Encryption, all error messages are anonymized - so
+	 * exception stacktraces and exception messages are no longer shown to the
+	 * user (unless configured to do so) - they are still auditlogged though.
 	 */
-	private void handleError(HttpServletRequest request, HttpServletResponse response, Exception e) throws ServletException, IOException {
+	private void handleError(HttpServletRequest request, HttpServletResponse response, Exception e)
+			throws ServletException, IOException {
 		String DEFAULT_MESSAGE = "Unable to validate SAML message!";
 
 		log.error("Unable to validate Response", e);
@@ -289,13 +271,12 @@ public class DispatcherServlet extends HttpServlet {
 		if (configuration != null) {
 			err = configuration.getString(Constants.PROP_ERROR_SERVLET, null);
 		}
-		
+
 		if (err != null) {
 			if (configuration.getBoolean(Constants.PROP_SHOW_ERROR, false)) {
 				request.setAttribute(Constants.ATTRIBUTE_ERROR, e.getMessage());
 				request.setAttribute(Constants.ATTRIBUTE_EXCEPTION, e);
-			}
-			else {
+			} else {
 				request.setAttribute(Constants.ATTRIBUTE_ERROR, DEFAULT_MESSAGE);
 				request.setAttribute(Constants.ATTRIBUTE_EXCEPTION, null);
 			}
@@ -306,8 +287,7 @@ public class DispatcherServlet extends HttpServlet {
 			if (configuration.getBoolean(Constants.PROP_SHOW_ERROR, false)) {
 				ctx.put(Constants.ATTRIBUTE_ERROR, e.getMessage());
 				ctx.put(Constants.ATTRIBUTE_EXCEPTION, e);
-			}
-			else {
+			} else {
 				ctx.put(Constants.ATTRIBUTE_ERROR, DEFAULT_MESSAGE);
 				ctx.put(Constants.ATTRIBUTE_EXCEPTION, null);
 			}
@@ -325,7 +305,7 @@ public class DispatcherServlet extends HttpServlet {
 		}
 
 	}
-	
+
 	@Override
 	public void destroy() {
 		if (sessionHandlerFactory != null) {
@@ -333,11 +313,11 @@ public class DispatcherServlet extends HttpServlet {
 		}
 		SessionHandlerFactory.Factory.close();
 	}
-	
+
 	private class IndexHandler implements SAMLHandler {
 		public void handleGet(RequestContext context) throws ServletException, IOException {
 			PrintWriter w = context.getResponse().getWriter();
-			
+
 			w.println("<html><head><title>SAML Endppoints</title></head><body><h1>SAML Endpoints</h1>");
 			w.println("<ul>");
 			for (Map.Entry<String, SAMLHandler> e : handlers.entrySet()) {
@@ -353,9 +333,8 @@ public class DispatcherServlet extends HttpServlet {
 			w.println("</body></html>");
 		}
 
-		public void handlePost(RequestContext context) throws ServletException,
-				IOException {
+		public void handlePost(RequestContext context) throws ServletException, IOException {
 		}
-		
+
 	}
 }
