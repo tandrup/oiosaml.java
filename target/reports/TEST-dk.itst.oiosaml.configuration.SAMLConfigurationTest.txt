@@ -1,0 +1,11 @@
+Testsuite: dk.itst.oiosaml.configuration.SAMLConfigurationTest
+Tests run: 3, Failures: 1, Errors: 0, Time elapsed: 0,094 sec
+
+Testcase: failOnMissingSystemProperty took 0 sec
+Testcase: testFileConfiguration took 0 sec
+	FAILED
+
+junit.framework.AssertionFailedError: 
+	at dk.itst.oiosaml.configuration.SAMLConfigurationTest.testFileConfiguration(SAMLConfigurationTest.java:73)
+
+Testcase: testIsConfigured took 0,078 sec

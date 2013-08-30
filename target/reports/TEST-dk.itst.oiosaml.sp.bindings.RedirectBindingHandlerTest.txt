@@ -1,0 +1,4 @@
+Testsuite: dk.itst.oiosaml.sp.bindings.RedirectBindingHandlerTest
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,156 sec
+
+Testcase: testHandle took 0,031 sec

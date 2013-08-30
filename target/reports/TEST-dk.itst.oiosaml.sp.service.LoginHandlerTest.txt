@@ -1,0 +1,11 @@
+Testsuite: dk.itst.oiosaml.sp.service.LoginHandlerTest
+Tests run: 8, Failures: 0, Errors: 0, Time elapsed: 0,375 sec
+
+Testcase: redirectToDiscoveryWhenNoSession took 0,047 sec
+Testcase: testDefaultSelectedDiscoveryIdp took 0,031 sec
+Testcase: testSelectDiscoveryIdp took 0,032 sec
+Testcase: testUseDefaultIdPWhenNoSupportedIdpDiscovered took 0,046 sec
+Testcase: testPassive took 0,047 sec
+Testcase: testLogin took 0,032 sec
+Testcase: testNameIDPolicy took 0,031 sec
+Testcase: testForceAuthn took 0,032 sec

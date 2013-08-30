@@ -1,0 +1,7 @@
+Testsuite: dk.itst.oiosaml.sp.service.PostBindingResponseTest
+Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0,235 sec
+
+Testcase: failOnWrongDestination took 0,032 sec
+Testcase: failOnMissingSignature took 0,031 sec
+Testcase: handleSuccess took 0,047 sec
+Testcase: failOnNoAssertions took 0,047 sec

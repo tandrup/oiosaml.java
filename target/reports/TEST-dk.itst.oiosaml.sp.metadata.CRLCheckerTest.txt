@@ -1,0 +1,26 @@
+Testsuite: dk.itst.oiosaml.sp.metadata.CRLCheckerTest
+Tests run: 5, Failures: 3, Errors: 0, Time elapsed: 3,313 sec
+
+Testcase: testCheckCertificatesWithNoRevoked took 0,031 sec
+Testcase: invalid_signature_on_crl_should_fail took 0,079 sec
+	FAILED
+expected:<0> but was:<1>
+junit.framework.AssertionFailedError: expected:<0> but was:<1>
+	at dk.itst.oiosaml.sp.metadata.CRLCheckerTest.invalid_signature_on_crl_should_fail(CRLCheckerTest.java:140)
+	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)
+
+Testcase: crl_should_be_signed_if_truststore_specified took 0,031 sec
+Testcase: testRevoked took 0,031 sec
+	FAILED
+expected:<0> but was:<1>
+junit.framework.AssertionFailedError: expected:<0> but was:<1>
+	at dk.itst.oiosaml.sp.metadata.CRLCheckerTest.testRevoked(CRLCheckerTest.java:83)
+	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)
+
+Testcase: testTimer took 3,016 sec
+	FAILED
+expected:<0> but was:<1>
+junit.framework.AssertionFailedError: expected:<0> but was:<1>
+	at dk.itst.oiosaml.sp.metadata.CRLCheckerTest.testTimer(CRLCheckerTest.java:109)
+	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)
+

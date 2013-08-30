@@ -1,0 +1,4 @@
+Testsuite: dk.itst.oiosaml.sp.model.validation.OIOSAMLAssertionValidatorTest
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,078 sec
+
+Testcase: testValidate took 0 sec

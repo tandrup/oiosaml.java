@@ -1,0 +1,13 @@
+Testsuite: dk.itst.oiosaml.sp.configuration.ConfigurationHandlerTest
+Tests run: 10, Failures: 0, Errors: 0, Time elapsed: 0,609 sec
+
+Testcase: downloadFailWhenNoConfiguration took 0,063 sec
+Testcase: showConfigurationIfUnconfigured took 0,047 sec
+Testcase: testRender took 0,078 sec
+Testcase: testIsConfigured took 0,109 sec
+Testcase: testGenerateSPDescriptor took 0,047 sec
+Testcase: testDownloadConfiguration took 0,031 sec
+Testcase: testWriteConfiguration took 0,031 sec
+Testcase: testGenerateSPDescriptorWithAttributes took 0,063 sec
+Testcase: testGenerateZipFile took 0,031 sec
+Testcase: testGetBaseUrl took 0,031 sec

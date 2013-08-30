@@ -1,0 +1,9 @@
+Testsuite: dk.itst.oiosaml.sp.model.OIOLogoutResponseTest
+Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,219 sec
+------------- Standard Output ---------------
+http://destination?SAMLResponse=fZFRT8IwFIX%2FStP3sq7daNewEQMxIcEXQR58MbUtuGS0y25n9N87Bigxxrfbe%2FvdnHPubP5xbNC766AOvsTphGLkvAm29ocSP23vicTzagb62LBWrcMh9PHRQRs8ODSgHtR5VuK%2B8ypoqEF5fXSgolGbu4e1YhOq2i7EYEKD0eJE%2Blhicy4wWjqItddxFPAWY6uSxP70MFotS%2Fwi5F5kWU4JK6glmcsZ0VNbEJFKt09ZvudCD1%2F9Vdw2DJBmmkkrp4QJzkiWv2akcMYMEE8LK6mlhg8QQO9WHqI%2B6WI05YRKwumWSsUKleYTIfgzRrtrSoMjfMlEjXB3G8X%2FSWgA142%2BqsF9HT9XdpbcrvoOexN17OHXcxGsQzvd9K7EMHZwUl0W%2FCDJn%2FeqvgA%3D&RelayState=relayState&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=Loxhsrv7Q48rLy0eGof%2FMFpKd88TBFYrmHBizwhX5Np%2BwNPcfRaD5MGZgWcG%2Baxsu16IuZcR4kFwMYQatnFpvA%3D%3D
+------------- ---------------- ---------------
+
+Testcase: testGetRedirectResponseURL took 0,078 sec
+Testcase: testFromRequest took 0,031 sec
+Testcase: testToSoapEnvelope took 0,032 sec

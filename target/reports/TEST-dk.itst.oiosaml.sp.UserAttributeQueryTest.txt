@@ -1,0 +1,29 @@
+Testsuite: dk.itst.oiosaml.sp.UserAttributeQueryTest
+Tests run: 3, Failures: 0, Errors: 1, Time elapsed: 0,421 sec
+
+Testcase: testDefaultFailOnNoAssertion took 0,094 sec
+Testcase: testDefault took 0,109 sec
+	Caused an ERROR
+Wrapped
+dk.itst.oiosaml.error.WrappedException: Wrapped
+	at dk.itst.oiosaml.security.CredentialRepository.createCredential(CredentialRepository.java:166)
+	at dk.itst.oiosaml.security.CredentialRepository.getCredential(CredentialRepository.java:76)
+	at dk.itst.oiosaml.security.CredentialRepository.getCredential(CredentialRepository.java:84)
+	at dk.itst.oiosaml.sp.UserAttributeQuery.<init>(UserAttributeQuery.java:73)
+	at dk.itst.oiosaml.sp.UserAttributeQuery.<init>(UserAttributeQuery.java:69)
+	at dk.itst.oiosaml.sp.UserAttributeQuery.<init>(UserAttributeQuery.java:65)
+	at dk.itst.oiosaml.sp.UserAttributeQueryTest.testDefault(UserAttributeQueryTest.java:131)
+	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)
+Caused by: java.security.UnrecoverableKeyException: Get Key failed: Given final block not properly padded
+	at sun.security.pkcs12.PKCS12KeyStore.engineGetKey(PKCS12KeyStore.java:295)
+	at java.security.KeyStore.getKey(KeyStore.java:792)
+	at dk.itst.oiosaml.security.CredentialRepository.createCredential(CredentialRepository.java:156)
+Caused by: javax.crypto.BadPaddingException: Given final block not properly padded
+	at com.sun.crypto.provider.CipherCore.doFinal(CipherCore.java:811)
+	at com.sun.crypto.provider.CipherCore.doFinal(CipherCore.java:676)
+	at com.sun.crypto.provider.PKCS12PBECipherCore.implDoFinal(PKCS12PBECipherCore.java:355)
+	at com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndDESede.engineDoFinal(PKCS12PBECipherCore.java:387)
+	at javax.crypto.Cipher.doFinal(Cipher.java:2087)
+	at sun.security.pkcs12.PKCS12KeyStore.engineGetKey(PKCS12KeyStore.java:266)
+
+Testcase: testQuery took 0,125 sec

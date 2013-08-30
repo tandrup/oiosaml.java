@@ -1,0 +1,6 @@
+Testsuite: dk.itst.oiosaml.sp.bindings.PostBindingHandlerTest
+Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,172 sec
+
+Testcase: testHandle took 0,031 sec
+Testcase: failOnNoDispatcher took 0,031 sec
+Testcase: testGetBindingURI took 0,032 sec

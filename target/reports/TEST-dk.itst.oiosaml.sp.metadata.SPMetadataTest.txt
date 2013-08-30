@@ -1,0 +1,4 @@
+Testsuite: dk.itst.oiosaml.sp.metadata.SPMetadataTest
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,094 sec
+
+Testcase: testGetMetadata took 0,032 sec

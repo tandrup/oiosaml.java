@@ -1,0 +1,23 @@
+Testsuite: dk.itst.oiosaml.sp.model.OIOLogoutRequestTest
+Tests run: 5, Failures: 0, Errors: 1, Time elapsed: 0,266 sec
+
+Testcase: testValidateLogoutRequest took 0,031 sec
+	Caused an ERROR
+Wrapped
+dk.itst.oiosaml.error.WrappedException: Wrapped
+	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:151)
+	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:116)
+	at dk.itst.oiosaml.sp.model.OIOLogoutRequest.validateRequest(OIOLogoutRequest.java:156)
+	at dk.itst.oiosaml.sp.model.OIOLogoutRequest.validateRequest(OIOLogoutRequest.java:146)
+	at dk.itst.oiosaml.sp.model.OIOLogoutRequestTest.testValidateLogoutRequest(OIOLogoutRequestTest.java:70)
+	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)
+Caused by: java.security.SignatureException: Signature length not correct: got 0 but was expecting 64
+	at sun.security.rsa.RSASignature.engineVerify(RSASignature.java:189)
+	at java.security.Signature$Delegate.engineVerify(Signature.java:1172)
+	at java.security.Signature.verify(Signature.java:623)
+	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:145)
+
+Testcase: testBuildLogoutRequest took 0,062 sec
+Testcase: testGetRedirectRequestUrl took 0,063 sec
+Testcase: testIsSessionIndexOK took 0,016 sec
+Testcase: testGetSessionIndex took 0,031 sec

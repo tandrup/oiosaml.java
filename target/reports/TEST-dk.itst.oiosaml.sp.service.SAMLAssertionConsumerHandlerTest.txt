@@ -1,0 +1,11 @@
+Testsuite: dk.itst.oiosaml.sp.service.SAMLAssertionConsumerHandlerTest
+Tests run: 8, Failures: 0, Errors: 0, Time elapsed: 0,453 sec
+
+Testcase: authenticationHookFailureMustAbort took 0,047 sec
+Testcase: failWhenResponseIsUnsigned took 0,062 sec
+Testcase: failWhenMissingSAMLart took 0,032 sec
+Testcase: authenticationHookMustBeInvokedIfConfigured took 0,047 sec
+Testcase: testRedirectWithUrlFragmentIfSavedInCookie took 0,031 sec
+Testcase: testPassive took 0,062 sec
+Testcase: testPost took 0,032 sec
+Testcase: testResolveSuccess took 0,078 sec

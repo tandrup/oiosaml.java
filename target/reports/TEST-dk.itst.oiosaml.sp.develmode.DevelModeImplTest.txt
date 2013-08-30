@@ -1,0 +1,9 @@
+Testsuite: dk.itst.oiosaml.sp.develmode.DevelModeImplTest
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,328 sec
+
+Testcase: multipleUsernamesMustInteract took 0,078 sec
+Testcase: noInteractionsIfUsernameSelected took 0,047 sec
+Testcase: testNotConfigured took 0,031 sec
+Testcase: filterIfSessionExists took 0,031 sec
+Testcase: testOneUserNoInteractions took 0,031 sec
+Testcase: testUserAttributes took 0,047 sec
