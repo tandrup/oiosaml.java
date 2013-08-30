@@ -123,6 +123,12 @@ public class CRLChecker {
 
 					md.setCertificateValid(certificate, true);
 				} catch (Exception e) {
+					log.error("Unexpected error while checking revokation of certificates.", e);
+
+					// Default to non-valid certificate.
+					if (certificate != null && md != null)
+						md.setCertificateValid(certificate, false);
+
 					throw new WrappedException(Layer.BUSINESS, e);
 				}
 			}
@@ -166,12 +172,13 @@ public class CRLChecker {
 			}
 		} catch (MalformedURLException e) {
 			log.error("Unable to parse url " + url, e);
-			throw new WrappedException(Layer.BUSINESS, e);
+			return false;
 		} catch (IOException e) {
 			log.error("Unable to read CRL from " + url, e);
-			throw new WrappedException(Layer.BUSINESS, e);
+			return false;
 		} catch (GeneralSecurityException e) {
-			throw new WrappedException(Layer.BUSINESS, e);
+			log.error("Unexpected error reading CRL from " + url, e);
+			return false;
 		} finally {
 			if (is != null) {
 				try {
@@ -222,6 +229,7 @@ public class CRLChecker {
 				}
 			}
 		}
+
 		return url;
 	}
 
@@ -292,9 +300,14 @@ public class CRLChecker {
 			ca = (X509Certificate) cf.generateCertificate(is);
 			is.close();
 		} catch (IOException e) {
-			throw new WrappedException(Layer.BUSINESS, e);
+			log.error("Unable to read CA certficate from: " + ocspServer, e);
+			return false;
 		} catch (CertificateException e) {
-			throw new WrappedException(Layer.BUSINESS, e);
+			log.error("Unable to validate CA certficate from: " + ocspServer, e);
+			return false;
+		} catch (Exception e) {
+			log.error("Unexpected error while validating CA certficate from: " + ocspServer, e);
+			return false;
 		} finally {
 			if (is != null) {
 				try {
@@ -327,7 +340,7 @@ public class CRLChecker {
 			PKIXCertPathValidatorResult result = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
 
 			// Logging
-			log.debug("Certificate validated");
+			log.debug("Certificate validated.");
 			X509Certificate trustedCert = result.getTrustAnchor().getTrustedCert();
 
 			if (trustedCert == null) {
@@ -343,9 +356,11 @@ public class CRLChecker {
 			log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
 			return false;
 		} catch (NoSuchAlgorithmException e) {
-			throw new WrappedException(Layer.BUSINESS, e);
+			log.error("Unexpected error while validating certficate using OCSP.", e);
+			return false;
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new WrappedException(Layer.BUSINESS, e);
+			log.error("Unexpected error while validating certficate using OCSP.", e);
+			return false;
 		}
 
 		return true;
@@ -384,7 +399,8 @@ public class CRLChecker {
 					authInfoAcc = AuthorityInformationAccess.getInstance(auth_info_acc);
 				}
 			} catch (Exception e) {
-				throw new WrappedException(Layer.BUSINESS, e);
+				log.debug("Cannot extract access location of OCSP responder.", e);
+				return null;
 			} finally {
 				if (aIn != null) {
 					try {
