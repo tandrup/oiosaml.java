@@ -11,9 +11,16 @@
 
 CompositeConfiguration conf = (CompositeConfiguration) SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
 StringWriter sw = new StringWriter();
-PropertiesConfiguration c = (PropertiesConfiguration)conf.getConfiguration(1);
+PropertiesConfiguration c = null;
 
-if (request.getMethod().equals("POST")) {
+for (int i = 0; i < conf.getNumberOfConfigurations(); i++){
+	if (conf.getConfiguration(i) instanceof PropertiesConfiguration) {
+		c = (PropertiesConfiguration)conf.getConfiguration(i);
+		break;
+	}
+}
+
+if (request.getMethod().equals("POST") && c != null) {
 	c.setProperty(Constants.PROP_PASSIVE, Boolean.valueOf(request.getParameter("isPassive")));
 	c.setProperty(Constants.PROP_PASSIVE_USER_ID, request.getParameter("passiveUsername"));
 	c.setProperty(Constants.PROP_FORCE_AUTHN_URLS, request.getParameter("forceAuthn") != null ? "/.*" : null);
