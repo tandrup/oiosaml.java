@@ -1,9 +1,9 @@
 Testsuite: dk.itst.oiosaml.sp.model.OIORequestTest
-Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,375 sec
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,327 sec
 
-Testcase: testValidateRequestNemIssuer took 0,047 sec
-Testcase: testGetID took 0,031 sec
-Testcase: testGetIssuer took 0,078 sec
-Testcase: testIsIssuerOK took 0,031 sec
-Testcase: testIsDestinationOK took 0,031 sec
-Testcase: testValidateRequest took 0,094 sec
+Testcase: testGetIssuer took 0,016 sec
+Testcase: testIsIssuerOK took 0,062 sec
+Testcase: testIsDestinationOK took 0,016 sec
+Testcase: testValidateRequest took 0,047 sec
+Testcase: testValidateRequestNemIssuer took 0,016 sec
+Testcase: testGetID took 0,015 sec

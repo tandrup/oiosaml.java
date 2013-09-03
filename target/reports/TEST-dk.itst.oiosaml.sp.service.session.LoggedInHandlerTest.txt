@@ -1,14 +1,10 @@
 Testsuite: dk.itst.oiosaml.sp.service.session.LoggedInHandlerTest
-Tests run: 7, Failures: 1, Errors: 0, Time elapsed: 6,547 sec
+Tests run: 7, Failures: 0, Errors: 0, Time elapsed: 6,505 sec
 
-Testcase: failOnReplayAssertionId took 0,062 sec
-Testcase: testLogOut took 0,032 sec
-Testcase: cleanupRequestIds took 2,031 sec
-	FAILED
-Expected exception: java.lang.IllegalArgumentException
-junit.framework.AssertionFailedError: Expected exception: java.lang.IllegalArgumentException
-
-Testcase: testStopSchedule took 2,156 sec
-Testcase: testSetAssertion took 0,047 sec
 Testcase: testIsLoggedIn took 0,016 sec
-Testcase: cleanUpIsScheduled took 2,14 sec
+Testcase: failOnReplayAssertionId took 0,031 sec
+Testcase: testSetAssertion took 0,031 sec
+Testcase: cleanUpIsScheduled took 2,137 sec
+Testcase: testStopSchedule took 2,122 sec
+Testcase: cleanupRequestIds took 2,044 sec
+Testcase: testLogOut took 0,031 sec

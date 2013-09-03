@@ -1,9 +1,9 @@
 Testsuite: dk.itst.oiosaml.sp.model.OIOSamlObjectTest
-Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,297 sec
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,281 sec
 
-Testcase: testToXML took 0,015 sec
-Testcase: testSign took 0,079 sec
-Testcase: testToBase64 took 0 sec
-Testcase: testOIOSamlObject took 0 sec
+Testcase: testOIOSamlObject took 0,015 sec
 Testcase: testHasSignature took 0 sec
-Testcase: testVerifySignature took 0,14 sec
+Testcase: testVerifySignature took 0,031 sec
+Testcase: testSign took 0,016 sec
+Testcase: testToXML took 0 sec
+Testcase: testToBase64 took 0 sec

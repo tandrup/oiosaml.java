@@ -1,22 +1,22 @@
 Testsuite: dk.itst.oiosaml.sp.util.SAMLUtilTest
 Tests run: 15, Failures: 0, Errors: 0, Time elapsed: 0,031 sec
 ------------- Standard Error -----------------
-[Fatal Error] :1:10: XML document structures must start and end within the same entity.
 [Fatal Error] :1:1: Content is not allowed in prolog.
+[Fatal Error] :1:10: XML document structures must start and end within the same entity.
 ------------- ---------------- ---------------
 
-Testcase: testGetSAMLObjectAsPrettyPrintXML took 0 sec
-Testcase: testUnmarshallElementFromString took 0 sec
-Testcase: testUnmarshallElementFromFile took 0,016 sec
-Testcase: testCreateSessionIndex took 0 sec
-Testcase: testCreateAuthnContext took 0 sec
-Testcase: testCreateAudienceCondition took 0 sec
-Testcase: testUnmarshallElement took 0,015 sec
-Testcase: testGetFirstElement took 0 sec
-Testcase: testCreateSignature took 0 sec
-Testcase: testCreateStatus took 0 sec
-Testcase: testCreateArtifact took 0 sec
-Testcase: testCreateSubject took 0 sec
-Testcase: testBuildXMLObject took 0 sec
-Testcase: testCreateIssuer took 0 sec
 Testcase: testCreateNameID took 0 sec
+Testcase: testCreateIssuer took 0 sec
+Testcase: testBuildXMLObject took 0 sec
+Testcase: testCreateSessionIndex took 0 sec
+Testcase: testCreateSubject took 0 sec
+Testcase: testCreateArtifact took 0 sec
+Testcase: testCreateAudienceCondition took 0 sec
+Testcase: testCreateAuthnContext took 0 sec
+Testcase: testCreateStatus took 0 sec
+Testcase: testCreateSignature took 0 sec
+Testcase: testUnmarshallElement took 0 sec
+Testcase: testGetFirstElement took 0 sec
+Testcase: testGetSAMLObjectAsPrettyPrintXML took 0,015 sec
+Testcase: testUnmarshallElementFromString took 0 sec
+Testcase: testUnmarshallElementFromFile took 0 sec

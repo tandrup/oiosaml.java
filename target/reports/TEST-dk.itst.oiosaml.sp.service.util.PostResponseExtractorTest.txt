@@ -1,6 +1,6 @@
 Testsuite: dk.itst.oiosaml.sp.service.util.PostResponseExtractorTest
-Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,14 sec
+Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,125 sec
 
-Testcase: failOnMissingParameter took 0,032 sec
-Testcase: testExtract took 0,015 sec
+Testcase: failOnMissingParameter took 0,016 sec
 Testcase: failOnWrongType took 0,031 sec
+Testcase: testExtract took 0,016 sec

@@ -1,9 +1,9 @@
 Testsuite: dk.itst.oiosaml.sp.model.OIOLogoutResponseTest
-Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,219 sec
+Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,266 sec
 ------------- Standard Output ---------------
-http://destination?SAMLResponse=fZFRT8IwFIX%2FStP3sq7daNewEQMxIcEXQR58MbUtuGS0y25n9N87Bigxxrfbe%2FvdnHPubP5xbNC766AOvsTphGLkvAm29ocSP23vicTzagb62LBWrcMh9PHRQRs8ODSgHtR5VuK%2B8ypoqEF5fXSgolGbu4e1YhOq2i7EYEKD0eJE%2Blhicy4wWjqItddxFPAWY6uSxP70MFotS%2Fwi5F5kWU4JK6glmcsZ0VNbEJFKt09ZvudCD1%2F9Vdw2DJBmmkkrp4QJzkiWv2akcMYMEE8LK6mlhg8QQO9WHqI%2B6WI05YRKwumWSsUKleYTIfgzRrtrSoMjfMlEjXB3G8X%2FSWgA142%2BqsF9HT9XdpbcrvoOexN17OHXcxGsQzvd9K7EMHZwUl0W%2FCDJn%2FeqvgA%3D&RelayState=relayState&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=Loxhsrv7Q48rLy0eGof%2FMFpKd88TBFYrmHBizwhX5Np%2BwNPcfRaD5MGZgWcG%2Baxsu16IuZcR4kFwMYQatnFpvA%3D%3D
+http://destination?SAMLResponse=fZFBb8IwDIX%2FSpR7aJrSkkZt0QSahMQug3HYZTJNyiqVpKrTafv3KwUGmqbdHDuf9d5zNv88NuTDdFg7m9NwwikxtnS6toecvmwfmaTzIkM4NqJVa3dwvX822DqLhgyoRXWe5bTvrHKANSoLR4PKl2rz8LRWYsJV2znvStdQsjiR1ue0PBeULA362oIfBbx736og0LceJatlTt%2B0kMBnU8GipCzZdC8lgzSqWMzBiERGVcrD4au9itu6AUojCFMNM6alHqAq1UzqKmaiMjLhe7MHHg8QYm9WFj2cdAkeRoynjEfbMFRxooScxDx5pWR3TWlwRC%2BZqBHu7qP4PwlANN3oqxjc1%2F5rpbPgftVP2BsPvsdfz4XThuyg6U1OcezQoLgsuCHBn%2FcqvgE%3D&RelayState=relayState&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=cGjyRzCaemnZ4V4fx5RdLf%2Fh6e3%2B7b7vN%2FVLbikMqDrSisXKfrR%2BQO0k%2Bw1ECVX1UmHH2lZUzPHAM5kWc5fKfw%3D%3D
 ------------- ---------------- ---------------
 
-Testcase: testGetRedirectResponseURL took 0,078 sec
-Testcase: testFromRequest took 0,031 sec
-Testcase: testToSoapEnvelope took 0,032 sec
+Testcase: testGetRedirectResponseURL took 0,063 sec
+Testcase: testToSoapEnvelope took 0,015 sec
+Testcase: testFromRequest took 0,016 sec

@@ -1,36 +1,36 @@
 Testsuite: dk.itst.oiosaml.sp.UserAssertionImplTest
-Tests run: 30, Failures: 0, Errors: 0, Time elapsed: 0,266 sec
+Tests run: 30, Failures: 0, Errors: 0, Time elapsed: 0,889 sec
 ------------- Standard Output ---------------
 <saml:Attribute xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" Name="test"><saml:AttributeValue><saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Version="2.0"><saml:AttributeStatement/></saml:Assertion></saml:AttributeValue></saml:Attribute>
 ------------- ---------------- ---------------
 
-Testcase: testGetOrganizationName took 0 sec
-Testcase: testGetAssuranceLevel took 0,016 sec
-Testcase: testGetSessionExpireTime took 0 sec
-Testcase: testGetSpecificationVersion took 0 sec
-Testcase: testGetUniqueAccountKey took 0 sec
-Testcase: testGetCVRNumberIdentifier took 0 sec
+Testcase: testGetSubject took 0,015 sec
 Testcase: testGetOrganizationUnit took 0 sec
-Testcase: testGetEmployeeNumber took 0 sec
-Testcase: testGetUserCertificate took 0,063 sec
-Testcase: testIsYouthCertificate took 0,015 sec
-Testcase: testProfileCompliance took 0 sec
-Testcase: testIsPersistentCompliant took 0,016 sec
-Testcase: testAttributeWithXMLValue took 0 sec
-Testcase: testGetXML took 0,016 sec
-Testcase: testIsSigned took 0 sec
-Testcase: testGetMail took 0 sec
-Testcase: testGetTitle took 0 sec
-Testcase: testGetCertificateSerialNumber took 0,015 sec
-Testcase: testGetIssuer took 0 sec
-Testcase: testGetCommonName took 0 sec
-Testcase: testGetIssueTime took 0 sec
-Testcase: testGetSubject took 0 sec
-Testcase: testGetPostalAddress took 0 sec
-Testcase: testGetSurname took 0,016 sec
+Testcase: testGetPostalAddress took 0,016 sec
+Testcase: testGetSessionExpireTime took 0,016 sec
+Testcase: testGetOrganizationName took 0 sec
+Testcase: testGetCVRNumberIdentifier took 0,015 sec
 Testcase: testGetAllAttributes took 0 sec
+Testcase: testGetAssuranceLevel took 0 sec
+Testcase: testGetIssuer took 0,016 sec
+Testcase: testGetIssueTime took 0 sec
+Testcase: testGetSpecificationVersion took 0 sec
+Testcase: testGetCommonName took 0,015 sec
+Testcase: testGetSurname took 0 sec
+Testcase: testGetUniqueAccountKey took 0,016 sec
 Testcase: testGetUserId took 0 sec
-Testcase: testGetCPRNumber took 0 sec
-Testcase: testPIDNumber took 0 sec
-Testcase: testGetPseudonym took 0,016 sec
+Testcase: testGetCPRNumber took 0,016 sec
+Testcase: testGetEmployeeNumber took 0 sec
+Testcase: testPIDNumber took 0,015 sec
+Testcase: testGetPseudonym took 0 sec
+Testcase: testGetUserCertificate took 0,063 sec
+Testcase: testIsYouthCertificate took 0 sec
+Testcase: testProfileCompliance took 0,031 sec
+Testcase: testIsPersistentCompliant took 0,015 sec
 Testcase: testGetAssertionId took 0 sec
+Testcase: testAttributeWithXMLValue took 0,016 sec
+Testcase: testGetMail took 0,016 sec
+Testcase: testIsSigned took 0,015 sec
+Testcase: testGetXML took 0 sec
+Testcase: testGetTitle took 0 sec
+Testcase: testGetCertificateSerialNumber took 0,016 sec

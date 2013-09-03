@@ -1,7 +1,7 @@
 Testsuite: dk.itst.oiosaml.sp.LoginTest
-Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 1,375 sec
+Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 4,274 sec
 
-Testcase: testLoginFailure took 0,5 sec
-Testcase: testRedirect took 0,219 sec
-Testcase: testLoginResponse_IT_LOGON_1 took 0,312 sec
-Testcase: testAssuranceLevelTooLow_IT_LOA_1 took 0,219 sec
+Testcase: testAssuranceLevelTooLow_IT_LOA_1 took 1,279 sec
+Testcase: testRedirect took 0,28 sec
+Testcase: testLoginResponse_IT_LOGON_1 took 0,874 sec
+Testcase: testLoginFailure took 0,624 sec

@@ -18,16 +18,10 @@
 <th>Class</th><th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap>Time(s)</th>
 </tr>
 <tr valign="top" class="Error">
-<td><a href="dk/itst/oiosaml/sp/6_UserAttributeQueryTest.html">UserAttributeQueryTest</a></td><td><a name="testDefault"></a><a href="dk/itst/oiosaml/sp/6_UserAttributeQueryTest.html#testDefault">testDefault</a></td><td>Error</td><td>Wrapped<br>
-<br>
-<code>dk.itst.oiosaml.error.WrappedException: Wrapped<br>	at dk.itst.oiosaml.security.CredentialRepository.createCredential(CredentialRepository.java:166)<br>	at dk.itst.oiosaml.security.CredentialRepository.getCredential(CredentialRepository.java:76)<br>	at dk.itst.oiosaml.security.CredentialRepository.getCredential(CredentialRepository.java:84)<br>	at dk.itst.oiosaml.sp.UserAttributeQuery.&lt;init&gt;(UserAttributeQuery.java:73)<br>	at dk.itst.oiosaml.sp.UserAttributeQuery.&lt;init&gt;(UserAttributeQuery.java:69)<br>	at dk.itst.oiosaml.sp.UserAttributeQuery.&lt;init&gt;(UserAttributeQuery.java:65)<br>	at dk.itst.oiosaml.sp.UserAttributeQueryTest.testDefault(UserAttributeQueryTest.java:131)<br>	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)<br>Caused by: java.security.UnrecoverableKeyException: Get Key failed: Given final block not properly padded<br>	at sun.security.pkcs12.PKCS12KeyStore.engineGetKey(PKCS12KeyStore.java:295)<br>	at java.security.KeyStore.getKey(KeyStore.java:792)<br>	at dk.itst.oiosaml.security.CredentialRepository.createCredential(CredentialRepository.java:156)<br>Caused by: javax.crypto.BadPaddingException: Given final block not properly padded<br>	at com.sun.crypto.provider.CipherCore.doFinal(CipherCore.java:811)<br>	at com.sun.crypto.provider.CipherCore.doFinal(CipherCore.java:676)<br>	at com.sun.crypto.provider.PKCS12PBECipherCore.implDoFinal(PKCS12PBECipherCore.java:355)<br>	at com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndDESede.engineDoFinal(PKCS12PBECipherCore.java:387)<br>	at javax.crypto.Cipher.doFinal(Cipher.java:2087)<br>	at sun.security.pkcs12.PKCS12KeyStore.engineGetKey(PKCS12KeyStore.java:266)<br>
-</code></td><td>0.109</td>
-</tr>
-<tr valign="top" class="Error">
 <td><a href="dk/itst/oiosaml/sp/model/18_OIOLogoutRequestTest.html">OIOLogoutRequestTest</a></td><td><a name="testValidateLogoutRequest"></a><a href="dk/itst/oiosaml/sp/model/18_OIOLogoutRequestTest.html#testValidateLogoutRequest">testValidateLogoutRequest</a></td><td>Error</td><td>Wrapped<br>
 <br>
 <code>dk.itst.oiosaml.error.WrappedException: Wrapped<br>	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:151)<br>	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:116)<br>	at dk.itst.oiosaml.sp.model.OIOLogoutRequest.validateRequest(OIOLogoutRequest.java:156)<br>	at dk.itst.oiosaml.sp.model.OIOLogoutRequest.validateRequest(OIOLogoutRequest.java:146)<br>	at dk.itst.oiosaml.sp.model.OIOLogoutRequestTest.testValidateLogoutRequest(OIOLogoutRequestTest.java:70)<br>	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)<br>Caused by: java.security.SignatureException: Signature length not correct: got 0 but was expecting 64<br>	at sun.security.rsa.RSASignature.engineVerify(RSASignature.java:189)<br>	at java.security.Signature$Delegate.engineVerify(Signature.java:1172)<br>	at java.security.Signature.verify(Signature.java:623)<br>	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:145)<br>
-</code></td><td>0.031</td>
+</code></td><td>0.032</td>
 </tr>
 <tr valign="top" class="Error">
 <td><a href="dk/itst/oiosaml/sp/service/29_LogoutServiceHTTPRedirectHandlerTest.html">LogoutServiceHTTPRedirectHandlerTest</a></td><td><a name="failWhenInvalidSignature"></a><a href="dk/itst/oiosaml/sp/service/29_LogoutServiceHTTPRedirectHandlerTest.html#failWhenInvalidSignature">failWhenInvalidSignature</a></td><td>Error</td><td>Wrapped<br>
@@ -39,7 +33,7 @@
 <td><a href="dk/itst/oiosaml/sp/service/util/37_UtilsTest.html">UtilsTest</a></td><td><a name="testVerifySignature"></a><a href="dk/itst/oiosaml/sp/service/util/37_UtilsTest.html#testVerifySignature">testVerifySignature</a></td><td>Error</td><td>Wrapped<br>
 <br>
 <code>dk.itst.oiosaml.error.WrappedException: Wrapped<br>	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:151)<br>	at dk.itst.oiosaml.sp.service.util.UtilsTest.testVerifySignature(UtilsTest.java:181)<br>	at org.jmock.integration.junit4.JMock$1.invoke(JMock.java:37)<br>Caused by: java.security.SignatureException: Signature length not correct: got 0 but was expecting 64<br>	at sun.security.rsa.RSASignature.engineVerify(RSASignature.java:189)<br>	at java.security.Signature$Delegate.engineVerify(Signature.java:1172)<br>	at java.security.Signature.verify(Signature.java:623)<br>	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:145)<br>
-</code></td><td>0.047</td>
+</code></td><td>0.015</td>
 </tr>
 </table>
 </body>

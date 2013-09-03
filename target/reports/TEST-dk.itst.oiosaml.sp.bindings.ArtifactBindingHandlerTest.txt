@@ -1,4 +1,4 @@
 Testsuite: dk.itst.oiosaml.sp.bindings.ArtifactBindingHandlerTest
-Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,125 sec
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,312 sec
 
-Testcase: handle took 0,047 sec
+Testcase: handle took 0,078 sec
