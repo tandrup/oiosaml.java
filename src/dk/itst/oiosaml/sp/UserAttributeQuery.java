@@ -61,20 +61,32 @@ public class UserAttributeQuery {
 	private final Metadata idpMetadata;
 	private final String spEntityId;
 
-	public UserAttributeQuery() throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
-		this(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString(Constants.PROP_RESOLVE_USERNAME, null), SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
+	public UserAttributeQuery() throws WrappedException, NoSuchAlgorithmException, CertificateException,
+			IllegalStateException, KeyStoreException, IOException {
+		this(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration()
+				.getString(Constants.PROP_RESOLVE_USERNAME, null), SAMLConfigurationFactory.getConfiguration()
+				.getSystemConfiguration().getString(Constants.PROP_RESOLVE_PASSWORD, null));
 	}
 
-	public UserAttributeQuery(String username, String password) throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
+	public UserAttributeQuery(String username, String password) throws WrappedException, NoSuchAlgorithmException,
+			CertificateException, IllegalStateException, KeyStoreException, IOException {
 		this(UserAssertionHolder.get() != null ? UserAssertionHolder.get().getIssuer() : null, username, password);
 	}
 
-	public UserAttributeQuery(String idpEntityId, String username, String password) throws WrappedException, NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
-		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(), credentialRepository.getCredential(SAMLConfigurationFactory.getConfiguration().getKeystore(), Constants.PROP_CERTIFICATE_PASSWORD), SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
-				SAMLConfigurationFactory.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true), SPMetadata.getInstance().getEntityID());
+	public UserAttributeQuery(String idpEntityId, String username, String password) throws WrappedException,
+			NoSuchAlgorithmException, CertificateException, IllegalStateException, KeyStoreException, IOException {
+		this(IdpMetadata.getInstance().getMetadata(idpEntityId), username, password, new HttpSOAPClient(),
+				credentialRepository.getCredential(
+						SAMLConfigurationFactory.getConfiguration().getKeystore(),
+						SAMLConfigurationFactory.getConfiguration().getSystemConfiguration()
+								.getString(Constants.PROP_CERTIFICATE_PASSWORD)), SAMLConfigurationFactory
+						.getConfiguration().getSystemConfiguration().getBoolean(Constants.PROP_IGNORE_CERTPATH, false),
+				SAMLConfigurationFactory.getConfiguration().getSystemConfiguration()
+						.getBoolean(Constants.PROP_REQUIRE_ENCRYPTION, true), SPMetadata.getInstance().getEntityID());
 	}
 
-	public UserAttributeQuery(Metadata idpMetadata, String username, String password, SOAPClient client, Credential credential, boolean ignoreCertPath, boolean requireEncryption, String spEntityId) {
+	public UserAttributeQuery(Metadata idpMetadata, String username, String password, SOAPClient client,
+			Credential credential, boolean ignoreCertPath, boolean requireEncryption, String spEntityId) {
 		this.spEntityId = spEntityId;
 		if (idpMetadata == null)
 			throw new IllegalArgumentException("IdP Metadata cannot be null");
@@ -87,7 +99,8 @@ public class UserAttributeQuery {
 		this.requireEncryption = requireEncryption;
 	}
 
-	public Collection<UserAttribute> query(String nameId, NameIDFormat format, String... attributes) throws InvalidCertificateException, IOException {
+	public Collection<UserAttribute> query(String nameId, NameIDFormat format, String... attributes)
+			throws InvalidCertificateException, IOException {
 		UserAttribute[] attrs = new UserAttribute[attributes.length];
 		for (int i = 0; i < attributes.length; i++) {
 			attrs[i] = UserAttribute.create(attributes[i], null);
@@ -95,16 +108,21 @@ public class UserAttributeQuery {
 		return query(nameId, format, attrs);
 	}
 
-	public Collection<UserAttribute> query(String nameId, NameIDFormat format, UserAttribute... attributes) throws InvalidCertificateException, IOException {
-		OIOAttributeQuery q = OIOAttributeQuery.newQuery(idpMetadata.getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI), nameId, format, spEntityId);
+	public Collection<UserAttribute> query(String nameId, NameIDFormat format, UserAttribute... attributes)
+			throws InvalidCertificateException, IOException {
+		OIOAttributeQuery q = OIOAttributeQuery.newQuery(
+				idpMetadata.getAttributeQueryServiceLocation(SAMLConstants.SAML2_SOAP11_BINDING_URI), nameId, format,
+				spEntityId);
 		for (UserAttribute attribute : attributes) {
 			q.addAttribute(attribute.getName(), attribute.getFormat());
 		}
-		OIOAssertion res = q.executeQuery(client, credential, username, password, ignoreCertPath, idpMetadata.getCertificates(), !requireEncryption);
+		OIOAssertion res = q.executeQuery(client, credential, username, password, ignoreCertPath,
+				idpMetadata.getCertificates(), !requireEncryption);
 		Collection<UserAttribute> attrs = new ArrayList<UserAttribute>();
 		for (AttributeStatement attrStatement : res.getAssertion().getAttributeStatements()) {
 			for (Attribute attr : attrStatement.getAttributes()) {
-				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil.extractAttributeValueValues(attr), attr.getNameFormat()));
+				attrs.add(new UserAttribute(attr.getName(), attr.getFriendlyName(), AttributeUtil
+						.extractAttributeValueValues(attr), attr.getNameFormat()));
 			}
 		}
 		return attrs;
