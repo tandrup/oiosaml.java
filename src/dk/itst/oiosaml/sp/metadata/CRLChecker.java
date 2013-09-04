@@ -116,12 +116,11 @@ public class CRLChecker {
 						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: YES");
 
 						md.setCertificateValid(certificate, false);
+					} else {
+						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
+
+						md.setCertificateValid(certificate, true);
 					}
-
-					Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
-					log.debug("Certificate status for " + entityId + ": revoked - cert: " + certificate);
-
-					md.setCertificateValid(certificate, true);
 				} catch (Exception e) {
 					log.error("Unexpected error while checking revokation of certificates.", e);
 
