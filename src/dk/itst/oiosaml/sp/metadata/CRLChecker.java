@@ -33,14 +33,12 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXCertPathValidatorResult;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509CRL;
@@ -93,7 +91,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  */
 public class CRLChecker {
 	private static final Logger log = Logger.getLogger(CRLChecker.class);
-
+	private static final String AUTH_INFO_ACCESS = X509Extensions.AuthorityInfoAccess.getId();
 	private Timer timer;
 
 	public void checkCertificates(IdpMetadata metadata, Configuration conf) {
@@ -103,26 +101,27 @@ public class CRLChecker {
 			for (X509Certificate certificate : md.getAllCertificates()) {
 
 				try {
-					if (!doOCSPCheck(conf, entityId, md, certificate)) {
-						log.debug("No OCSP configured in oiosaml-sp.properties, and no OCSP found in certificate.");
-					} else {
+					if (doOCSPCheck(conf, entityId, md, certificate)) {
+						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
 						continue;
 					}
 
-					if (!doCRLCheck(conf, entityId, md, certificate)) {
-						log.debug("No CRL configured in oiosaml-sp.properties, and no CRL found in certificate.");
-						log.debug("No revokation check was done. Permenent failure.");
-
-						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: YES");
-
-						md.setCertificateValid(certificate, false);
-					} else {
+					if (doCRLCheck(conf, entityId, md, certificate)) {
 						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
-
-						md.setCertificateValid(certificate, true);
+						continue;
 					}
+
+					md.setCertificateValid(certificate, false);
+
+					log.debug("Revocation check failed or could not be performed. Permanent failure.");
+
+					Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: YES");
+
 				} catch (Exception e) {
 					log.error("Unexpected error while checking revokation of certificates.", e);
+
+					Audit.log(Operation.CRLCHECK, false, entityId,
+							"Unable to perform revocation check. certificate is state is set to - Revoked: YES");
 
 					// Default to non-valid certificate.
 					if (certificate != null && md != null)
@@ -132,6 +131,179 @@ public class CRLChecker {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Check the revocation status of a public key certificate using OCSP.
+	 * 
+	 * @param conf
+	 * @param entityId
+	 * @param md
+	 * @param certificate
+	 * @return true if an OCSP check was completed, otherwise false.
+	 * @throws CertificateException
+	 */
+	private boolean doOCSPCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate)
+			throws CertificateException {
+		String ocspServer = getOCSPUrl(conf, entityId, certificate);
+
+		if (ocspServer == null) {
+			log.debug("No OCSP access location could be found for " + entityId);
+			return false;
+		}
+
+		log.debug("Starting OCSP validation of certificate " + certificate.getSubjectDN());
+
+		X509Certificate ca = getCertificateCA(conf, ocspServer);
+		if (ca == null) {
+			return false;
+		}
+
+		// Create certificate chain
+		List<X509Certificate> certList = new ArrayList<X509Certificate>();
+		certList.add(certificate);
+		certList.add(ca);
+		CertPath cp;
+
+		CertificateFactory cf;
+		cf = CertificateFactory.getInstance("X.509");
+		cp = cf.generateCertPath(certList);
+
+		// Enable OCSP
+		Security.setProperty("ocsp.enable", "true");
+		Security.setProperty("ocsp.responderURL", ocspServer);
+
+		try {
+			TrustAnchor anchor = new TrustAnchor(ca, null);
+			PKIXParameters params = new PKIXParameters(Collections.singleton(anchor));
+			params.setRevocationEnabled(true);
+
+			// Validate and obtain results
+			CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
+			cpv.validate(cp, params);
+
+			log.debug("Certificate successfully validated.");
+
+		} catch (CertPathValidatorException cpve) {
+			log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
+			return false;
+		} catch (NoSuchAlgorithmException e) {
+			log.error("Unexpected error while validating certficate using OCSP.", e);
+			return false;
+		} catch (InvalidAlgorithmParameterException e) {
+			log.error("Unexpected error while validating certficate using OCSP.", e);
+			return false;
+		}
+
+		return true;
+	}
+
+	private X509Certificate getCertificateCA(Configuration conf, String certificateUrl) throws CertificateException {
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate ca = null;
+		InputStream is = null;
+
+		try {
+			log.debug("Fetching CA certificate located at: " + conf.getString(Constants.PROP_OCSP_CA));
+
+			// Fetch CA certificate
+			URL u = new URL(conf.getString(Constants.PROP_OCSP_CA));
+			is = u.openStream();
+			ca = (X509Certificate) cf.generateCertificate(is);
+			is.close();
+		} catch (IOException e) {
+			log.error("Unable to read CA certficate from: " + certificateUrl, e);
+			return null;
+		} catch (CertificateException e) {
+			log.error("Unable to validate CA certficate from: " + certificateUrl, e);
+			return null;
+		} catch (Exception e) {
+			log.error("Unexpected error while validating CA certficate from: " + certificateUrl, e);
+			return null;
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return ca;
+	}
+
+	/**
+	 * Gets an URL to use when performing an OCSP validation of a certificate.
+	 * 
+	 * @param conf
+	 * @param entityId
+	 * @param certificate
+	 * @return the URL to use.
+	 * @see http://oid-info.com/get/1.3.6.1.5.5.7.48.1
+	 */
+	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
+		String url = conf.getString(Constants.PROP_OCSP_RESPONDER);
+
+		if (url != null) {
+			return url;
+		}
+
+		log.debug("No OCSP configured for " + entityId + " attempting to extract OCSP location from certificate "
+				+ certificate.getSubjectDN());
+
+		AuthorityInformationAccess authInfoAcc = null;
+		ASN1InputStream aIn = null;
+
+		try {
+			byte[] bytes = certificate.getExtensionValue(AUTH_INFO_ACCESS);
+			aIn = new ASN1InputStream(bytes);
+			ASN1OctetString octs = (ASN1OctetString) aIn.readObject();
+			aIn = new ASN1InputStream(octs.getOctets());
+			DERObject auth_info_acc = aIn.readObject();
+
+			if (auth_info_acc != null) {
+				authInfoAcc = AuthorityInformationAccess.getInstance(auth_info_acc);
+			}
+		} catch (Exception e) {
+			log.debug("Cannot extract access location of OCSP responder.", e);
+			return null;
+		} finally {
+			if (aIn != null) {
+				try {
+					aIn.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+
+		List<String> ocspUrls = getOCSPUrls(authInfoAcc);
+		Iterator<String> urlIt = ocspUrls.iterator();
+
+		while (urlIt.hasNext()) {
+			// Just return the first URL
+			Object ocspUrl = new UntrustedUrlInput(urlIt.next());
+			url = ocspUrl.toString();
+		}
+
+		return url;
+	}
+
+	private List<String> getOCSPUrls(AuthorityInformationAccess authInfoAccess) {
+		List<String> urls = new ArrayList<String>();
+
+		if (authInfoAccess != null) {
+			AccessDescription[] ads = authInfoAccess.getAccessDescriptions();
+			for (int i = 0; i < ads.length; i++) {
+				if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp)) {
+					GeneralName name = ads[i].getAccessLocation();
+					if (name.getTagNo() == GeneralName.uniformResourceIdentifier) {
+						String url = ((DERIA5String) name.getName()).getString();
+						urls.add(url);
+					}
+				}
+			}
+		}
+
+		return urls;
 	}
 
 	/**
@@ -148,6 +320,7 @@ public class CRLChecker {
 		String url = getCRLUrl(conf, entityId, certificate);
 
 		if (url == null) {
+			log.debug("No CRL url could be found for " + entityId);
 			return false;
 		}
 
@@ -160,15 +333,20 @@ public class CRLChecker {
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			X509CRL crl = (X509CRL) cf.generateCRL(is);
 
-			if (log.isDebugEnabled())
-				log.debug("CRL for " + url + ": " + crl);
+			log.debug("CRL for " + url + ": " + crl);
 
 			if (!checkCRLSignature(crl, certificate, conf)) {
-				md.setCertificateValid(certificate, false);
-			} else {
-				X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
-				return (revokedCertificate == null);
+				return false;
 			}
+
+			X509CRLEntry revokedCertificate = crl.getRevokedCertificate(certificate.getSerialNumber());
+			if (revokedCertificate != null) {
+				log.debug("Certificate found in revocation list " + certificate.getSubjectDN());
+				return false;
+			}
+
+			return true;
+
 		} catch (MalformedURLException e) {
 			log.error("Unable to parse url " + url, e);
 			return false;
@@ -186,8 +364,6 @@ public class CRLChecker {
 				}
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -200,32 +376,35 @@ public class CRLChecker {
 	 */
 	private String getCRLUrl(Configuration conf, String entityId, X509Certificate certificate) {
 		String url = conf.getString(Constants.PROP_CRL + entityId);
-		log.debug("Checking CRL for " + entityId + " at " + url);
 
-		if (url == null) {
-			log.debug("No CRL configured for " + entityId + ". Set " + Constants.PROP_CRL + entityId
-					+ " in configuration");
-			byte[] val = certificate.getExtensionValue("2.5.29.31");
+		if (url != null) {
+			return url;
+		}
 
-			if (val != null) {
-				try {
-					CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
-					for (DistributionPoint dp : point.getDistributionPoints()) {
-						if (dp.getDistributionPoint() == null)
-							continue;
+		log.debug("No CRL configured for " + entityId + " attempting to extract distribution point from certificate "
+				+ certificate.getSubjectDN());
 
-						if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
-							GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
-							for (GeneralName g : gn.getNames()) {
-								if (g.getName() instanceof DERIA5String) {
-									url = ((DERIA5String) g.getName()).getString();
-								}
+		byte[] val = certificate.getExtensionValue("2.5.29.31");
+
+		if (val != null) {
+			try {
+				CRLDistPoint point = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(val));
+				for (DistributionPoint dp : point.getDistributionPoints()) {
+					if (dp.getDistributionPoint() == null)
+						continue;
+
+					if (dp.getDistributionPoint().getName() instanceof GeneralNames) {
+						GeneralNames gn = (GeneralNames) dp.getDistributionPoint().getName();
+						for (GeneralName g : gn.getNames()) {
+							if (g.getName() instanceof DERIA5String) {
+								url = ((DERIA5String) g.getName()).getString();
 							}
 						}
 					}
-				} catch (IOException e) {
-					throw new RuntimeException(e);
 				}
+			} catch (IOException e) {
+				log.debug("Cannot extract distribution point for certificate.", e);
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -266,179 +445,6 @@ public class CRLChecker {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Check the revocation status of a public key certificate using OCSP.
-	 * 
-	 * @param conf
-	 * @param entityId
-	 * @param md
-	 * @param certificate
-	 * @return true if an OCSP check was completed, otherwise false.
-	 * @throws CertificateException
-	 */
-	private boolean doOCSPCheck(Configuration conf, String entityId, Metadata md, X509Certificate certificate)
-			throws CertificateException {
-		String ocspServer = getOCSPUrl(conf, entityId, certificate);
-
-		if (ocspServer == null) {
-			return false;
-		}
-
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-		X509Certificate ca = null;
-		InputStream is = null;
-
-		try {
-			log.debug("Using CA certificate located at: " + conf.getString(Constants.PROP_OCSP_CA));
-
-			// Fetch CA certificate
-			URL u = new URL(conf.getString(Constants.PROP_OCSP_CA));
-			is = u.openStream();
-			ca = (X509Certificate) cf.generateCertificate(is);
-			is.close();
-		} catch (IOException e) {
-			log.error("Unable to read CA certficate from: " + ocspServer, e);
-			return false;
-		} catch (CertificateException e) {
-			log.error("Unable to validate CA certficate from: " + ocspServer, e);
-			return false;
-		} catch (Exception e) {
-			log.error("Unexpected error while validating CA certficate from: " + ocspServer, e);
-			return false;
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-
-		// Create certificate chain
-		List<X509Certificate> certList = new ArrayList<X509Certificate>();
-		certList.add(certificate);
-		certList.add(ca);
-		CertPath cp;
-
-		cf = CertificateFactory.getInstance("X.509");
-		cp = cf.generateCertPath(certList);
-
-		// Enable OCSP
-		Security.setProperty("ocsp.enable", "true");
-		Security.setProperty("ocsp.responderURL", ocspServer);
-
-		try {
-			TrustAnchor anchor = new TrustAnchor(ca, null);
-			PKIXParameters params = new PKIXParameters(Collections.singleton(anchor));
-			params.setRevocationEnabled(true);
-
-			// Validate and obtain results
-			CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
-			PKIXCertPathValidatorResult result = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
-
-			// Logging
-			log.debug("Certificate validated.");
-			X509Certificate trustedCert = result.getTrustAnchor().getTrustedCert();
-
-			if (trustedCert == null) {
-				log.debug("Trsuted Cert = NULL");
-			} else {
-				log.debug("Trusted CA DN = " + trustedCert.getSubjectDN());
-			}
-
-			PublicKey subjectPublicKey = result.getPublicKey();
-			log.debug("Subject Public key:\n" + subjectPublicKey);
-
-		} catch (CertPathValidatorException cpve) {
-			log.debug("Validation failure, cert[" + cpve.getIndex() + "] :" + cpve.getMessage());
-			return false;
-		} catch (NoSuchAlgorithmException e) {
-			log.error("Unexpected error while validating certficate using OCSP.", e);
-			return false;
-		} catch (InvalidAlgorithmParameterException e) {
-			log.error("Unexpected error while validating certficate using OCSP.", e);
-			return false;
-		}
-
-		return true;
-	}
-
-	private static final String AUTH_INFO_ACCESS = X509Extensions.AuthorityInfoAccess.getId();
-
-	/**
-	 * Gets an URL to use when performing an OCSP validation of a certificate.
-	 * 
-	 * @param conf
-	 * @param entityId
-	 * @param certificate
-	 * @return the URL to use.
-	 * @see http://oid-info.com/get/1.3.6.1.5.5.7.48.1
-	 */
-	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
-		String url = conf.getString(Constants.PROP_OCSP_RESPONDER);
-		log.debug("Checking OCSP for " + entityId + " at " + url);
-
-		if (url == null) {
-			log.debug("No OCSP configured for " + entityId + ". Set " + Constants.PROP_OCSP_RESPONDER
-					+ " in configuration");
-
-			AuthorityInformationAccess authInfoAcc = null;
-			ASN1InputStream aIn = null;
-
-			try {
-				byte[] bytes = certificate.getExtensionValue(AUTH_INFO_ACCESS);
-				aIn = new ASN1InputStream(bytes);
-				ASN1OctetString octs = (ASN1OctetString) aIn.readObject();
-				aIn = new ASN1InputStream(octs.getOctets());
-				DERObject auth_info_acc = aIn.readObject();
-
-				if (auth_info_acc != null) {
-					authInfoAcc = AuthorityInformationAccess.getInstance(auth_info_acc);
-				}
-			} catch (Exception e) {
-				log.debug("Cannot extract access location of OCSP responder.", e);
-				return null;
-			} finally {
-				if (aIn != null) {
-					try {
-						aIn.close();
-					} catch (IOException e) {
-					}
-				}
-			}
-
-			List<String> ocspUrls = getOCSPUrls(authInfoAcc);
-			Iterator<String> urlIt = ocspUrls.iterator();
-
-			while (urlIt.hasNext()) {
-				// Just return the first URL
-				Object ocspUrl = new UntrustedUrlInput(urlIt.next());
-				return ocspUrl.toString();
-			}
-		}
-
-		return null;
-	}
-
-	private List<String> getOCSPUrls(AuthorityInformationAccess authInfoAccess) {
-		List<String> urls = new ArrayList<String>();
-
-		if (authInfoAccess != null) {
-			AccessDescription[] ads = authInfoAccess.getAccessDescriptions();
-			for (int i = 0; i < ads.length; i++) {
-				if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp)) {
-					GeneralName name = ads[i].getAccessLocation();
-					if (name.getTagNo() == GeneralName.uniformResourceIdentifier) {
-						String url = ((DERIA5String) name.getName()).getString();
-						urls.add(url);
-					}
-				}
-			}
-		}
-
-		return urls;
 	}
 
 	public void startChecker(long period, final IdpMetadata metadata, final Configuration conf) {
