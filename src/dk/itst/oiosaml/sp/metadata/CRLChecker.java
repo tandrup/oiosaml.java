@@ -204,13 +204,20 @@ public class CRLChecker {
 		InputStream is = null;
 
 		try {
-			log.debug("Fetching CA certificate located at: " + conf.getString(Constants.PROP_OCSP_CA));
+			String caPath = conf.getString(Constants.PROP_OCSP_CA);
 
-			// Fetch CA certificate
+			if (caPath == null) {
+				log.debug("CA certificate path is not configured");
+				return null;
+			}
+
+			log.debug("Fetching CA certificate located at: " + caPath);
+
 			URL u = new URL(conf.getString(Constants.PROP_OCSP_CA));
 			is = u.openStream();
 			ca = (X509Certificate) cf.generateCertificate(is);
 			is.close();
+
 		} catch (IOException e) {
 			log.error("Unable to read CA certficate from: " + certificateUrl, e);
 			return null;
@@ -228,6 +235,7 @@ public class CRLChecker {
 				}
 			}
 		}
+
 		return ca;
 	}
 
