@@ -1,6 +1,35 @@
+Releases log for OIOSAML.Java
+-----------------------------
+
+Release note, r11213
+
+The following have been included in this release:
+* OCSP validation
+* Refactored configuration logic and new configuration
+  factory allowing plugin of custom configuration.
+
+1.1 OCSP validation
+
+Validation of IdP certificate chain is now possible using an OCSP responder.
+It’s possible to configure the location of the responder or to use an access
+location url specified in the IdP certificate.
+
+1.2 Refactoring of configuration logic and new configuration factory
+
+In order to allow a more customizable configuration, a refactoring has been
+done through most of the configuration code base. A new configuration factory
+allows programmers to create custom configuration classes based on the
+interface located in the dk.itst.oiosaml.configuration package. The factory
+pattern allows programmers to store the configuration in a file, a database,
+etc. The work is based on a patch submitted by OpenMinds. Credits and
+authorship is specified in the related source files.
+
 Release note, r11147
 
-This release contains a fix for an encoding bug in the SOAP Single Sign Out (SSO) function
-causing users with language-specific characters in their names to receive an error.
-Previous release used the default character encoding of the platform whereas current
-uses UTF-8. In addition a minor update has been applied to the documentation.
+This release contains a fix for an encoding bug in the SOAP Single Sign Out
+(SSO) function causing users with language-specific characters in their names
+to receive an error. Previous releases used the default character encoding of
+the platform whereas the current release now uses UTF-8. In addition, a minor
+update has been applied to the documentation.
+
+Releases prior to revision 11147 are not tracked in this release log.
