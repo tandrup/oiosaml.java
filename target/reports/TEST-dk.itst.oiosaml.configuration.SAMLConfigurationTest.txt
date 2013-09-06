@@ -1,11 +1,9 @@
 Testsuite: dk.itst.oiosaml.configuration.SAMLConfigurationTest
-Tests run: 3, Failures: 1, Errors: 0, Time elapsed: 0,187 sec
+Tests run: 2, Failures: 1, Errors: 0, Time elapsed: 0,172 sec
 
-Testcase: testFileConfiguration took 0 sec
-	FAILED
-
-junit.framework.AssertionFailedError: 
-	at dk.itst.oiosaml.configuration.SAMLConfigurationTest.testFileConfiguration(SAMLConfigurationTest.java:73)
-
+Testcase: testIsConfigured took 0,172 sec
 Testcase: failOnMissingSystemProperty took 0 sec
-Testcase: testIsConfigured took 0,14 sec
+	FAILED
+Expected exception: java.lang.IllegalStateException
+junit.framework.AssertionFailedError: Expected exception: java.lang.IllegalStateException
+

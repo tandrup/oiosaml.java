@@ -1,5 +1,5 @@
 Testsuite: dk.itst.oiosaml.sp.service.HttpSOAPClientTest
 Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0,125 sec
 
-Testcase: testArtifactResolve took 0,047 sec
-Testcase: dontFailWhenUsingLongUsernamePassword took 0 sec
+Testcase: dontFailWhenUsingLongUsernamePassword took 0,016 sec
+Testcase: testArtifactResolve took 0,015 sec

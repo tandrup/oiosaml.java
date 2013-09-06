@@ -1,7 +1,8 @@
 Testsuite: dk.itst.oiosaml.sp.service.util.UtilsTest
-Tests run: 7, Failures: 0, Errors: 1, Time elapsed: 0,39 sec
+Tests run: 7, Failures: 0, Errors: 1, Time elapsed: 0,281 sec
 
-Testcase: testVerifySignature took 0,015 sec
+Testcase: testMakeXML took 0,016 sec
+Testcase: testVerifySignature took 0,031 sec
 	Caused an ERROR
 Wrapped
 dk.itst.oiosaml.error.WrappedException: Wrapped
@@ -14,9 +15,8 @@ Caused by: java.security.SignatureException: Signature length not correct: got 0
 	at java.security.Signature.verify(Signature.java:623)
 	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:145)
 
+Testcase: testBeautifyXML took 0,016 sec
+Testcase: testGenerateUUID took 0,031 sec
 Testcase: testGetSoapVersion took 0,031 sec
-Testcase: testGenerateUUID took 0,032 sec
-Testcase: testBeautifyXML took 0,015 sec
-Testcase: testGetCertificate took 0,078 sec
-Testcase: testGetCredential took 0,109 sec
-Testcase: testMakeXML took 0,032 sec
+Testcase: testGetCertificate took 0,031 sec
+Testcase: testGetCredential took 0,047 sec

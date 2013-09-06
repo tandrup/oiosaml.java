@@ -1,7 +1,8 @@
 Testsuite: dk.itst.oiosaml.sp.model.OIOLogoutRequestTest
-Tests run: 5, Failures: 0, Errors: 1, Time elapsed: 0,312 sec
+Tests run: 5, Failures: 0, Errors: 1, Time elapsed: 0,327 sec
 
-Testcase: testValidateLogoutRequest took 0,032 sec
+Testcase: testIsSessionIndexOK took 0,015 sec
+Testcase: testValidateLogoutRequest took 0,047 sec
 	Caused an ERROR
 Wrapped
 dk.itst.oiosaml.error.WrappedException: Wrapped
@@ -17,7 +18,6 @@ Caused by: java.security.SignatureException: Signature length not correct: got 0
 	at java.security.Signature.verify(Signature.java:623)
 	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:145)
 
-Testcase: testGetRedirectRequestUrl took 0,031 sec
+Testcase: testGetSessionIndex took 0,031 sec
+Testcase: testGetRedirectRequestUrl took 0,078 sec
 Testcase: testBuildLogoutRequest took 0,047 sec
-Testcase: testIsSessionIndexOK took 0,031 sec
-Testcase: testGetSessionIndex took 0,047 sec

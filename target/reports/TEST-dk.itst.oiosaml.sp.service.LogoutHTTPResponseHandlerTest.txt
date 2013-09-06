@@ -1,9 +1,9 @@
 Testsuite: dk.itst.oiosaml.sp.service.LogoutHTTPResponseHandlerTest
-Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,265 sec
+Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,156 sec
 ------------- Standard Output ---------------
 <?xml version="1.0" encoding="UTF-8"?><LogoutResponse xmlns="urn:oasis:names:tc:SAML:2.0:protocol" Destination="https://213.237.161.81:8443/oiosaml/saml/LogoutServiceHTTPRedirect" ID="_9f0fbfc297667d17fad57655c6b27a842841" InResponseTo="_2622779a-c833-4bc1-b47a-d59f0eeeef3e" IssueInstant="2008-09-15T12:23:49Z" Version="2.0"><ns1:Issuer xmlns:ns1="urn:oasis:names:tc:SAML:2.0:assertion">https://saml.loginpre.virk.dk</ns1:Issuer><Status><StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"><StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:PartialLogout"/></StatusCode></Status></LogoutResponse>
 ------------- ---------------- ---------------
 
-Testcase: testReceiveResponseCluster took 0,062 sec
-Testcase: testReceiveResponseLoggedIn took 0,016 sec
 Testcase: testReceiveResponseNotLoggedIn took 0,031 sec
+Testcase: testReceiveResponseLoggedIn took 0,016 sec
+Testcase: testReceiveResponseCluster took 0,031 sec

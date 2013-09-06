@@ -1,9 +1,9 @@
 Testsuite: dk.itst.oiosaml.sp.service.SPFilterTest
-Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,375 sec
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0,344 sec
 
-Testcase: doFilterWhenAuthenticated took 0,032 sec
-Testcase: redirectWhenNotLoggedIn took 0,046 sec
-Testcase: failOnNotConfigured took 0,047 sec
-Testcase: doFilterWhenRequestAgainstSAMLServlet took 0,047 sec
-Testcase: failWhenAssuranceLevelIsTooLow took 0,094 sec
-Testcase: testDevelModeDelegatesToDevelModeObject took 0,031 sec
+Testcase: doFilterWhenRequestAgainstSAMLServlet took 0,062 sec
+Testcase: failWhenAssuranceLevelIsTooLow took 0,031 sec
+Testcase: testDevelModeDelegatesToDevelModeObject took 0,047 sec
+Testcase: redirectWhenNotLoggedIn took 0,063 sec
+Testcase: doFilterWhenAuthenticated took 0,046 sec
+Testcase: failOnNotConfigured took 0,032 sec

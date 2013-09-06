@@ -1,5 +1,5 @@
 Testsuite: dk.itst.oiosaml.sp.model.OIOAuthnRequestTest
-Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0,281 sec
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0,312 sec
 
-Testcase: getRedirectUrl took 0,016 sec
-Testcase: testSetNameIDPolicy took 0,031 sec
+Testcase: getRedirectUrl took 0,046 sec
+Testcase: testSetNameIDPolicy took 0,016 sec

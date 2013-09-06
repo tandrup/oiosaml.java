@@ -1,8 +1,6 @@
 Testsuite: dk.itst.oiosaml.sp.service.LogoutServiceHTTPRedirectHandlerTest
-Tests run: 5, Failures: 0, Errors: 1, Time elapsed: 0,25 sec
+Tests run: 5, Failures: 0, Errors: 1, Time elapsed: 0,234 sec
 
-Testcase: testFailWhenIssuerIsWrong took 0,015 sec
-Testcase: failWhenNoIssuer took 0,016 sec
 Testcase: failWhenInvalidSignature took 0,031 sec
 	Caused an ERROR
 Wrapped
@@ -19,5 +17,7 @@ Caused by: java.security.SignatureException: Signature length not correct: got 6
 	at java.security.Signature.verify(Signature.java:623)
 	at dk.itst.oiosaml.sp.service.util.Utils.verifySignature(Utils.java:145)
 
-Testcase: failOnIllegalBodyContent took 0,047 sec
+Testcase: testFailWhenIssuerIsWrong took 0,031 sec
+Testcase: failOnIllegalBodyContent took 0,031 sec
+Testcase: failWhenNoIssuer took 0,016 sec
 Testcase: testRedirect took 0,031 sec

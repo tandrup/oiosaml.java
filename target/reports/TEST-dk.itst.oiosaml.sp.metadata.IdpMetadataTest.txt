@@ -1,16 +1,16 @@
 Testsuite: dk.itst.oiosaml.sp.metadata.IdpMetadataTest
-Tests run: 13, Failures: 0, Errors: 0, Time elapsed: 0,812 sec
+Tests run: 13, Failures: 0, Errors: 0, Time elapsed: 0,671 sec
 
-Testcase: testGetExistingMetadata took 0,031 sec
-Testcase: getFailOnNoEntityId took 0,063 sec
+Testcase: testGetExistingMetadata took 0,032 sec
+Testcase: getFailOnNoEntityId took 0,015 sec
 Testcase: testEnableDiscovery took 0,109 sec
-Testcase: testGetEntityIDs took 0,078 sec
-Testcase: testFindSupportedEntity took 0,156 sec
-Testcase: testAttributeServiceLocation took 0,031 sec
-Testcase: testAttributeServiceLocationShouldFailOnInvalidBinding took 0,031 sec
+Testcase: testGetEntityIDs took 0,047 sec
+Testcase: testFindSupportedEntity took 0,016 sec
+Testcase: testAttributeServiceLocation took 0,14 sec
+Testcase: testAttributeServiceLocationShouldFailOnInvalidBinding took 0,063 sec
 Testcase: testAttributeServiceLocationShouldFailOnNoDescriptor took 0,031 sec
-Testcase: same_entity_id_must_be_merged_to_one_with_multiple_certificates took 0,031 sec
-Testcase: findSupportedEntityShouldReturnNullOnNoMatch took 0,016 sec
-Testcase: dontCreateWhenMissingCertificate took 0,078 sec
+Testcase: findSupportedEntityShouldReturnNullOnNoMatch took 0,015 sec
+Testcase: dontCreateWhenMissingCertificate took 0,016 sec
 Testcase: testGetSignonLocationByBinding took 0,031 sec
-Testcase: getSignonLocationShouldFailOnInvalidBinding took 0,016 sec
+Testcase: getSignonLocationShouldFailOnInvalidBinding took 0,031 sec
+Testcase: same_entity_id_must_be_merged_to_one_with_multiple_certificates took 0,032 sec

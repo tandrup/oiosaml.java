@@ -1,10 +1,10 @@
 Testsuite: dk.itst.oiosaml.sp.service.LogoutServiceSOAPHandlerTest
-Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0,281 sec
+Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0,296 sec
 ------------- Standard Error -----------------
 [Fatal Error] :1:1: Content is not allowed in prolog.
 ------------- ---------------- ---------------
 
-Testcase: failWhenBodyIsNotSoap took 0,032 sec
-Testcase: testSoapRequest took 0,078 sec
-Testcase: testSoapRequestWithSignature took 0,046 sec
-Testcase: testWsdl took 0,032 sec
+Testcase: testWsdl took 0,063 sec
+Testcase: testSoapRequestWithSignature took 0,031 sec
+Testcase: failWhenBodyIsNotSoap took 0,078 sec
+Testcase: testSoapRequest took 0,031 sec

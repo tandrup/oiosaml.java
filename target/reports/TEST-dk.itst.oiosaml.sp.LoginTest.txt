@@ -1,7 +1,31 @@
 Testsuite: dk.itst.oiosaml.sp.LoginTest
-Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 4,274 sec
+Tests run: 4, Failures: 0, Errors: 3, Time elapsed: 3,51 sec
 
-Testcase: testAssuranceLevelTooLow_IT_LOA_1 took 1,279 sec
-Testcase: testRedirect took 0,28 sec
-Testcase: testLoginResponse_IT_LOGON_1 took 0,874 sec
-Testcase: testLoginFailure took 0,624 sec
+Testcase: testAssuranceLevelTooLow_IT_LOA_1 took 0,624 sec
+	Caused an ERROR
+Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.3480781211218337\oiosaml-sp.log4j.xml
+java.io.IOException: Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.3480781211218337\oiosaml-sp.log4j.xml
+	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:1390)
+	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1044)
+	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:977)
+	at dk.itst.oiosaml.sp.IntegrationTests.tearDownServer(IntegrationTests.java:166)
+
+Testcase: testRedirect took 0,312 sec
+	Caused an ERROR
+Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.15485110584751893\oiosaml-sp.log4j.xml
+java.io.IOException: Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.15485110584751893\oiosaml-sp.log4j.xml
+	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:1390)
+	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1044)
+	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:977)
+	at dk.itst.oiosaml.sp.IntegrationTests.tearDownServer(IntegrationTests.java:166)
+
+Testcase: testLoginFailure took 0,468 sec
+	Caused an ERROR
+Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.722354537455248\oiosaml-sp.log4j.xml
+java.io.IOException: Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.722354537455248\oiosaml-sp.log4j.xml
+	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:1390)
+	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1044)
+	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:977)
+	at dk.itst.oiosaml.sp.IntegrationTests.tearDownServer(IntegrationTests.java:166)
+
+Testcase: testLoginResponse_IT_LOGON_1 took 0,967 sec

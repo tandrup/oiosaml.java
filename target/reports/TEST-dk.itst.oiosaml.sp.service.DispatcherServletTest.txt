@@ -1,12 +1,12 @@
 Testsuite: dk.itst.oiosaml.sp.service.DispatcherServletTest
-Tests run: 9, Failures: 0, Errors: 0, Time elapsed: 0,577 sec
+Tests run: 9, Failures: 0, Errors: 0, Time elapsed: 0,546 sec
 
-Testcase: samlAssertionConsumerHandler took 0,032 sec
-Testcase: failPostOnNoHandler took 0,015 sec
-Testcase: logoutHTTPResponseHandler took 0,031 sec
-Testcase: logoutHandler took 0,016 sec
-Testcase: logoutServiceSoapHandler took 0,031 sec
-Testcase: testDefaultErrorPage took 0,187 sec
-Testcase: testCustomErrorPage took 0,11 sec
-Testcase: failGetOnNoHandler took 0,015 sec
-Testcase: logoutServiceHTTPRedirectHandler took 0,031 sec
+Testcase: logoutServiceHTTPRedirectHandler took 0,047 sec
+Testcase: failGetOnNoHandler took 0,031 sec
+Testcase: testCustomErrorPage took 0,203 sec
+Testcase: failPostOnNoHandler took 0,031 sec
+Testcase: samlAssertionConsumerHandler took 0,016 sec
+Testcase: logoutHTTPResponseHandler took 0,016 sec
+Testcase: logoutHandler took 0,031 sec
+Testcase: logoutServiceSoapHandler took 0,015 sec
+Testcase: testDefaultErrorPage took 0,063 sec

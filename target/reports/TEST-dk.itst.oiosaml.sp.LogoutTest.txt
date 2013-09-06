@@ -1,8 +1,24 @@
 Testsuite: dk.itst.oiosaml.sp.LogoutTest
-Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 1,762 sec
+Tests run: 2, Failures: 0, Errors: 2, Time elapsed: 1,95 sec
 ------------- Standard Output ---------------
-http://localhost:8808/saml/saml/LogoutServiceHTTPRedirect?SAMLRequest=nZHBb4IwGMX%2FFdJ7oQUp2AhmiTEzccuiuMMuSwdVu0HL2g%2BzP38gmpgdPOzSpO1733u%2Fdjb%2FaWrvJK1TRmeI%2BgR5UpemUvqQoV2xxCma5zMnmjps%2BdocTAcb%2Bd1JB17v1I6PVxnqrOZGOOW4Fo10HEq%2BfXha89AnvLUGTGlq5C16o9ICzmlHgJYHQW1KUR%2BNA56mJA2GgeMyxm2lPalSPhbFy0ZWysoSkLdaZOg9SQgjMYsxS0KCJ3sq8DQhEZ6w%2BKMkooplNOmlznVypR0IDRkKCY0wmWISFZTymHGa%2BoyyN%2BS9Xh%2Bhb4wuyPxstreo90mFc9IOdChXVUt96Hl9o4xffc2C25HXgOd%2BxGrxnwBvaWwj4L58OFEV3p%2BlvB0QHUgNKP80cih3bTX2yC%2FbP1%2Bd%2FwI%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=NGC922BledekHhPMPXupzDi9ujDYreH05D1SjAzybl5h4odAMqAv3hewzOWpFWa975p1n4k9Vua0F7Rt0L9HmQ%3D%3D
+http://localhost:8808/saml/saml/LogoutServiceHTTPRedirect?SAMLRequest=nZFRb4IwFIX%2FCul7oYAObASzxJiZuGVxbA97WUq5ajdoWXsx%2B%2FkD0cTswYe9NGl7zj3na%2BeLn6b2jmCdMjojoc%2BIB1qaSul9Rl6LFU3JIp870dRRyzdmbzrcwncHDr3eqR0frzLSWc2NcMpxLRpwHCV%2FuX%2Fc8MhnvLUGjTQ18Za9UWmBp7QDYsuDoDZS1AfjkKcpS4Nh4LiMcS9gj0rCQ1E8b6FSFiQSb73MyEcskxkrRUzTSACdpLMJFbIUdJqkOxGWuxIS2Uud62CtHQqNGYlYGFM2o%2ByuYAmPpzye%2BHE0eyfe2%2BUR%2BsbkjMxPZnuNeptUOAd2oCO5qtrQx57XN8r41dc8uB55CXjqR6yX%2FwnwVsY2Am%2FLhxNV0d1JytsB0SFoJPmngaHcpdXYIz9v%2F3x1%2Fgs%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=ToZRHUO%2FH3LEcB8sME1Ya%2FVZkelKpJHQC9IHNkpxgfM2Gh%2FqFbE1y9RO156dVwJj%2FIsDOYlsUiqwPUhRHH62HA%3D%3D
 ------------- ---------------- ---------------
 
-Testcase: testSingleLogout_IT_SLO_1 took 0,546 sec
-Testcase: testIdpInitiatedLogout_IT_SLO_2 took 0,296 sec
+Testcase: testSingleLogout_IT_SLO_1 took 0,531 sec
+	Caused an ERROR
+Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.3043150379284185\oiosaml-sp.log4j.xml
+java.io.IOException: Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.3043150379284185\oiosaml-sp.log4j.xml
+	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:1390)
+	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1044)
+	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:977)
+	at dk.itst.oiosaml.sp.IntegrationTests.tearDownServer(IntegrationTests.java:166)
+
+Testcase: testIdpInitiatedLogout_IT_SLO_2 took 0,312 sec
+	Caused an ERROR
+Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.8592750092066174\oiosaml-sp.log4j.xml
+java.io.IOException: Unable to delete file: C:\Users\ADMINI~1.OIO\AppData\Local\Temp\2\oiosaml-0.8592750092066174\oiosaml-sp.log4j.xml
+	at org.apache.commons.io.FileUtils.forceDelete(FileUtils.java:1390)
+	at org.apache.commons.io.FileUtils.cleanDirectory(FileUtils.java:1044)
+	at org.apache.commons.io.FileUtils.deleteDirectory(FileUtils.java:977)
+	at dk.itst.oiosaml.sp.IntegrationTests.tearDownServer(IntegrationTests.java:166)
+

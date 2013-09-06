@@ -1,5 +1,5 @@
 Testsuite: dk.itst.oiosaml.sp.service.util.HTTPUtilsTest
-Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0,249 sec
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0,125 sec
 
 Testcase: sendResponse_should_redirect_to_requestURI took 0,031 sec
-Testcase: sendResponse_should_strip_multiple_slashes took 0,015 sec
+Testcase: sendResponse_should_strip_multiple_slashes took 0,032 sec
