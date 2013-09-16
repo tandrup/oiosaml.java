@@ -42,12 +42,18 @@ import java.security.spec.KeySpec;
 import java.util.Date;
 
 import org.apache.xml.security.algorithms.JCEMapper;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.util.Base64;
 
@@ -162,21 +168,25 @@ public class SecurityHelper {
     }
     
     public static X509Certificate generateCertificate(Credential credential, String entityId) throws Exception {
-    	String issuer = "o=keymanager, ou=oiosaml-sp";
-    	String subject = "cn=" + entityId + ", ou=oiosaml-sp";
-    	X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
-    	gen.setSerialNumber(BigInteger.valueOf(System.currentTimeMillis()));
-    	gen.setIssuerDN(new X509Principal(issuer));
-    	gen.setSubjectDN(new X509Principal(subject));
-    	gen.setNotBefore(new Date());
-    	gen.setNotAfter(new Date(System.currentTimeMillis() + 1000L * 60L * 60L * 24L * 365L * 10L));
-    	gen.setPublicKey(credential.getPublicKey());
-    	gen.setSignatureAlgorithm("SHA1WithRSA");
-    	
-    	gen.addExtension(X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(credential.getPublicKey()));
-    	gen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(credential.getPublicKey()));
-	    	
-    	return gen.generate(credential.getPrivateKey());
+        X500Name issuer = new X500Name("o=keymanager, ou=oiosaml-sp");
+        BigInteger serialNumber = BigInteger.valueOf(System.currentTimeMillis());
+        Date notBefore = new Date();
+        Date notAfter = new Date(System.currentTimeMillis() + 1000L * 60L * 60L * 24L * 365L * 10L);
+        X500Name subject = new X500Name("cn=" + entityId + ", ou=oiosaml-sp");
+
+        ByteArrayInputStream bIn = new ByteArrayInputStream(credential.getPublicKey().getEncoded());
+        SubjectPublicKeyInfo publicKeyInfo = new SubjectPublicKeyInfo((ASN1Sequence)new ASN1InputStream(bIn).readObject());
+
+        X509v3CertificateBuilder gen = new X509v3CertificateBuilder(issuer, serialNumber, notBefore, notAfter, subject, publicKeyInfo);
+
+    	gen.addExtension(X509Extension.subjectKeyIdentifier, false, new JcaX509ExtensionUtils().createSubjectKeyIdentifier(credential.getPublicKey()));
+    	gen.addExtension(X509Extension.authorityKeyIdentifier, false, new JcaX509ExtensionUtils().createAuthorityKeyIdentifier(credential.getPublicKey()));
+
+        ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(credential.getPrivateKey());
+        X509CertificateHolder certificateHolder = gen.build(sigGen);
+
+        X509Certificate x509Certificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certificateHolder);
+    	return x509Certificate;
     }
     
 }

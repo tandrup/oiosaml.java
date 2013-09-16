@@ -18,6 +18,7 @@ import java.security.NoSuchProviderException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Map;
@@ -30,8 +31,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.configuration.MapConfiguration;
-import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.x509.X509V1CertificateGenerator;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v1CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
@@ -65,17 +74,23 @@ import dk.itst.oiosaml.sp.util.AttributeUtil;
 
 public class TestHelper {
 
-	public static X509Certificate getCertificate(Credential cred) throws CertificateEncodingException, NoSuchAlgorithmException, SignatureException, InvalidKeyException {
-		X509V1CertificateGenerator gen = new X509V1CertificateGenerator();
-		gen.setSerialNumber(BigInteger.valueOf(34234));
-		gen.setIssuerDN(new X509Principal("C=DK, O=test, OU=test"));
-		gen.setNotAfter(new Date(System.currentTimeMillis() + 100000L));
-		gen.setNotBefore(new Date(System.currentTimeMillis() - 10000));
-		gen.setSubjectDN(new X509Principal("C=DK, O=test, OU=test"));
-		gen.setPublicKey(cred.getPublicKey());
-		gen.setSignatureAlgorithm("SHA1WithRSA");
-		X509Certificate cert = gen.generate(cred.getPrivateKey());
-		return cert;
+	public static X509Certificate getCertificate(Credential cred) throws CertificateException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException, OperatorCreationException {
+        X500Name issuer = new X500Name("C=DK, O=test, OU=test");
+        BigInteger serial = BigInteger.valueOf(34234);
+        Date notBefore = new Date(System.currentTimeMillis() - 10000);
+        Date notAfter = new Date(System.currentTimeMillis() + 100000L);
+        X500Name subject = new X500Name("C=DK, O=test, OU=test");
+
+        ByteArrayInputStream bIn = new ByteArrayInputStream(cred.getPublicKey().getEncoded());
+        SubjectPublicKeyInfo publicKeyInfo = new SubjectPublicKeyInfo((ASN1Sequence)new ASN1InputStream(bIn).readObject());
+
+        X509v1CertificateBuilder gen = new X509v1CertificateBuilder(issuer, serial, notBefore, notAfter, subject, publicKeyInfo);
+
+        ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(cred.getPrivateKey());
+        X509CertificateHolder certificateHolder = gen.build(sigGen);
+
+        X509Certificate x509Certificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certificateHolder);
+        return x509Certificate;
 	}
 
 	public static void validateUrlSignature(Credential cred, String url, String req, String type) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {

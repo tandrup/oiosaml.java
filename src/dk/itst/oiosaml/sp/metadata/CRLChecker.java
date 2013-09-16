@@ -57,13 +57,7 @@ import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.x509.AccessDescription;
-import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
-import org.bouncycastle.asn1.x509.CRLDistPoint;
-import org.bouncycastle.asn1.x509.DistributionPoint;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.i18n.filter.UntrustedUrlInput;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.opensaml.xml.security.x509.X509Credential;
@@ -91,7 +85,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  */
 public class CRLChecker {
 	private static final Logger log = Logger.getLogger(CRLChecker.class);
-	private static final String AUTH_INFO_ACCESS = X509Extensions.AuthorityInfoAccess.getId();
+	private static final String AUTH_INFO_ACCESS = X509Extension.authorityInfoAccess.getId();
 	private Timer timer;
 
 	public void checkCertificates(IdpMetadata metadata, Configuration conf) {
