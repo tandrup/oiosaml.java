@@ -56,7 +56,7 @@ import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DERObject;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
@@ -246,7 +246,7 @@ public class CRLChecker {
 	 * @param entityId
 	 * @param certificate
 	 * @return the URL to use.
-	 * @see http://oid-info.com/get/1.3.6.1.5.5.7.48.1
+	 * @see <a href="http://oid-info.com/get/1.3.6.1.5.5.7.48.1">http://oid-info.com/get/1.3.6.1.5.5.7.48.1</a>
 	 */
 	private String getOCSPUrl(Configuration conf, String entityId, X509Certificate certificate) {
 		String url = conf.getString(Constants.PROP_OCSP_RESPONDER);
@@ -266,7 +266,7 @@ public class CRLChecker {
 			aIn = new ASN1InputStream(bytes);
 			ASN1OctetString octs = (ASN1OctetString) aIn.readObject();
 			aIn = new ASN1InputStream(octs.getOctets());
-			DERObject auth_info_acc = aIn.readObject();
+			ASN1Primitive auth_info_acc = aIn.readObject();
 
 			if (auth_info_acc != null) {
 				authInfoAcc = AuthorityInformationAccess.getInstance(auth_info_acc);
