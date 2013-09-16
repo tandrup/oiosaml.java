@@ -103,6 +103,7 @@ public class SAMLUtil {
 	public static final String VERSION = "$Id: BRSUtil.java 2910 2008-05-21 13:07:31Z jre $";
 	private static final Logger log = Logger.getLogger(SAMLUtil.class);
 	public static final String OIOSAML_HOME = "oiosaml.home";
+    public static final String OIOSAML_DEFAULT_CONFIGURATION_FILE = "oiosaml-sp.properties";
 	
 	private static final Map<Class<?>, QName> elementCache = new ConcurrentHashMap<Class<?>, QName>();
 

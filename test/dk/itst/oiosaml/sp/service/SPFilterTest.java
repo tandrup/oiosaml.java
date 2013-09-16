@@ -14,6 +14,9 @@ import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
@@ -106,12 +109,9 @@ public class SPFilterTest extends AbstractServiceTests {
 		dir.mkdir();
 		
 		SPFilter filter = new SPFilter();
+        filter.setConfiguration(null); // Configuration has been set in the "before test" method. We need to unset the configuration in order for this test to pass.
 		final FilterConfig config = context.mock(FilterConfig.class);
-		final ServletContext servletContext = context.mock(ServletContext.class);
 		context.checking(new Expectations(){{
-			allowing(config).getServletContext(); will(returnValue(servletContext));
-			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(dir.getAbsolutePath()));
-			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_FILE); will(returnValue ("bad-file.properties"));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
             one(session).getCreationTime(); will(returnValue(0l));
 		}});
@@ -124,7 +124,7 @@ public class SPFilterTest extends AbstractServiceTests {
 			one(req).getRequestDispatcher("/saml/configure"); will(returnValue(dispatcher));
 			one(dispatcher).forward(req, res);
 		}});
-			
+
 		filter.doFilter(req, res, chain);
 		
 		dir.delete();
