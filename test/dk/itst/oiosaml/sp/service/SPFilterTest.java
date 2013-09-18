@@ -109,13 +109,12 @@ public class SPFilterTest extends AbstractServiceTests {
 		dir.mkdir();
 		
 		SPFilter filter = new SPFilter();
-        filter.setConfiguration(null); // Configuration has been set in the "before test" method. We need to unset the configuration in order for this test to pass.
+        SAMLConfigurationFactory.getConfiguration().setInitConfiguration(new HashMap<String, String>()); // Configuration has been set in the "before test" method. We need to unset the configuration in order for this test to pass.
 		final FilterConfig config = context.mock(FilterConfig.class);
 		context.checking(new Expectations(){{
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
             one(session).getCreationTime(); will(returnValue(0l));
 		}});
-		System.clearProperty(SAMLUtil.OIOSAML_HOME);
 		filter.init(config);
 		
 		final RequestDispatcher dispatcher = context.mock(RequestDispatcher.class);
