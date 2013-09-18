@@ -83,7 +83,6 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 		os.close();
 
 		props = new HashMap<String, String>();
-		props.put(SAMLUtil.OIOSAML_HOME, System.getProperty("java.io.tmpdir"));
 		props.put(Constants.PROP_CERTIFICATE_LOCATION, tmp.getName());
 		props.put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		

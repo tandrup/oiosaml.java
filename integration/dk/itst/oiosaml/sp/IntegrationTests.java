@@ -117,7 +117,6 @@ public abstract class IntegrationTests {
 		props.setProperty(Constants.PROP_CERTIFICATE_LOCATION, "keystore");
 		props.setProperty(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		props.setProperty(Constants.PROP_LOG_FILE_NAME, "oiosaml-sp.log4j.xml");
-		props.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		props.setProperty(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
 		
 		KeyStore ks = KeyStore.getInstance("JKS");
