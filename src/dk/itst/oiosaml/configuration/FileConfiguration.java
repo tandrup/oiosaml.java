@@ -77,8 +77,65 @@ public class FileConfiguration implements SAMLConfiguration {
 	private String configurationFileName;
 	private Configuration systemConfiguration;
 
+    /**
+     * Tries to resolve {@link Constants#INIT_OIOSAML_FILE}, {@link Constants#INIT_OIOSAML_HOME} and {@link Constants#INIT_OIOSAML_NAME} from web.xml file.
+     *
+     */
     public FileConfiguration() {
-        setInitSPFilter();
+        String fullPathToConfigurationFile = null;
+        String homeParam = null;
+        String applicationName = null;
+
+        // Get the base naming context
+        try {
+            Context env = (Context)new InitialContext().lookup("java:comp/env");
+
+            // Read in application name
+            try {
+                applicationName = (String)env.lookup(Constants.INIT_OIOSAML_NAME);
+                log.info(Constants.INIT_OIOSAML_NAME + " set to " + applicationName + " in web.xml");
+            } catch (NamingException e) {
+                log.info(Constants.INIT_OIOSAML_NAME + " was not defined in web.xml.");
+            }
+
+            // Read in path to configuration library
+            try {
+                homeParam = (String)env.lookup(Constants.INIT_OIOSAML_HOME);
+                log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
+            } catch (NamingException e) {
+                log.info(Constants.INIT_OIOSAML_HOME + " was not defined in web.xml.");
+            }
+
+            // Read in name of configuration file
+            try {
+                fullPathToConfigurationFile = (String)env.lookup(Constants.INIT_OIOSAML_FILE);
+                log.info(Constants.INIT_OIOSAML_FILE + " set to " + fullPathToConfigurationFile + " in web.xml");
+            } catch (NamingException e) {
+                log.info(Constants.INIT_OIOSAML_FILE + " was not defined in web.xml.");
+            }
+        } catch (NamingException e) {
+            log.error("Unable to create InitialContext in FileConfiguration");
+        }
+
+        Map<String, String> params = new HashMap<String, String>();
+        if (fullPathToConfigurationFile != null) {
+            params.put(Constants.INIT_OIOSAML_FILE, fullPathToConfigurationFile);
+        } else {
+            // Locate path to configuration folder if not set in web.xml
+            if (homeParam == null) {
+                homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
+                log.info(Constants.INIT_OIOSAML_HOME + " not set in web.xml. Setting it to " + SAMLUtil.OIOSAML_HOME + " Java system property with value: " + homeParam);
+            }
+            if (homeParam == null) {
+                homeParam = System.getProperty("user.home") + "/.oiosaml";
+                log.info(Constants.INIT_OIOSAML_HOME + " not set in Java system property. Setting it to default path: " + homeParam);
+            }
+
+            params.put(Constants.INIT_OIOSAML_HOME, homeParam);
+            params.put(Constants.INIT_OIOSAML_NAME, applicationName);
+        }
+
+        setInitConfiguration(params);
     }
 
     /**
@@ -145,10 +202,6 @@ public class FileConfiguration implements SAMLConfiguration {
     public KeyStore getKeystore() throws WrappedException {
         KeyStore keystore = null;
 
-//		String keystoreFileName = (homeDir == null) ? getSystemConfiguration().getString(
-//				Constants.PROP_CERTIFICATE_LOCATION) : homeDir
-//				+ getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_LOCATION);
-
         File keystoreFile = new File(getSystemConfiguration().getString(
                 Constants.PROP_CERTIFICATE_LOCATION));
         // If path is not absolute ... check if the path is relative to the home dir.
@@ -211,6 +264,8 @@ public class FileConfiguration implements SAMLConfiguration {
 			while ((val = input.read()) != -1) {
 				contents.append((char) val);
 			}
+
+            input.close();
 
 			modified = contents.toString().replaceAll("\\$\\{oiosaml.home\\}", homeDir.replaceAll("\\\\", "\\\\\\\\"));
 
@@ -301,102 +356,13 @@ public class FileConfiguration implements SAMLConfiguration {
 		return descriptors;
 	}
 
-    private void setInitSPFilter(){
-        String fullPathToConfigurationFile = null;
-        String homeParam = null;
-        String applicationName = null;
-
-        // Get the base naming context
-        try {
-            Context env = (Context)new InitialContext().lookup("java:comp/env");
-
-            // Read in application name
-            try {
-                applicationName = (String)env.lookup(Constants.INIT_OIOSAML_NAME);
-            } catch (NamingException e) {
-                log.info(Constants.INIT_OIOSAML_NAME + " was not defined in web.xml.");
-            }
-
-            // Read in path to configuration library
-            try {
-                homeParam = (String)env.lookup(Constants.INIT_OIOSAML_HOME);
-            } catch (NamingException e) {
-                log.info(Constants.INIT_OIOSAML_HOME + " was not defined in web.xml.");
-            }
-
-            // Read in name of configuration file
-            try {
-                fullPathToConfigurationFile = (String)env.lookup(Constants.INIT_OIOSAML_FILE);
-            } catch (NamingException e) {
-                log.info(Constants.INIT_OIOSAML_FILE + " was not defined in web.xml.");
-            }
-        } catch (NamingException e) {
-            log.error("Unable to create InitialContext in FileConfiguration");
-        }
-
-        /*if (homeDir == null) {
-            homeDir = System.getProperty(SAMLUtil.OIOSAML_HOME);
-            if (homeDir == null || homeDir.trim().isEmpty()) {
-                log.info(Constants.INIT_OIOSAML_HOME + " was not defined in a java system property called " + SAMLUtil.OIOSAML_HOME);
-                log.info(Constants.INIT_OIOSAML_HOME + " was not defined. Default value '${user.home}/.oiosaml' is used.");
-                homeDir = System.getProperty("user.home") + "/.oiosaml";
-            }
-        }
-
-        if (fullPathToConfigurationFile == null) {
-            log.info(Constants.INIT_OIOSAML_FILE + " was not defined. Default value " + SAMLUtil.OIOSAML_PROPERTIES_DEFAULT_FILE_NAME + " is used.");
-            fullPathToConfigurationFile = SAMLUtil.OIOSAML_PROPERTIES_DEFAULT_FILE_NAME;
-        }  */
-
-        // Handle multiple application configurations
-        //if(applicationName != null){
-        //    homeDir += "-" + applicationName;
-        //}
-
-        // Apply '/' if not present in the end of homeDir
-        //if(!homeDir.endsWith("/")){
-        //    homeDir += "/";
-        //}
-
-        Map<String, String> params = new HashMap<String, String>();
-        if (fullPathToConfigurationFile != null) {
-            log.info(Constants.INIT_OIOSAML_FILE + " set to " + fullPathToConfigurationFile + " in web.xml");
-            params.put(Constants.INIT_OIOSAML_FILE, fullPathToConfigurationFile);
-        } else {
-            log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
-            log.info(Constants.INIT_OIOSAML_NAME + " set to " + applicationName + " in web.xml");
-
-            // Locate path to configuration folder if not set in web.xml
-            if (homeParam == null) {
-                homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
-                log.info(Constants.INIT_OIOSAML_HOME + " not set in web.xml. Setting it to " + SAMLUtil.OIOSAML_HOME + " Java system property with value: " + homeParam);
-            }
-            if (homeParam == null) {
-                homeParam = System.getProperty("user.home") + "/.oiosaml";
-                log.info(Constants.INIT_OIOSAML_HOME + " not set in Java system property. Setting it to default path: " + homeParam);
-            }
-
-            // Apply application name if configured
-            if(applicationName != null && !applicationName.trim().isEmpty()){
-                homeParam += "-" + applicationName;
-            }
-
-            // Add '/' in the end if not present
-            if ((homeParam != null) && (!homeParam.endsWith("/")))
-                homeParam = homeParam + "/";
-
-            log.info("Using default configuration file name: " + SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE);
-            params.put(Constants.INIT_OIOSAML_FILE, homeParam + SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE);
-        }
-
-        setInitConfiguration(params);
-
-        // Write configurations to the log
-        log.info("Path to configuration folder set to: " + homeDir);
-        log.info("Configuration file name set to: " + configurationFileName);
-    }
-
-    public void setInitConfiguration(Map<String, String> params) {
+    /**
+     * This method ONLY exists to support unit and integration tests. Do not use it for other purposes.
+     * Either {@link Constants#INIT_OIOSAML_FILE} or {@link Constants#INIT_OIOSAML_HOME} must be specified. If both is specified then {@link Constants#INIT_OIOSAML_FILE} takes precedense
+     * if {@link Constants#INIT_OIOSAML_HOME} is specified then {@link Constants#INIT_OIOSAML_NAME} is optionally and {@link SAMLUtil#OIOSAML_DEFAULT_CONFIGURATION_FILE} is used as default name for the configuration file.
+     * If either {@link Constants#INIT_OIOSAML_FILE} or {@link Constants#INIT_OIOSAML_HOME} is not set then the system is set to be not configured.
+     */
+     public void setInitConfiguration(Map<String, String> params) {
         systemConfiguration = null;
         if (params != null) {
             if (params.containsKey(Constants.INIT_OIOSAML_FILE)) {
@@ -414,11 +380,21 @@ public class FileConfiguration implements SAMLConfiguration {
                     homeDir = pathToConfigurationFolder;
                     configurationFileName = SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE;
                 }
+
+                // Apply application name if configured
+                String applicationName = params.get(Constants.INIT_OIOSAML_NAME);
+                if(applicationName != null && !applicationName.trim().isEmpty()){
+                    homeDir += "-" + applicationName;
+                }
             }
             else{
                 homeDir = null;
                 configurationFileName = null;
             }
+
+            // Write configurations to the log
+            log.info("Path to configuration folder set to: " + homeDir);
+            log.info("Configuration file name set to: " + configurationFileName);
         }
     }
 
@@ -426,47 +402,7 @@ public class FileConfiguration implements SAMLConfiguration {
 		systemConfiguration = configuration;
 	}
 
-//    /**
-//     * Returns the folder containing the ear file
-//     *
-//     * @return ear-folder
-//     */
-//    private String getAlternativeLocation() {
-//        // Home is not be set or wrong try to locate it
-//        String filePath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-//        log.info("Found classpath: " + filePath);
-//        int indexOfEar = filePath.indexOf(".ear");
-//        String onlyPath = ".";
-//        if (indexOfEar > 0) {
-//            onlyPath = filePath.substring(0, indexOfEar);
-//            int indexOfLastSlash = onlyPath.lastIndexOf("/") + 1;
-//            int protocolIndex = onlyPath.lastIndexOf(':') + 1;
-//            onlyPath = onlyPath.substring(protocolIndex, indexOfLastSlash); // remove
-//            // file:
-//            // from
-//            // string
-//            log.info("Using only path part: " + onlyPath);
-//        }
-//        return onlyPath;
-//    }
-//
-//    /**
-//     * Tries to locate the configuration in the ear file
-//     *
-//     * @param configurationFileName
-//     * @return configurationFileName
-//     */
-//    private String getAlternativeConfigurationFileName(String configurationFileName) {
-//        String onlyPath = getAlternativeLocation();
-//        String onlyFileName = null;
-//        if (configurationFileName != null) {
-//            onlyFileName = configurationFileName.substring((configurationFileName.lastIndexOf("/") + 1), configurationFileName.length());
-//        }
-//        log.info("And only filename part from context: " + onlyFileName);
-//        if (onlyFileName == null) {
-//            onlyFileName = SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE;
-//        }
-//        configurationFileName = onlyPath + onlyFileName;
-//        return configurationFileName;
-//    }
+    public String getHomeDir() {
+        return homeDir;
+    }
 }

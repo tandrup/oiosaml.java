@@ -215,16 +215,4 @@ public class SPFilterTest extends AbstractServiceTests {
 		
 		filter.doFilter(req, res, chain);
 	}
-
-	@SuppressWarnings("unused")
-	private SAMLConfiguration getConfiguration() {
-		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
-
-		String confFile="env/oiosaml-sp.properties";
-		Map<String,String> params=new HashMap<String, String>();
-		params.put(Constants.INIT_OIOSAML_FILE, confFile);
-		sc.setInitConfiguration(params);
-		return sc;
-	}
-  		
 }

@@ -109,7 +109,7 @@ public class UserAttributeQueryTest extends AbstractServiceTests {
 	private SAMLConfiguration getConfiguration() {
 		SAMLConfiguration sc = SAMLConfigurationFactory.getConfiguration();
 
-		String confFile="env/oiosaml-sp.properties";
+		String confFile="env/" + SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE;
 		Map<String,String> params=new HashMap<String, String>();
 		params.put(Constants.INIT_OIOSAML_FILE, confFile);
 		sc.setInitConfiguration(params);

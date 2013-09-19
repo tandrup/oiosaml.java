@@ -220,10 +220,6 @@ public class SPFilter implements Filter {
 
 	public void init(FilterConfig filterConfig) throws ServletException {
 		conf = SAMLConfigurationFactory.getConfiguration();
-//        if(conf instanceof FileConfiguration){
-//            FileConfiguration fileConfiguration = (FileConfiguration) conf;
-//            fileConfiguration.setInitSPFilter();
-//        }
 
 		if (conf.isConfigured()) {
 			try {

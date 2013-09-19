@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -18,6 +19,8 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
+import dk.itst.oiosaml.common.SAMLUtil;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.junit.After;
@@ -34,13 +37,11 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 public class ConfigurationHandlerTest extends AbstractServiceTests {
 	
 	private ConfigurationHandler handler;
-	private ServletContext servletContext;
 	private File homeDir;
 
 	@Before
 	public void setUp() throws Exception{
-		servletContext = context.mock(ServletContext.class);
-		handler = new ConfigurationHandler(servletContext);
+		handler = new ConfigurationHandler();
 		homeDir = new File(File.createTempFile("test", "test").getAbsolutePath() + ".home");
 		homeDir.mkdir();
 	}
@@ -54,22 +55,21 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 
 	@Test
 	public void testIsConfigured() throws Exception{
-		context.checking(new Expectations() {{
-			exactly(2).of(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(homeDir.getAbsolutePath()));
-		}});
-		assertTrue(handler.isHomeAvailable(servletContext));
-		assertFalse(handler.isConfigured(servletContext));
+        // Reinitialize SAMLConfiguration
+        Map<String,String> params=new HashMap<String, String>();
+        params.put(Constants.INIT_OIOSAML_HOME, homeDir.getAbsolutePath());
+        SAMLConfigurationFactory.getConfiguration().setInitConfiguration(params);
+
+		assertTrue(handler.isHomeAvailable());
+		assertFalse(handler.isConfigured());
 		
 		File content = new File(homeDir, "content");
 		FileOutputStream fos = new FileOutputStream(content);
 		fos.write("testing".getBytes());
 		fos.close();
 		
-		context.checking(new Expectations() {{
-			exactly(2).of(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(homeDir.getAbsolutePath()));
-		}});
-		assertTrue(handler.isHomeAvailable(servletContext));
-		assertTrue(handler.isConfigured(servletContext));
+		assertTrue(handler.isHomeAvailable());
+		assertTrue(handler.isConfigured());
 	}
 	
 	@Test
@@ -120,7 +120,6 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 		final StringWriter sw = new StringWriter();
 		final String url = "http://localhost/saml";
 		context.checking(new Expectations() {{
-			allowing(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(homeDir.getAbsolutePath()));
 			one(req).getParameter(with(any(String.class))); will(returnValue(null));
 			one(res).setContentType("text/html");
 			one(res).setCharacterEncoding("UTF-8");
@@ -182,7 +181,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 		assertNotNull(zipFile);
 		
 		ZipFile f = new ZipFile(zipFile);
-		assertNotNull(f.getEntry("oiosaml-sp.properties"));
+		assertNotNull(f.getEntry(SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE));
 		assertNotNull(f.getEntry("metadata/SP/SPMetadata.xml"));
 		assertNotNull(f.getEntry("metadata/IdP/IdPMetadata.xml"));
 		assertNotNull(f.getEntry("certificate/keystore"));
