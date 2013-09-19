@@ -1,4 +1,0 @@
-Testsuite: dk.itst.oiosaml.sp.service.LogoutHandlerTest
-Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,125 sec
-
-Testcase: testLogout took 0,032 sec

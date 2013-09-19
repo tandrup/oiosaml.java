@@ -1,4 +1,0 @@
-Testsuite: dk.itst.oiosaml.configuration.SAMLConfigurationFactoryTest
-Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,25 sec
-
-Testcase: testGetConfiguration took 0,125 sec

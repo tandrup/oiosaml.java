@@ -1,8 +1,0 @@
-Testsuite: dk.itst.oiosaml.sp.metadata.CRLCheckerTest
-Tests run: 5, Failures: 0, Errors: 0, Time elapsed: 3,276 sec
-
-Testcase: testTimer took 3,058 sec
-Testcase: testRevoked took 0,031 sec
-Testcase: testCheckCertificatesWithNoRevoked took 0,016 sec
-Testcase: crl_should_be_signed_if_truststore_specified took 0,015 sec
-Testcase: invalid_signature_on_crl_should_fail took 0,047 sec
