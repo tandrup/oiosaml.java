@@ -29,22 +29,24 @@ must then contain all the necessary files. If the dir is empty, autoconfiguratio
 on autoconfiguration below for more information.</p>
 
 <pre>
-&lt;context-param&gt;
-	&lt;param-name&gt;oiosaml-j.home&lt;/param-name&gt;
-	&lt;param-value&gt;/home/saml/env/&lt;/param-value&gt;
-&lt;/context-param&gt;
+&lt;env-entry&gt;
+    &lt;env-entry-name&gt;oiosaml-j.home&lt;/env-entry-name&gt;
+    &lt;env-entry-value&gt;/home/saml/env/&lt;/env-entry-value&gt;
+    &lt;env-entry-type&gt;java.lang.String&lt;/env-entry-type&gt;
+&lt;/env-entry&gt;
 </pre>
 
-<p>Alternatively, it is possible to configure an application name, which is appended to the default directory (~/.oiosaml). 
+<p>Alternatively, it is possible to configure an application name, which is appended to oiosaml-j.home or the default directory (${user.home}/.oiosaml) in case oiosaml-j.home is not specified.
 This can be useful when deploying multiple OIOSAML applications to the same container. In this case, each application must have its own configuration
 dir, but setting the oiosaml-j.home parameter can be tedious, especially when on a large project with source control. To set the application
-name, insert a context-param in web.xml. The example below will result in a configuration dir called ~/.oiosaml-application1.</p>
+name, insert a env-entry in web.xml. The example below will result in a configuration dir called {oiosaml-j.home}-application1 or ${user.home}/.oiosaml-application1 if oiosaml-j.home is not specified.</p>
 
 <pre>
-&lt;context-param&gt;
-	&lt;param-name&gt;oiosaml-j.name&lt;/param-name&gt;
-	&lt;param-value&gt;application1&lt;/param-value&gt;
-&lt;/context-param&gt;
+&lt;env-entry&gt;
+    &lt;env-entry-name&gt;oiosaml-j.name&lt;/env-entry-name&gt;
+    &lt;env-entry-value&gt;application1&lt;/env-entry-value&gt;
+    &lt;env-entry-type&gt;java.lang.String&lt;/env-entry-type&gt;
+&lt;/env-entry&gt;
 </pre>
 
 
@@ -69,9 +71,9 @@ IdP metadata files can be given any name, but must end with .xml and be placed i
 
 
 <h3>Autoconfiguration</h3>
-<p>To aid in the initial configuration of the Service Provider, OIOSAML.java provides an autoconfigure mechanism. If oiosaml-j.home points to an empty dir, autoconfigure is enabled. 
+<p>To aid in the initial configuration of the Service Provider, OIOSAML.java provides an autoconfigure mechanism. If oiosaml-j.home points to an empty dir or a dir that does not exist, autoconfigure is enabled.
 Any requests passing through the filter will be redirected to a configuration page. This page is also accessible through saml/configure, relative to where the application is deployed.</p>
-<p>Autoconfiguration is only available when oiosaml-j.home is empty. The mechanism automatically creates SPMetadata.xml and oiosaml-j.properties files based on 
+<p>Autoconfiguration is only available when oiosaml-j.home is empty or does not exist. The mechanism automatically creates SPMetadata.xml and oiosaml-j.properties files based on
 the values entered.</p>
 <p>When the autoconfig process has finished, the configuration files will be written automatically to oiosaml-j.home. If the server process does not have access to the dir, 
 a zip file can be downloaded instead and unzipped to oiosaml-j.home. The servlet will reload the configuration automatically after the configuration process has finished.</p>  
