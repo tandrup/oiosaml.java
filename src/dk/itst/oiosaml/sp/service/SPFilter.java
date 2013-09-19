@@ -103,7 +103,6 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  */
 public class SPFilter implements Filter {
 	private static final Logger log = Logger.getLogger(SPFilter.class);
-	private static final String CONF_FILE = "oiosaml-sp.properties";
 	private CRLChecker crlChecker = new CRLChecker();
 	private boolean filterInitialized;
 	private SAMLConfiguration conf;
@@ -221,45 +220,7 @@ public class SPFilter implements Filter {
 
 	public void init(FilterConfig filterConfig) throws ServletException {
 		conf = SAMLConfigurationFactory.getConfiguration();
-		if (conf instanceof FileConfiguration) {
-			String configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_FILE);
-			String homeParam = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_HOME);
-			Map<String, String> params = new HashMap<String, String>();
-			if (configurationFileName != null) {
-				log.info(Constants.INIT_OIOSAML_FILE + " set to " + configurationFileName + " in web.xml");
-				params.put(Constants.INIT_OIOSAML_FILE, configurationFileName);
-				conf.setInitConfiguration(params);
-			} else {
-				configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_NAME);
-				log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
-				log.info(Constants.INIT_OIOSAML_NAME + " set to " + homeParam + " in web.xml");
-				if (homeParam == null) {
-					homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
-				}
-				if (homeParam == null) {
-					if (configurationFileName!=null) {
-						log.info("Configuring OIOSAML with application name " + configurationFileName);
-						homeParam = System.getProperty("user.home") + "/.oiosaml-" + configurationFileName;
-					}
-				}
-				if (homeParam == null) {
-					homeParam = getAlternativeLocation();
-				}
-				log.info("Trying to retrieve configuration from folder " + configurationFileName);
-				params.put(Constants.INIT_OIOSAML_NAME, configurationFileName);
-				params.put(Constants.INIT_OIOSAML_HOME, homeParam);
-				conf.setInitConfiguration(params);
-			}
-			if (!conf.isConfigured()) {
-				log.info("Unable to use configuration from context-param. Try to locate configuration...");
-				configurationFileName = getAlternativeConfigurationFileName(configurationFileName);
-				params.put(Constants.INIT_OIOSAML_FILE, configurationFileName);
-				conf.setInitConfiguration(params);
-			}
-			log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
-		} else {
-			log.info("The OIO configuration is being configured by "+conf.getClass().getName());
-		}
+
 		if (conf.isConfigured()) {
 			try {
 				Configuration conf = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
@@ -277,50 +238,6 @@ public class SPFilter implements Filter {
 			}
 		}
 		setFilterInitialized(false);
-	}
-
-	/**
-	 * Returns the folder containing the ear file
-	 * 
-	 * @return ear-folder
-	 */
-	private String getAlternativeLocation() {
-		// Home is not be set or wrong try to locate it
-		String filePath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-		log.info("Found classpath: " + filePath);
-		int indexOfEar = filePath.indexOf(".ear");
-		String onlyPath = ".";
-		if (indexOfEar > 0) {
-			onlyPath = filePath.substring(0, indexOfEar);
-			int indexOfLastSlash = onlyPath.lastIndexOf("/") + 1;
-			int protocolIndex = onlyPath.lastIndexOf(':') + 1;
-			onlyPath = onlyPath.substring(protocolIndex, indexOfLastSlash); // remove
-																			// file:
-																			// from
-																			// string
-			log.info("Using only path part: " + onlyPath);
-		}
-		return onlyPath;
-	}
-
-	/**
-	 * Tries to locate the configuration in the ear file
-	 * 
-	 * @param configurationFileName
-	 * @return configurationFileName
-	 */
-	public String getAlternativeConfigurationFileName(String configurationFileName) {
-		String onlyPath = getAlternativeLocation();
-		String onlyFileName = null;
-		if (configurationFileName != null) {
-			onlyFileName = configurationFileName.substring((configurationFileName.lastIndexOf("/") + 1), configurationFileName.length());
-		}
-		log.info("And only filename part from context: " + onlyFileName);
-		if (onlyFileName == null) {
-			onlyFileName = CONF_FILE;
-		}
-		configurationFileName = onlyPath + onlyFileName;
-		return configurationFileName;
 	}
 
 	private void setRuntimeConfiguration(Configuration conf) {

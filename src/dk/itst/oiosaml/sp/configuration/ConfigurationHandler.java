@@ -49,6 +49,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dk.itst.oiosaml.configuration.FileConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -106,10 +108,8 @@ public class ConfigurationHandler implements SAMLHandler {
 	public static final String SESSION_CONFIGURATION = "CONFIGURATION";
 	private static final Logger log = Logger.getLogger(ConfigurationHandler.class);
 	protected final VelocityEngine engine;
-	private final ServletContext servletContext;
-	
-	public ConfigurationHandler(ServletContext servletContext) {
-		this.servletContext = servletContext;
+
+	public ConfigurationHandler() {
 		engine = new VelocityEngine();
 		engine.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
 		engine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -184,15 +184,31 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		Credential credential = context.getCredential();
 		if (keystore != null && keystore.length > 0) {
-			try {
-				KeyStore ks=KeyStore.getInstance("JKS");
-				ks.load(new ByteArrayInputStream(keystore),password.toCharArray());
+            ByteArrayInputStream byteArrayInputStream = null;
+            try {
+                byteArrayInputStream = new ByteArrayInputStream(keystore);
+
+                KeyStore ks=KeyStore.getInstance("JKS");
+                ks.load(byteArrayInputStream,password.toCharArray());
 				credential  = CredentialRepository.createCredential(ks, password);
 			}catch (Exception e) {
-                log.error("Unable to use/load keystore", e);
-				throw new RuntimeException("Unable to use/load keystore", e);
+                log.info("Keystore is not of type JKS. Trying type PKCS12");
+                try {
+                    KeyStore ks=KeyStore.getInstance("PKCS12");
+                    byteArrayInputStream.reset();
+                    ks.load(byteArrayInputStream,password.toCharArray());
+                    credential  = CredentialRepository.createCredential(ks, password);
+                }
+                catch (Exception e2){
+                    log.error("Unable to use/load keystore", e2);
+                    throw new RuntimeException("Unable to use/load keystore", e2);
+                }
 			}
-		} else if (Boolean.valueOf(extractParameter("createkeystore", parameters))) {
+            finally {
+                if(byteArrayInputStream != null)
+                    byteArrayInputStream.close();
+            }
+        } else if (Boolean.valueOf(extractParameter("createkeystore", parameters))) {
 			try {
 				BasicX509Credential cred = new BasicX509Credential();
 				KeyPair kp = dk.itst.oiosaml.security.SecurityHelper.generateKeyPairFromURI("http://www.w3.org/2001/04/xmlenc#rsa-1_5", 1024);
@@ -225,10 +241,10 @@ public class ConfigurationHandler implements SAMLHandler {
 		File zipFile = generateZipFile(request.getContextPath(), password, metadata, keystore, descriptor);
 		
 		byte[] configurationContents = saveConfigurationInSession(request, zipFile);
-		boolean written = writeConfiguration(getHome(servletContext), configurationContents);
+		boolean written = writeConfiguration(getHome(), configurationContents);
 		
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("home", getHome(servletContext));
+		params.put("home", getHome());
 		params.put("written", written);
 		sendResponse(response, renderTemplate("done.vm", params, true));
 	}
@@ -269,7 +285,7 @@ public class ConfigurationHandler implements SAMLHandler {
 	protected File generateZipFile(final String contextPath, final String password, byte[] idpMetadata, byte[] keystore, EntityDescriptor descriptor) throws IOException {
 		File zipFile = File.createTempFile("oiosaml-", ".zip");
 		ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
-		zos.putNextEntry(new ZipEntry("oiosaml-sp.properties"));
+		zos.putNextEntry(new ZipEntry(SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE));
 		zos.write(renderTemplate("defaultproperties.vm", new HashMap<String, Object>() {{
 			put("homename", Constants.PROP_HOME);
 
@@ -416,9 +432,9 @@ public class ConfigurationHandler implements SAMLHandler {
 
 	private boolean checkConfiguration(HttpServletResponse response)
 			throws IOException {
-		if (isConfigured(servletContext)) {
+		if (isConfigured()) {
 			sendResponse(response, renderTemplate("alreadyConfigured.vm", new HashMap<String, Object>() {{
-				put("home", getHome(servletContext));
+				put("home", getHome());
 			}}, true));
 			return false;
 		}
@@ -458,8 +474,8 @@ public class ConfigurationHandler implements SAMLHandler {
 		return url.substring(0, idx + request.getServletPath().length());
 	}
 	
-	protected boolean isHomeAvailable(ServletContext ctx) {
-		String home = getHome(ctx);
+	protected boolean isHomeAvailable() {
+		String home = getHome();
 		if (home == null) return false;
 		
 		if (new File(home).isDirectory()) {
@@ -469,8 +485,8 @@ public class ConfigurationHandler implements SAMLHandler {
 		}
 	}
 	
-	protected boolean isConfigured(ServletContext ctx) {
-		String home = getHome(ctx);
+	protected boolean isConfigured() {
+		String home = getHome();
 		if (home == null) return false;
 		
 		File homeDir = new File(home);
@@ -505,30 +521,12 @@ public class ConfigurationHandler implements SAMLHandler {
 		return w.toString();
 	}
 
-	private String getHome(ServletContext ctx) {
-		String home = ctx.getInitParameter(Constants.INIT_OIOSAML_HOME);
-		if (home == null) {
-			home = System.getProperty(SAMLUtil.OIOSAML_HOME);
-		}
-		if (home == null) {
-			String name = ctx.getInitParameter(Constants.INIT_OIOSAML_NAME);
-			if (name != null) {
-				home = System.getProperty("user.home") + "/.oiosaml-" + name;
-			}
-		}
-		if (home == null) {
-			home = System.getProperty("user.home") + "/.oiosaml";
-			File h = new File(home);
-			if (h.exists() && !h.isDirectory()) {
-				throw new IllegalStateException(home + " is not a directory");
-			} else if (!h.exists()) {
-				log.info("Creating empty config dir in " + home);
-				if (!h.mkdir()) {
-					throw new IllegalStateException(h + " could not be created");
-				}
-			}
-		}
-		return home;
+	private String getHome() {
+        String pathToHomeDir = ((FileConfiguration) SAMLConfigurationFactory.getConfiguration()).getHomeDir();
+        File homeDir = new File(pathToHomeDir);
+        if(!homeDir.exists())
+            homeDir.mkdir();
+        return pathToHomeDir;
 	}
 	
 	private String getEntityId(HttpServletRequest request) {
@@ -554,7 +552,7 @@ public class ConfigurationHandler implements SAMLHandler {
 		params.put("logoutRequestUrl", base + "/LogoutServiceHTTPRedirect");
 		params.put("logoutSoapRequestUrl", base + "/LogoutServiceSOAP");
         params.put("logoutPostRequestUrl", base + "/LogoutServiceHTTPPost");
-		params.put("home", getHome(servletContext));
+		params.put("home", getHome());
 		params.put("entityId", getEntityId(request));
 		return params;
 	}

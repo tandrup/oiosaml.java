@@ -130,7 +130,6 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL_TRUSTSTORE, keystore.getAbsolutePath());
 			put(Constants.PROP_CRL_TRUSTSTORE_PASSWORD, "password");
 			put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
-			put(SAMLUtil.OIOSAML_HOME, "");
 			put(Constants.PROP_CERTIFICATE_LOCATION,keystore.getAbsolutePath());
 		}});
 
@@ -161,7 +160,6 @@ public class CRLCheckerTest extends AbstractTests {
 			put(Constants.PROP_CRL_TRUSTSTORE, keystore.getAbsolutePath());
 			put(Constants.PROP_CRL_TRUSTSTORE_PASSWORD, "password");
 			put(Constants.PROP_CERTIFICATE_PASSWORD, "password");
-			put(SAMLUtil.OIOSAML_HOME, "");
 			put(Constants.PROP_CERTIFICATE_LOCATION,keystore.getAbsolutePath());
 		}});
 

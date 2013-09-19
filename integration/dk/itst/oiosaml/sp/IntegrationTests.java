@@ -36,9 +36,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import dk.itst.oiosaml.configuration.SAMLConfiguration;
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -91,7 +95,13 @@ public abstract class IntegrationTests {
 	public final void setUpServer() throws Exception {
 		tmpdir = new File(System.getProperty("java.io.tmpdir") + "/oiosaml-" + Math.random());
 		tmpdir.mkdir();
-		FileUtils.forceMkdir(new File(tmpdir, "metadata/IdP"));
+
+        // Reinitialize SAMLConfiguration
+        Map<String,String> params=new HashMap<String, String>();
+        params.put(Constants.INIT_OIOSAML_HOME, tmpdir.getAbsolutePath());
+        SAMLConfigurationFactory.getConfiguration().setInitConfiguration(params);
+
+        FileUtils.forceMkdir(new File(tmpdir, "metadata/IdP"));
 		FileUtils.forceMkdir(new File(tmpdir, "metadata/SP"));
 		
 		credential = TestHelper.getCredential();
@@ -117,7 +127,6 @@ public abstract class IntegrationTests {
 		props.setProperty(Constants.PROP_CERTIFICATE_LOCATION, "keystore");
 		props.setProperty(Constants.PROP_CERTIFICATE_PASSWORD, "password");
 		props.setProperty(Constants.PROP_LOG_FILE_NAME, "oiosaml-sp.log4j.xml");
-		props.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		props.setProperty(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
 		
 		KeyStore ks = KeyStore.getInstance("JKS");
@@ -130,19 +139,14 @@ public abstract class IntegrationTests {
 
 		props.setProperty(Constants.PROP_ASSURANCE_LEVEL, "2");
 		props.setProperty(Constants.PROP_IGNORE_CERTPATH, "true");
-		fos = new FileOutputStream(new File(tmpdir, "oiosaml-sp.properties"));
+		fos = new FileOutputStream(new File(tmpdir, SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE));
 		props.store(fos, "Generated");
 		fos.close();
 
-		Map<String,String> params=new HashMap<String, String>();
-		params.put(Constants.INIT_OIOSAML_FILE, tmpdir+"/oiosaml-sp.properties");
-
 		IdpMetadata.setMetadata(null);
 		SPMetadata.setMetadata(null);
-		System.setProperty(SAMLUtil.OIOSAML_HOME, tmpdir.getAbsolutePath());
 		server = new Server(8808);
 		WebAppContext wac = new WebAppContext();
-		wac.setInitParams(params);
 		wac.setClassLoader(Thread.currentThread().getContextClassLoader());
 		wac.setContextPath("/saml");
 		wac.setWar("webapp/");
@@ -163,7 +167,7 @@ public abstract class IntegrationTests {
 			server.stop();
 		}
 		if (tmpdir != null) {
-			FileUtils.deleteDirectory(tmpdir);
+            FileUtils.deleteDirectory(tmpdir);
 		}
 	}
 

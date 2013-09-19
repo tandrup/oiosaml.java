@@ -40,10 +40,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -59,6 +56,10 @@ import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.SPFilter;
 import dk.itst.oiosaml.sp.service.util.Constants;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 /**
  * Utility class to obtain a handle to all property values within the current
@@ -76,7 +77,68 @@ public class FileConfiguration implements SAMLConfiguration {
 	private String configurationFileName;
 	private Configuration systemConfiguration;
 
-	/**
+    /**
+     * Tries to resolve {@link Constants#INIT_OIOSAML_FILE}, {@link Constants#INIT_OIOSAML_HOME} and {@link Constants#INIT_OIOSAML_NAME} from web.xml file.
+     *
+     */
+    public FileConfiguration() {
+        String fullPathToConfigurationFile = null;
+        String homeParam = null;
+        String applicationName = null;
+
+        // Get the base naming context
+        try {
+            Context env = (Context)new InitialContext().lookup("java:comp/env");
+
+            // Read in application name
+            try {
+                applicationName = (String)env.lookup(Constants.INIT_OIOSAML_NAME);
+                log.info(Constants.INIT_OIOSAML_NAME + " set to " + applicationName + " in web.xml");
+            } catch (NamingException e) {
+                log.info(Constants.INIT_OIOSAML_NAME + " was not defined in web.xml.");
+            }
+
+            // Read in path to configuration library
+            try {
+                homeParam = (String)env.lookup(Constants.INIT_OIOSAML_HOME);
+                log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
+            } catch (NamingException e) {
+                log.info(Constants.INIT_OIOSAML_HOME + " was not defined in web.xml.");
+            }
+
+            // Read in name of configuration file
+            try {
+                fullPathToConfigurationFile = (String)env.lookup(Constants.INIT_OIOSAML_FILE);
+                log.info(Constants.INIT_OIOSAML_FILE + " set to " + fullPathToConfigurationFile + " in web.xml");
+            } catch (NamingException e) {
+                log.info(Constants.INIT_OIOSAML_FILE + " was not defined in web.xml.");
+            }
+        } catch (NamingException e) {
+            log.error("Unable to create InitialContext in FileConfiguration");
+        }
+
+        Map<String, String> params = new HashMap<String, String>();
+        if (fullPathToConfigurationFile != null) {
+            params.put(Constants.INIT_OIOSAML_FILE, fullPathToConfigurationFile);
+        } else {
+            // Locate path to configuration folder if not set in web.xml
+            if (homeParam == null) {
+                homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
+                log.info(Constants.INIT_OIOSAML_HOME + " not set in web.xml. Setting it to " + SAMLUtil.OIOSAML_HOME + " Java system property with value: " + homeParam);
+            }
+            if (homeParam == null) {
+                homeParam = System.getProperty("user.home") + "/.oiosaml";
+                log.info(Constants.INIT_OIOSAML_HOME + " not set in Java system property. Setting it to default path: " + homeParam);
+            }
+
+            params.put(Constants.INIT_OIOSAML_HOME, homeParam);
+            params.put(Constants.INIT_OIOSAML_NAME, applicationName);
+        }
+
+        setInitConfiguration(params);
+    }
+
+    /**
 	 * Get the current system configuration. The configuration is stored in
 	 * {@link SAMLUtil#OIOSAML_HOME}. The property is normally set in
 	 * {@link SPFilter}.
@@ -137,45 +199,50 @@ public class FileConfiguration implements SAMLConfiguration {
 		return config.exists();
 	}
 
-	public KeyStore getKeystore() throws WrappedException {
-		KeyStore keystore = null;
+    public KeyStore getKeystore() throws WrappedException {
+        KeyStore keystore = null;
 
-		String keystoreFileName = (homeDir == null) ? getSystemConfiguration().getString(
-				Constants.PROP_CERTIFICATE_LOCATION) : homeDir
-				+ getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_LOCATION);
-		try {
-			InputStream input = new FileInputStream(keystoreFileName);
-			input = new BufferedInputStream(input);
-			input.mark(1024 * 1024);
-			try {
-				keystore = loadStore(input, getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD),
-						"PKCS12");
-			} catch (IOException e) {
-				log.debug("Keystore is not of type 'PCKS12' Trying type 'JKS'.");
-				try {
-					input.reset();
-					keystore = loadStore(input,
-							getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD), "JKS");
-				} catch (IOException ioe) {
-					log.error("Unable to find keystore file. Looking for: " + keystoreFileName);
-					throw new WrappedException(Layer.DATAACCESS, ioe);
-				} catch (Exception ec) {
-					log.error("Exception occured while processing keystore: " + keystoreFileName);
-					throw new WrappedException(Layer.DATAACCESS, ec);
-				}
-			} catch (Exception ex) {
-				log.error("Exception occured while processing keystore: " + keystoreFileName);
-				throw new WrappedException(Layer.DATAACCESS, ex);
-			}
+        File keystoreFile = new File(getSystemConfiguration().getString(
+                Constants.PROP_CERTIFICATE_LOCATION));
+        // If path is not absolute ... check if the path is relative to the home dir.
+        if(!keystoreFile.exists()){
+            keystoreFile = new File(homeDir + getSystemConfiguration().getString(
+                    Constants.PROP_CERTIFICATE_LOCATION));
+        }
+        try {
+            InputStream input = new FileInputStream(keystoreFile);
+            input = new BufferedInputStream(input);
+            input.mark(1024 * 1024);
+            try {
+                keystore = loadStore(input, getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD),
+                        "PKCS12");
+            } catch (IOException e) {
+                log.debug("Keystore is not of type 'PCKS12' Trying type 'JKS'.");
+                try {
+                    input.reset();
+                    keystore = loadStore(input,
+                            getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD), "JKS");
+                } catch (IOException ioe) {
+                    log.error("Unable to find keystore file. Looking for: " + keystoreFile.getAbsolutePath());
+                    throw new WrappedException(Layer.DATAACCESS, ioe);
+                } catch (Exception ec) {
+                    log.error("Exception occured while processing keystore: " + keystoreFile.getAbsolutePath());
+                    throw new WrappedException(Layer.DATAACCESS, ec);
+                }
+            } catch (Exception ex) {
+                log.error("Exception occured while processing keystore: " + keystoreFile.getAbsolutePath());
+                throw new WrappedException(Layer.DATAACCESS, ex);
+            }
 
-		} catch (FileNotFoundException e) {
-			log.error("Unable to find keystore file. Looking for: " + keystoreFileName);
-			throw new WrappedException(Layer.DATAACCESS, e);
-		}
-		return keystore;
-	}
+        } catch (FileNotFoundException e) {
+            log.error("Unable to find keystore file. Looking for: " + keystoreFile.getAbsolutePath());
+            throw new WrappedException(Layer.DATAACCESS, e);
+        }
+        return keystore;
+    }
 
-	private KeyStore loadStore(InputStream input, String password, String type) throws KeyStoreException,
+
+    private KeyStore loadStore(InputStream input, String password, String type) throws KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException {
 		KeyStore ks = KeyStore.getInstance(type);
 		char[] jksPassword = password.toCharArray();
@@ -197,6 +264,8 @@ public class FileConfiguration implements SAMLConfiguration {
 			while ((val = input.read()) != -1) {
 				contents.append((char) val);
 			}
+
+            input.close();
 
 			modified = contents.toString().replaceAll("\\$\\{oiosaml.home\\}", homeDir.replaceAll("\\\\", "\\\\\\\\"));
 
@@ -287,30 +356,53 @@ public class FileConfiguration implements SAMLConfiguration {
 		return descriptors;
 	}
 
-	public void setInitConfiguration(Map<String, String> params) {
-		systemConfiguration = null;
-		if (params != null) {
-			if (params.containsKey(Constants.INIT_OIOSAML_FILE)) {
-				setupHomeAndFile(params.get(Constants.INIT_OIOSAML_FILE));
-			} else {
-				String p = params.get(Constants.INIT_OIOSAML_HOME);
-				if ((p != null) && (!p.endsWith("/")))
-					p = p + "/";
-				homeDir = p;
-				configurationFileName = params.get(Constants.INIT_OIOSAML_NAME);
-			}
-		}
-	}
+    /**
+     * This method ONLY exists to support unit and integration tests. Do not use it for other purposes.
+     * Either {@link Constants#INIT_OIOSAML_FILE} or {@link Constants#INIT_OIOSAML_HOME} must be specified. If both is specified then {@link Constants#INIT_OIOSAML_FILE} takes precedense
+     * if {@link Constants#INIT_OIOSAML_HOME} is specified then {@link Constants#INIT_OIOSAML_NAME} is optionally and {@link SAMLUtil#OIOSAML_DEFAULT_CONFIGURATION_FILE} is used as default name for the configuration file.
+     * If either {@link Constants#INIT_OIOSAML_FILE} or {@link Constants#INIT_OIOSAML_HOME} is not set then the system is set to be not configured.
+     */
+     public void setInitConfiguration(Map<String, String> params) {
+        systemConfiguration = null;
+        if (params != null) {
+            if (params.containsKey(Constants.INIT_OIOSAML_FILE)) {
+                String configurationFile = params.get(Constants.INIT_OIOSAML_FILE);
+                if (configurationFile != null) {
+                    int lastPathSeperatorIndex = configurationFile.lastIndexOf("/") + 1;
+                    configurationFileName = configurationFile.substring((lastPathSeperatorIndex), configurationFile.length());
+                    homeDir = configurationFile.substring(0, lastPathSeperatorIndex);
+                }
+            } else if (params.containsKey(Constants.INIT_OIOSAML_HOME)) {
+                String pathToConfigurationFolder = params.get(Constants.INIT_OIOSAML_HOME);
+                if (pathToConfigurationFolder != null) {
+                    if (!pathToConfigurationFolder.endsWith("/"))
+                        pathToConfigurationFolder = pathToConfigurationFolder + "/";
+                    homeDir = pathToConfigurationFolder;
+                    configurationFileName = SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE;
+                }
 
-	private void setupHomeAndFile(String configurationFile) {
-		if (configurationFile != null) {
-			int lastPathSeperatorIndex = configurationFile.lastIndexOf("/") + 1;
-			configurationFileName = configurationFile.substring((lastPathSeperatorIndex), configurationFile.length());
-			homeDir = configurationFile.substring(0, lastPathSeperatorIndex);
-		}
-	}
+                // Apply application name if configured
+                String applicationName = params.get(Constants.INIT_OIOSAML_NAME);
+                if(applicationName != null && !applicationName.trim().isEmpty()){
+                    homeDir += "-" + applicationName;
+                }
+            }
+            else{
+                homeDir = null;
+                configurationFileName = null;
+            }
+
+            // Write configurations to the log
+            log.info("Path to configuration folder set to: " + homeDir);
+            log.info("Configuration file name set to: " + configurationFileName);
+        }
+    }
 
 	public void setConfiguration(Configuration configuration) {
 		systemConfiguration = configuration;
 	}
+
+    public String getHomeDir() {
+        return homeDir;
+    }
 }

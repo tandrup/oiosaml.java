@@ -89,7 +89,7 @@ public class DispatcherServlet extends HttpServlet {
 
 	@Override
 	public final void init(ServletConfig config) throws ServletException {
-		setHandler(new ConfigurationHandler(config.getServletContext()), "configure");
+		setHandler(new ConfigurationHandler(), "configure");
 
 		servletContext = config.getServletContext();
 

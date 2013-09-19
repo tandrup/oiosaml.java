@@ -197,7 +197,6 @@ target (zipdist: 'Build distributable zip file') {
 		zipfileset (dir: exportDir, prefix: 'src')
 		zipfileset (dir: 'docs', prefix: 'doc')
 		zipfileset (dir: javadocsDir, prefix: 'doc/javadoc')
-		zipfileset (dir: 'lib/endorsed', prefix: 'endorsed')
 		fileset (dir: distDir, includes: "${system}-*${version}.*")
 		fileset (dir: '.', includes: 'LICENSE.txt')
 		fileset (dir: '.', includes: 'oiosaml.java-discovery-*.war')

@@ -27,7 +27,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
+import dk.itst.oiosaml.sp.service.util.Constants;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -64,6 +68,10 @@ public class ConfigurationTest {
 			FileUtils.cleanDirectory(tmpdir);
 		}
 		tmpdir.mkdir();
+        // Reinitialize SAMLConfiguration
+        Map<String,String> params=new HashMap<String, String>();
+        params.put(Constants.INIT_OIOSAML_HOME, tmpdir.getAbsolutePath());
+        SAMLConfigurationFactory.getConfiguration().setInitConfiguration(params);
 		
 		//FileConfiguration.setSystemConfiguration(null);
 		IdpMetadata.setMetadata(null);

@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import dk.itst.oiosaml.common.SAMLUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,14 +61,13 @@ public class SAMLConfigurationTest {
 		final File dir = new File(File.createTempFile("test", "test").getAbsolutePath() + ".home");
 		dir.mkdir();
 
-		File content = new File(dir, "oiosaml-sp.properties");
+		File content = new File(dir, SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE);
 
 		FileOutputStream fos = new FileOutputStream(content);
 		fos.write("testing=more\noiosaml-sp.servlet=test".getBytes());
 		fos.close();
 
 		params.put(Constants.INIT_OIOSAML_HOME, dir.getAbsolutePath());
-		params.put(Constants.INIT_OIOSAML_NAME, "oiosaml-sp.properties");
 		sc.setInitConfiguration(params);
 		assertTrue(sc.isConfigured());
 
