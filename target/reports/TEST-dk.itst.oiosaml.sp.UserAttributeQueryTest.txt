@@ -1,6 +1,0 @@
-Testsuite: dk.itst.oiosaml.sp.UserAttributeQueryTest
-Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,702 sec
-
-Testcase: testDefault took 0,281 sec
-Testcase: testQuery took 0,109 sec
-Testcase: testDefaultFailOnNoAssertion took 0,125 sec
