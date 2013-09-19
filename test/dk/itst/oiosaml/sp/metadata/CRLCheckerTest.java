@@ -20,9 +20,14 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.CRLReason;
+import org.bouncycastle.cert.X509CRLHolder;
+import org.bouncycastle.cert.X509v2CRLBuilder;
 import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.x509.X509V2CRLGenerator;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -169,16 +174,18 @@ public class CRLCheckerTest extends AbstractTests {
 		assertEquals(1, idp.getFirstMetadata().getCertificates().size());
 	}
 	
-	private File generateCRL(X509Certificate cert) throws CRLException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException, FileNotFoundException {
-		X509V2CRLGenerator gen = new X509V2CRLGenerator();
-		gen.setThisUpdate(new Date());
+	private File generateCRL(X509Certificate cert) throws CRLException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException, OperatorCreationException {
+        X500Name issuer = new X500Name("CN=ca");
+        Date thisUpdate = new Date();
+        X509v2CRLBuilder gen = new X509v2CRLBuilder(issuer, thisUpdate);
 		gen.setNextUpdate(new Date(System.currentTimeMillis() + 60000));
-		gen.setSignatureAlgorithm("SHA1WithRSA");
-		gen.setIssuerDN(new X509Principal("CN=ca"));
-		if (cert != null) {
+
+        if (cert != null) {
 			gen.addCRLEntry(cert.getSerialNumber(), new Date(System.currentTimeMillis() - 1000), CRLReason.keyCompromise);
 		}
-		X509CRL crl = gen.generate(cred.getPrivateKey());
+
+        ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(cred.getPrivateKey());
+		X509CRLHolder crl = gen.build(sigGen);
 
 		final File crlFile = File.createTempFile("test", "test");
 		crlFile.deleteOnExit();

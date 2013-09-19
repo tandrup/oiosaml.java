@@ -1,5 +1,9 @@
 Releases log for OIOSAML.Java
 -----------------------------
+Release note, ?
+The following have been included in this release:
+* Upgraded to use Bouncy Castle 1.49 instead of 1.44
+* Support for JRE 1.5 has stopped. OIOSAML.Java now requires 1.6+
 
 Release note, r11213
 

@@ -1,6 +1,0 @@
-Testsuite: dk.itst.oiosaml.sp.util.AttributeUtilTest
-Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0,078 sec
-
-Testcase: testExtractComplexAttributeValue took 0 sec
-Testcase: testExtractAttributeValues took 0 sec
-Testcase: testExtractAttributeValue took 0 sec

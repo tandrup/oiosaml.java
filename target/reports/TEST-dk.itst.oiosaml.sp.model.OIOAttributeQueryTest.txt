@@ -1,5 +1,0 @@
-Testsuite: dk.itst.oiosaml.sp.model.OIOAttributeQueryTest
-Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0,249 sec
-
-Testcase: testNewQuery took 0,015 sec
-Testcase: testExecuteQuery took 0,078 sec
