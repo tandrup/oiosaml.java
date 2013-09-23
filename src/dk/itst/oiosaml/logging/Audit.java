@@ -29,15 +29,15 @@ import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
+//import org.apache.log4j.LogManager;
+//import org.apache.log4j.Logger;
+//import org.apache.log4j.xml.DOMConfigurator;
 
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class Audit {
-	private static Logger log = Logger.getLogger("OIOSAML_AUDIT_LOGGER");
+	private static Logger log = LoggerFactory.getLogger("OIOSAML_AUDIT_LOGGER");
 	private static final ThreadLocal<MessageFormat> format = new ThreadLocal<MessageFormat>() {
 		protected MessageFormat initialValue() {
 			// format: operation direction
@@ -140,7 +140,7 @@ public class Audit {
 		log.info("Configuring logging from log4jStream");
 		try {
 			if (log4jStream!=null) {
-				new DOMConfigurator() {}.doConfigure(log4jStream, LogManager.getLoggerRepository());
+				// new DOMConfigurator() {}.doConfigure(log4jStream, LogManager.getLoggerRepository());
 			}	
 		} catch (Exception e) {
 			log.error("Unable to configure logging from log4jStream", e);

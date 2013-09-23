@@ -24,7 +24,6 @@
 package dk.itst.oiosaml.sp.service.session;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 
 import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;

@@ -28,7 +28,6 @@ import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Attribute;

@@ -34,7 +34,8 @@ import java.util.zip.DeflaterOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.SAMLObject;
@@ -64,7 +65,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class OIOLogoutResponse extends OIOAbstractResponse {
-	private static final Logger log = Logger.getLogger(OIOLogoutResponse.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOLogoutResponse.class);
 
 	private final LogoutResponse response;
 

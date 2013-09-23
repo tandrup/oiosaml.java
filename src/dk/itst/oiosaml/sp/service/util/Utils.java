@@ -37,7 +37,6 @@ import java.util.UUID;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.xml.util.Base64;
 

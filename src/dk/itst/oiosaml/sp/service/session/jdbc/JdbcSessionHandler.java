@@ -38,7 +38,6 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.xml.util.Base64;
 

@@ -52,7 +52,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERIA5String;

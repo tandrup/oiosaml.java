@@ -27,7 +27,6 @@ import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;

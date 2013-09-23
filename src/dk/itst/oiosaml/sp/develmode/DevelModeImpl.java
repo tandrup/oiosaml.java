@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;

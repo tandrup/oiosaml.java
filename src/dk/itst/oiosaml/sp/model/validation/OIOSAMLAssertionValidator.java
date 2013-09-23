@@ -23,7 +23,6 @@
  */
 package dk.itst.oiosaml.sp.model.validation;
 
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnContext;

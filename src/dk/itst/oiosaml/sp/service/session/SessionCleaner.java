@@ -26,8 +26,6 @@ package dk.itst.oiosaml.sp.service.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
-
 public class SessionCleaner {
 	private static final Logger log = Logger.getLogger(SessionCleaner.class);
 	

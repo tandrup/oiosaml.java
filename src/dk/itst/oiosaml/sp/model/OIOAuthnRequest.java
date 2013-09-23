@@ -23,7 +23,6 @@
  */
 package dk.itst.oiosaml.sp.model;
 
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.saml2.core.AuthnRequest;

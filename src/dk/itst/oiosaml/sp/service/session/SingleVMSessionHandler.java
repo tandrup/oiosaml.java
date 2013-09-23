@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Issuer;
 
 import dk.itst.oiosaml.logging.Audit;

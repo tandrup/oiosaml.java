@@ -29,7 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Assertion;
 
 import dk.itst.oiosaml.common.SAMLUtil;
