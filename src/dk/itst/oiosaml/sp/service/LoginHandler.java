@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
 import org.apache.velocity.VelocityContext;
 import org.opensaml.saml2.metadata.Endpoint;
@@ -52,7 +54,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 
 public class LoginHandler implements SAMLHandler {
-	private static final Logger log = Logger.getLogger(LoginHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(LoginHandler.class);
 	
 	public void handleGet(RequestContext context) throws ServletException, IOException {
 		if (log.isDebugEnabled()) log.debug("Go to login...");

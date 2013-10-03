@@ -29,6 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
 import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.LogoutAuthenticationHandler;
@@ -43,7 +45,7 @@ public class LogoutHandler implements SAMLHandler{
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 3843822219113371749L;
 	public static final String VERSION = "$Id: LogoutHandler.java 2950 2008-05-28 08:22:34Z jre $";
-	private static final Logger log = Logger.getLogger(LogoutHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(LogoutHandler.class);
 		
 	/**
 	 * Send a &lt;LogoutRequest&gt; to the Login Site and start a SLO.

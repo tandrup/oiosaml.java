@@ -34,6 +34,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Fault;
@@ -49,7 +51,7 @@ import dk.itst.oiosaml.sp.model.OIOSamlObject;
 public class HttpSOAPClient implements SOAPClient {
 	private static final String START_SOAP_ENVELOPE = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">" + "<soapenv:Header/><soapenv:Body>";
 	private static final String END_SOAP_ENVELOPE = "</soapenv:Body></soapenv:Envelope>";
-	private static final Logger log = Logger.getLogger(HttpSOAPClient.class);
+	private static final Logger log = LoggerFactory.getLogger(HttpSOAPClient.class);
 
 	public XMLObject wsCall(OIOSamlObject obj, String location, String username, String password, boolean ignoreCertPath) throws IOException {
 		return wsCall(location, username, password, ignoreCertPath, obj.toSoapEnvelope(), "http://www.oasis-open.org/committees/security").getBody().getUnknownXMLObjects().get(0);

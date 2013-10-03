@@ -28,6 +28,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
 import org.opensaml.saml2.core.Assertion;
 
@@ -74,7 +76,7 @@ public class SAMLAssertionConsumerHandler implements SAMLHandler {
 	private static final long serialVersionUID = -8417816228519917989L;
 	public static final String VERSION = "$Id: SAMLAssertionConsumerHandler.java 2910 2008-05-21 13:07:31Z jre $";
 	
-	private static final Logger log = Logger.getLogger(SAMLAssertionConsumerHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(SAMLAssertionConsumerHandler.class);
 	private SOAPClient client;
 	private final AssertionValidator validator;
 

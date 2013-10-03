@@ -38,6 +38,8 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.xml.util.Base64;
 
@@ -49,7 +51,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class JdbcSessionHandler implements SessionHandler {
-	private static final Logger log = Logger.getLogger(JdbcSessionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(JdbcSessionHandler.class);
 	private final DataSource ds;
 	private static int uniqueId = 0;
 	private static int counter = 0;

@@ -41,6 +41,8 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
@@ -101,7 +103,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * @author Aage Nielsen <ani@openminds.dk>
  */
 public class SPFilter implements Filter {
-	private static final Logger log = Logger.getLogger(SPFilter.class);
+	private static final Logger log = LoggerFactory.getLogger(SPFilter.class);
 	private CRLChecker crlChecker = new CRLChecker();
 	private boolean filterInitialized;
 	private SAMLConfiguration conf;
@@ -240,7 +242,6 @@ public class SPFilter implements Filter {
 	}
 
 	private void setRuntimeConfiguration(Configuration conf) {
-		Audit.configureLog4j(SAMLConfigurationFactory.getConfiguration().getLoggerConfiguration());
 		restartCRLChecker(conf);
 		setFilterInitialized(true);
 		setConfiguration(conf);

@@ -23,10 +23,12 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
 
 public class SingleVMSessionHandlerFactory implements SessionHandlerFactory {
-	private static final Logger log = Logger.getLogger(SingleVMSessionHandlerFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(SingleVMSessionHandlerFactory.class);
 
 	private SingleVMSessionHandler instance;
 

@@ -29,6 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.saml2.core.StatusCode;
 
 import dk.itst.oiosaml.logging.Audit;
@@ -54,7 +56,7 @@ public class LogoutServiceHTTPRedirectHandler implements SAMLHandler {
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = -6035256219067030678L;
 	public static final String VERSION = "$Id: LogoutServiceHTTPRedirectHandler.java 2890 2008-05-16 16:18:56Z jre $";
-	private static final Logger log = Logger.getLogger(LogoutServiceHTTPRedirectHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(LogoutServiceHTTPRedirectHandler.class);
 
 	public void handleGet(RequestContext ctx) throws ServletException, IOException {
 		HttpServletRequest request = ctx.getRequest();

@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.collections.map.LRUMap;
 import org.opensaml.saml2.core.Issuer;
 
@@ -45,7 +47,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
  */
 @SuppressWarnings("unchecked")
 public class SingleVMSessionHandler implements SessionHandler {
-	private static final Logger log = Logger.getLogger(SingleVMSessionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(SingleVMSessionHandler.class);
 
 	private final Map<String, TimeOutWrapper<OIOAssertion>> sessionMap = new ConcurrentHashMap<String, TimeOutWrapper<OIOAssertion>>();
 	private final Map<String, TimeOutWrapper<String>> sessionIndexMap = new ConcurrentHashMap<String, TimeOutWrapper<String>>();

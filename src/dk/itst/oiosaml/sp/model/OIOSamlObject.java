@@ -27,6 +27,8 @@ import java.security.PublicKey;
 
 import javax.xml.crypto.dsig.XMLSignature;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.ws.soap.soap11.Body;
@@ -63,7 +65,7 @@ import dk.itst.oiosaml.error.WrappedException;
  *
  */
 public class OIOSamlObject {
-	private static final Logger log = Logger.getLogger(OIOSamlObject.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOSamlObject.class);
 
 	private final XMLObject obj;
 

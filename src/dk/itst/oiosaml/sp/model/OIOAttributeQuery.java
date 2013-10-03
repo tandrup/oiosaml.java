@@ -28,6 +28,8 @@ import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Collections;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Attribute;
@@ -46,7 +48,7 @@ import dk.itst.oiosaml.sp.service.util.SOAPClient;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class OIOAttributeQuery extends OIORequest {
-	private static final Logger log = Logger.getLogger(OIOAttributeQuery.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOAttributeQuery.class);
 	
 	private final AttributeQuery request;
 

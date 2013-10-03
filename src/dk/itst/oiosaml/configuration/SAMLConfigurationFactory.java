@@ -20,6 +20,9 @@
  */
 package dk.itst.oiosaml.configuration;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
@@ -33,7 +36,7 @@ import java.util.ServiceLoader;
  * 
  */
 public class SAMLConfigurationFactory {
-	private static final Logger log = Logger.getLogger(SAMLConfigurationFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(SAMLConfigurationFactory.class);
 
 	private static SAMLConfiguration configuration;
 

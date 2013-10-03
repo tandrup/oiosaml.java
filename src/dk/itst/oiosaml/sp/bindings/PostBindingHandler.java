@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
@@ -63,7 +65,7 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
  *
  */
 public class PostBindingHandler implements BindingHandler {
-	private static final Logger log = Logger.getLogger(PostBindingHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(PostBindingHandler.class);
 	
 	private String dispatchPath;
 

@@ -21,12 +21,27 @@
  */
 package dk.itst.oiosaml.logging;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 public class LoggerFactory {
+    private static final Logger log = LoggerFactory.getLogger(LoggerFactory.class);
+
     public static Logger getLogger(String name){
-        return new Log4JLogger(name);
+        Logger logger = null;
+        ServiceLoader<Logger> configurationImplementations = ServiceLoader.load(Logger.class);
+        for (Iterator<Logger> iterator = configurationImplementations.iterator(); iterator.hasNext();) {
+            logger = iterator.next();
+            if (iterator.hasNext()) {
+                log.error("Appears to be more than one logger implementation. Please check META-INF/services for occurencies. Choosing the implementation: " + logger.getClass().getName());
+                break;
+            }
+        }
+        logger.init(name);
+        return logger;
     }
 
-    public static Logger getLogger(Class class1){
-        return getLogger(class1.toString());
+    public static Logger getLogger(Class clazz){
+        return getLogger(clazz.getCanonicalName());
     }
 }

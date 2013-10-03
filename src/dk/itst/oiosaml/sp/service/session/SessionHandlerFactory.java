@@ -23,6 +23,8 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
 
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -54,7 +56,7 @@ public interface SessionHandlerFactory {
 
 	
 	public static class Factory {
-		private static final Logger log = Logger.getLogger(SessionHandlerFactory.class);
+		private static final Logger log = LoggerFactory.getLogger(SessionHandlerFactory.class);
 		
 		private static SessionHandlerFactory instance;
 

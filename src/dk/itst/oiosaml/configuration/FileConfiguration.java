@@ -26,12 +26,9 @@
 package dk.itst.oiosaml.configuration;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +39,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.*;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -56,8 +55,6 @@ import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.sp.service.SPFilter;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 /**
@@ -71,7 +68,7 @@ import javax.naming.NamingException;
  * 
  */
 public class FileConfiguration implements SAMLConfiguration {
-	private static final Logger log = Logger.getLogger(FileConfiguration.class);
+	private static final Logger log = LoggerFactory.getLogger(FileConfiguration.class);
 	private String homeDir;
 	private String configurationFileName;
 	private Configuration systemConfiguration;
@@ -81,40 +78,26 @@ public class FileConfiguration implements SAMLConfiguration {
      *
      */
     public FileConfiguration() {
-        String fullPathToConfigurationFile = null;
-        String homeParam = null;
-        String applicationName = null;
+        // Read in application name
+        String applicationName = SystemConfiguration.getApplicationName();
+        if(applicationName !=null)
+            log.info(Constants.INIT_OIOSAML_NAME + " set to " + applicationName + " in web.xml");
+        else
+            log.info(Constants.INIT_OIOSAML_NAME + " was not defined in web.xml.");
 
-        // Get the base naming context
-        try {
-            Context env = (Context)new InitialContext().lookup("java:comp/env");
+        // Read in path to configuration library
+        String homeParam = SystemConfiguration.getHomeDir();
+        if(homeParam != null)
+            log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
+        else
+            log.info(Constants.INIT_OIOSAML_HOME + " was not defined in web.xml.");
 
-            // Read in application name
-            try {
-                applicationName = (String)env.lookup(Constants.INIT_OIOSAML_NAME);
-                log.info(Constants.INIT_OIOSAML_NAME + " set to " + applicationName + " in web.xml");
-            } catch (NamingException e) {
-                log.info(Constants.INIT_OIOSAML_NAME + " was not defined in web.xml.");
-            }
-
-            // Read in path to configuration library
-            try {
-                homeParam = (String)env.lookup(Constants.INIT_OIOSAML_HOME);
-                log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
-            } catch (NamingException e) {
-                log.info(Constants.INIT_OIOSAML_HOME + " was not defined in web.xml.");
-            }
-
-            // Read in name of configuration file
-            try {
-                fullPathToConfigurationFile = (String)env.lookup(Constants.INIT_OIOSAML_FILE);
-                log.info(Constants.INIT_OIOSAML_FILE + " set to " + fullPathToConfigurationFile + " in web.xml");
-            } catch (NamingException e) {
-                log.info(Constants.INIT_OIOSAML_FILE + " was not defined in web.xml.");
-            }
-        } catch (NamingException e) {
-            log.error("Unable to create InitialContext in FileConfiguration");
-        }
+        // Read in name of configuration file
+        String fullPathToConfigurationFile = SystemConfiguration.getFullPathToConfigurationFile();
+        if(fullPathToConfigurationFile != null)
+            log.info(Constants.INIT_OIOSAML_FILE + " set to " + fullPathToConfigurationFile + " in web.xml");
+        else
+            log.info(Constants.INIT_OIOSAML_FILE + " was not defined in web.xml.");
 
         Map<String, String> params = new HashMap<String, String>();
         if (fullPathToConfigurationFile != null) {
@@ -126,7 +109,7 @@ public class FileConfiguration implements SAMLConfiguration {
                 log.info(Constants.INIT_OIOSAML_HOME + " not set in web.xml. Setting it to " + SAMLUtil.OIOSAML_HOME + " Java system property with value: " + homeParam);
             }
             if (homeParam == null) {
-                homeParam = System.getProperty("user.home") + "/.oiosaml";
+                homeParam = System.getProperty("user.home") + File.separator + ".oiosaml";
                 log.info(Constants.INIT_OIOSAML_HOME + " not set in Java system property. Setting it to default path: " + homeParam);
             }
 
@@ -153,7 +136,7 @@ public class FileConfiguration implements SAMLConfiguration {
 		}
 
 		CompositeConfiguration conf = new CompositeConfiguration();
-		conf.setProperty("oiosaml.home", homeDir);
+		conf.setProperty(SAMLUtil.OIOSAML_HOME, homeDir);
 
 		try {
 			conf.addConfiguration(new PropertiesConfiguration(new File(homeDir, configurationFileName)));
@@ -250,35 +233,6 @@ public class FileConfiguration implements SAMLConfiguration {
 		return ks;
 	}
 
-	public InputStream getLoggerConfiguration() throws WrappedException {
-		String logFileName = homeDir + getSystemConfiguration().getString(Constants.PROP_LOG_FILE_NAME);
-
-		String modified = null;
-		StringBuilder contents = new StringBuilder();
-
-		try {
-			BufferedReader input = new BufferedReader(new FileReader(logFileName));
-
-			int val;
-			while ((val = input.read()) != -1) {
-				contents.append((char) val);
-			}
-
-            input.close();
-
-			modified = contents.toString().replaceAll("\\$\\{oiosaml.home\\}", homeDir.replaceAll("\\\\", "\\\\\\\\"));
-
-		} catch (FileNotFoundException e) {
-			log.error("Unable to find log file. Tries to look for: " + logFileName);
-			throw new WrappedException(Layer.DATAACCESS, e);
-		} catch (IOException e) {
-			log.error("Unable to process log file.");
-			throw new WrappedException(Layer.DATAACCESS, e);
-		}
-
-		return new ByteArrayInputStream(modified.getBytes());
-	}
-
 	public XMLObject getSPMetaData() throws WrappedException {
 		String filename = getSystemConfiguration().getString(Constants.SP_METADATA_FILE);
 		String directory = homeDir + getSystemConfiguration().getString(Constants.SP_METADATA_DIRECTORY);
@@ -367,15 +321,15 @@ public class FileConfiguration implements SAMLConfiguration {
             if (params.containsKey(Constants.INIT_OIOSAML_FILE)) {
                 String configurationFile = params.get(Constants.INIT_OIOSAML_FILE);
                 if (configurationFile != null) {
-                    int lastPathSeperatorIndex = configurationFile.lastIndexOf("/") + 1;
+                    int lastPathSeperatorIndex = configurationFile.lastIndexOf(File.separator) + 1;
                     configurationFileName = configurationFile.substring((lastPathSeperatorIndex), configurationFile.length());
                     homeDir = configurationFile.substring(0, lastPathSeperatorIndex);
                 }
             } else if (params.containsKey(Constants.INIT_OIOSAML_HOME)) {
                 String pathToConfigurationFolder = params.get(Constants.INIT_OIOSAML_HOME);
                 if (pathToConfigurationFolder != null) {
-                    if (!pathToConfigurationFolder.endsWith("/"))
-                        pathToConfigurationFolder = pathToConfigurationFolder + "/";
+                    if (!pathToConfigurationFolder.endsWith(File.separator))
+                        pathToConfigurationFolder = pathToConfigurationFolder + File.separator;
                     homeDir = pathToConfigurationFolder;
                     configurationFileName = SAMLUtil.OIOSAML_DEFAULT_CONFIGURATION_FILE;
                 }

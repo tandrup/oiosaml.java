@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.metadata.IdpMetadata.Metadata;
 import dk.itst.oiosaml.sp.model.OIOLogoutResponse;
@@ -44,7 +46,7 @@ public class LogoutHTTPResponseHandler implements SAMLHandler{
 
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 2487601130738744767L;
-	private static final Logger log = Logger.getLogger(LogoutHTTPResponseHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(LogoutHTTPResponseHandler.class);
 	public static final String VERSION = "$Id: LogoutHTTPResponseHandler.java 2950 2008-05-28 08:22:34Z jre $";
 	
 	/**

@@ -34,6 +34,8 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
@@ -53,7 +55,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  *
  */
 public class CredentialRepository {
-	private static final Logger log = Logger.getLogger(CredentialRepository.class);
+	private static final Logger log = LoggerFactory.getLogger(CredentialRepository.class);
 	
 	private final Map<Key, BasicX509Credential> credentials = new ConcurrentHashMap<Key, BasicX509Credential>();
 	

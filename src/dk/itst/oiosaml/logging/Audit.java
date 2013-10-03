@@ -24,20 +24,15 @@
  */
 package dk.itst.oiosaml.logging;
 
-import java.io.InputStream;
 import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
-
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.Logger;
-//import org.apache.log4j.xml.DOMConfigurator;
 
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class Audit {
-	private static Logger log = LoggerFactory.getLogger("OIOSAML_AUDIT_LOGGER");
+	private static Logger log = (Logger) LoggerFactory.getLogger("OIOSAML_AUDIT_LOGGER");
 	private static final ThreadLocal<MessageFormat> format = new ThreadLocal<MessageFormat>() {
 		protected MessageFormat initialValue() {
 			// format: operation direction
@@ -124,26 +119,5 @@ public class Audit {
 
 	public static void setAssertionId(String id) {
 		assertionId.set(id);
-	}
-
-	/**
-	 * Initialize log4j with the specified configuration file.
-	 * 
-	 * @param log4jStream
-	 *            The log4j configuration stream. It must be in xml format, since
-	 *            the DomConfigurator is used unconditionally. If the parameter
-	 *            is null - it is assumed the desired log4j configuration has
-	 *            loaded elsewhere.
-	 *            	            
-	 */
-	public static void configureLog4j(final InputStream log4jStream) {
-		log.info("Configuring logging from log4jStream");
-		try {
-			if (log4jStream!=null) {
-				// new DOMConfigurator() {}.doConfigure(log4jStream, LogManager.getLoggerRepository());
-			}	
-		} catch (Exception e) {
-			log.error("Unable to configure logging from log4jStream", e);
-		}
 	}
 }

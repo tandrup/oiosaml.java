@@ -27,6 +27,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.binding.BindingException;
@@ -50,7 +52,7 @@ import dk.itst.oiosaml.sp.model.OIOResponse;
 import dk.itst.oiosaml.sp.util.BRSArtifact;
 
 public class ArtifactExtractor  {
-	private static final Logger log = Logger.getLogger(ArtifactExtractor.class);
+	private static final Logger log = LoggerFactory.getLogger(ArtifactExtractor.class);
 	private final String spEntityID;
 	private String resolveUsername;
 	private String resolvePassword;

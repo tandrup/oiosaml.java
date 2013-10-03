@@ -23,6 +23,8 @@
  */
 package dk.itst.oiosaml.sp.model;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.saml2.core.AuthnRequest;
@@ -39,7 +41,7 @@ import dk.itst.oiosaml.sp.service.session.SessionHandler;
 import dk.itst.oiosaml.sp.service.util.Utils;
 
 public class OIOAuthnRequest extends OIORequest {
-	private static final Logger log = Logger.getLogger(OIOAuthnRequest.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOAuthnRequest.class);
 
 	private final AuthnRequest request;
 

@@ -51,6 +51,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import dk.itst.oiosaml.configuration.FileConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -105,7 +107,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  */
 public class ConfigurationHandler implements SAMLHandler {
 	public static final String SESSION_CONFIGURATION = "CONFIGURATION";
-	private static final Logger log = Logger.getLogger(ConfigurationHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
 	protected final VelocityEngine engine;
 
 	public ConfigurationHandler() {

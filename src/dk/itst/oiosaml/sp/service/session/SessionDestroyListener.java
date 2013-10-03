@@ -27,6 +27,8 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
@@ -36,7 +38,7 @@ import dk.itst.oiosaml.sp.model.OIOAssertion;
  *
  */
 public class SessionDestroyListener implements HttpSessionListener {
-	private static final Logger logger = Logger.getLogger(SessionDestroyListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(SessionDestroyListener.class);
 
 	public void sessionCreated(HttpSessionEvent arg0) {
 		logger.debug("Session: " + arg0);

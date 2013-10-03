@@ -20,7 +20,7 @@
 
 
 <h3>Log file rotation</h3>
-<p>OIOSAML.java creates log files in ~/.oiosaml/logs. These files are rotated automatically by log4j when they reach 10 MB. If this is not appropriate, this policy can be edited in ~/.oiosaml/oiosaml-sp.log4j.xml.</p>
+<p>If OIOSAML.java uses the default log4j implementation then log files are created in {oiosaml-j.home}/logs. These files are rotated automatically by log4j when they reach 10 MB. If this is not appropriate, this policy can be edited in ~/.oiosaml/oiosaml-sp.log4j.xml.</p>
 
 <h3>Backup</h3>
 <p>After initial configuration, a backup can be made of the ~/.oiosaml dir. All filter configuration is stored here. If necessary, periodical backups can be made of the log files.</p>

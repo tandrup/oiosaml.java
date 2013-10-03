@@ -32,6 +32,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.StatusCode;
@@ -58,7 +60,7 @@ import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
  * @author Rolf Njor Jensen, Trifork A/S
  */
 public class LogoutServiceSOAPHandler implements SAMLHandler {
-	private static final Logger log = Logger.getLogger(LogoutServiceSOAPHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(LogoutServiceSOAPHandler.class);
 
 	private OIOLogoutRequest extractRequest(HttpServletRequest request) throws IOException {
 		InputStream is = request.getInputStream();

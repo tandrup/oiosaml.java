@@ -22,7 +22,7 @@
 package dk.itst.oiosaml.logging;
 
 /**
- * This interface is used for doing logging in oiosaml.java.
+ * This interface is used for doing logging in oiosaml.java. All methods must be thread safe.
  */
 public interface Logger {
     public boolean isDebugEnabled();
@@ -35,4 +35,9 @@ public interface Logger {
     public void warn(Object message, Throwable exception);
     public void error(Object message);
     public void error(Object message, Throwable exception);
+
+    /**
+     * Initializes the logger with a name.
+     */
+    public void init(String name);
 }

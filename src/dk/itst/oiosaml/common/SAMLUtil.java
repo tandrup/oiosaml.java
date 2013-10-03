@@ -39,6 +39,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
@@ -100,7 +102,7 @@ import dk.itst.oiosaml.error.WrappedException;
  */
 public class SAMLUtil {
 	public static final String VERSION = "$Id: BRSUtil.java 2910 2008-05-21 13:07:31Z jre $";
-	private static final Logger log = Logger.getLogger(SAMLUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(SAMLUtil.class);
 	public static final String OIOSAML_HOME = "oiosaml.home";
     public static final String OIOSAML_DEFAULT_CONFIGURATION_FILE = "oiosaml-sp.properties";
 	

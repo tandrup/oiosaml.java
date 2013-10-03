@@ -27,6 +27,8 @@ import java.io.UnsupportedEncodingException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.util.Base64;
@@ -43,7 +45,7 @@ import dk.itst.oiosaml.sp.model.OIOResponse;
  *
  */
 public class PostResponseExtractor {
-	private static final Logger log = Logger.getLogger(PostResponseExtractor.class);
+	private static final Logger log = LoggerFactory.getLogger(PostResponseExtractor.class);
 	
 	public OIOResponse extract(HttpServletRequest request) {
 		String samlResponse = request.getParameter(Constants.SAML_SAMLRESPONSE);

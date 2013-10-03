@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
@@ -47,7 +49,7 @@ import dk.itst.oiosaml.sp.model.validation.ValidationException;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 
 public class OIOAssertion extends OIOSamlObject {
-	private static final Logger log = Logger.getLogger(OIOAssertion.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOAssertion.class);
 	
 	private final Assertion assertion;
 
