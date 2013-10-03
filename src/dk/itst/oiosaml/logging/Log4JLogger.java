@@ -93,12 +93,25 @@ public class Log4JLogger implements Logger {
     }
 
     public void init(String name) {
+        log = org.apache.log4j.Logger.getLogger(name); // Logger is initialized first so that log statements can be written in this method. Log4j is always initialized with a default logger that logs to the console.
+
         synchronized (lock) {
             if (!initialized && !initializationOngoing) {
                 // initializationOngoing is necessary in order for not the same thread to reenter the synchronized block recursively
                 initializationOngoing = true;
 
-                Configuration systemConfiguration = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
+                Configuration systemConfiguration;
+                try{
+                    systemConfiguration = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
+                }
+                // This should only happen during execution of unit tests where the logging framework cannot be initialized because the oiosaml configuration is not available.
+                catch (IllegalStateException e){
+                    error("Unable to retrieve configuration", e);
+                    initializationOngoing = false;
+                    initialized = true; // no reason for others to try to initialize.
+                    return;
+                }
+
                 String homeDir = systemConfiguration.getString(SAMLUtil.OIOSAML_HOME);
                 String logFileName = homeDir + systemConfiguration.getString(Constants.PROP_LOG_FILE_NAME);
 
@@ -144,8 +157,6 @@ public class Log4JLogger implements Logger {
                 initializationOngoing = false;
                 initialized = true;
             }
-
-            log = org.apache.log4j.Logger.getLogger(name);
         }
     }
 }
