@@ -32,7 +32,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.SAMLObject;
@@ -61,7 +62,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
 import dk.itst.oiosaml.sp.util.LogoutRequestValidationException;
 
 public class OIOLogoutRequest extends OIORequest {
-	private static final Logger log = Logger.getLogger(OIOLogoutRequest.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOLogoutRequest.class);
 
 	private final LogoutRequest request;
 

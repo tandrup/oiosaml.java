@@ -51,6 +51,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import dk.itst.oiosaml.configuration.FileConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -58,7 +60,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.common.xml.SAMLConstants;
@@ -106,7 +107,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  */
 public class ConfigurationHandler implements SAMLHandler {
 	public static final String SESSION_CONFIGURATION = "CONFIGURATION";
-	private static final Logger log = Logger.getLogger(ConfigurationHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
 	protected final VelocityEngine engine;
 
 	public ConfigurationHandler() {

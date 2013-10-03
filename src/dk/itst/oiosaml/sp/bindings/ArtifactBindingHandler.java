@@ -29,7 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
@@ -46,7 +47,7 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
  *
  */
 public class ArtifactBindingHandler implements BindingHandler {
-	private final static Logger log = Logger.getLogger(ArtifactBindingHandler.class);
+	private final static Logger log = LoggerFactory.getLogger(ArtifactBindingHandler.class);
 	public static final String VERSION = "$Id: ClientSSOEngine.java 2546 2008-04-11 13:29:25Z jre $";
 
 	public String getBindingURI() {

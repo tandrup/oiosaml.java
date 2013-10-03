@@ -51,8 +51,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERIA5String;
@@ -84,7 +85,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * 
  */
 public class CRLChecker {
-	private static final Logger log = Logger.getLogger(CRLChecker.class);
+	private static final Logger log = LoggerFactory.getLogger(CRLChecker.class);
 	private static final String AUTH_INFO_ACCESS = X509Extension.authorityInfoAccess.getId();
 	private Timer timer;
 

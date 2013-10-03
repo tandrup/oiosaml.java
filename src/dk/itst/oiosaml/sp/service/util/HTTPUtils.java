@@ -35,7 +35,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
@@ -49,7 +50,7 @@ import dk.itst.oiosaml.sp.service.session.Request;
  *
  */
 public class HTTPUtils {
-	private static final Logger log = Logger.getLogger(HTTPUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(HTTPUtils.class);
 	
 	private HTTPUtils() {}
 

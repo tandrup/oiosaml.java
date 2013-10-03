@@ -29,7 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.xml.security.credential.Credential;
 
@@ -39,7 +40,7 @@ import dk.itst.oiosaml.sp.model.OIOAuthnRequest;
 import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 
 public class RedirectBindingHandler implements BindingHandler {
-	private static final Logger log = Logger.getLogger(RedirectBindingHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(RedirectBindingHandler.class);
 	
 
 	public String getBindingURI() {

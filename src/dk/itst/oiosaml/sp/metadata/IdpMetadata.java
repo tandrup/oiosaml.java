@@ -37,7 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.metadata.ArtifactResolutionService;
@@ -73,7 +74,7 @@ public class IdpMetadata {
 	public static final String METADATA_DIRECTORY = "common.saml2.metadata.idp.directory";
 	private static IdpMetadata instance;
 
-	private static final Logger log = Logger.getLogger(IdpMetadata.class);
+	private static final Logger log = LoggerFactory.getLogger(IdpMetadata.class);
 
 	private final Map<String, Metadata> metadata = new HashMap<String, Metadata>();
 

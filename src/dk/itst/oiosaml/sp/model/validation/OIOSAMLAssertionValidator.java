@@ -23,7 +23,8 @@
  */
 package dk.itst.oiosaml.sp.model.validation;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnContext;
@@ -35,7 +36,7 @@ import dk.itst.oiosaml.sp.model.AssuranceLevel;
 import dk.itst.oiosaml.sp.model.OIOAssertion;
 
 public class OIOSAMLAssertionValidator extends BasicAssertionValidator {
-	private static final Logger log = Logger.getLogger(OIOSAMLAssertionValidator.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOSAMLAssertionValidator.class);
 
 	public void validate(OIOAssertion assertion, String spEntityId, String spAssertionConsumerURL) throws ValidationException {
 		super.validate(assertion, spEntityId, spAssertionConsumerURL);

@@ -60,8 +60,6 @@ public interface SAMLConfiguration {
 
 	Configuration getCommonConfiguration() throws IOException;
 
-	InputStream getLoggerConfiguration() throws WrappedException;
-
 	void setConfiguration(Configuration configuration);
 
 	void setInitConfiguration(Map<String, String> params);

@@ -39,8 +39,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.opensaml.xml.security.credential.Credential;
@@ -71,7 +72,7 @@ import dk.itst.oiosaml.sp.service.util.Utils;
  * 
  */
 public class DispatcherServlet extends HttpServlet {
-	private static final Logger log = Logger.getLogger(DispatcherServlet.class);
+	private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
 	private transient IdpMetadata idpMetadata;
 	private transient SPMetadata spMetadata;
@@ -115,7 +116,6 @@ public class DispatcherServlet extends HttpServlet {
 		try {
 			if (initialized == false) {
 				setConfiguration(SAMLConfigurationFactory.getConfiguration().getSystemConfiguration());
-				Audit.configureLog4j(SAMLConfigurationFactory.getConfiguration().getLoggerConfiguration());
 
 				handlers.putAll(Utils.getHandlers(configuration, servletContext));
 				if (log.isDebugEnabled())
