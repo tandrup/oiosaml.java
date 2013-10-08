@@ -97,7 +97,7 @@ public class CRLChecker {
 
 				try {
 					if (doOCSPCheck(conf, entityId, md, certificate)) {
-						Audit.log(Operation.CRLCHECK, false, entityId, "Revoked: NO");
+						Audit.log(Operation.OCSPCHECK, false, entityId, "Revoked: NO");
 						continue;
 					}
 
