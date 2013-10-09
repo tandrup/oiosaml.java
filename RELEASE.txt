@@ -2,6 +2,7 @@ Releases log for OIOSAML.Java
 -----------------------------
 Release note, ?
 The following have been included in this release:
+* Changed configuration in web.xml from using context-param to using env-entry. Thus, configuration settings can be fetched without having a reference to the ServletContext.
 * Upgraded to use Bouncy Castle 1.49 instead of 1.44
 * Support for JRE 1.5 has stopped. OIOSAML.Java now requires 1.6+
 
