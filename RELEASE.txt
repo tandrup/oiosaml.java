@@ -1,6 +1,6 @@
 Releases log for OIOSAML.Java
 -----------------------------
-Release note, ? 
+Release note, 11330 
 The following have been included in this release:
 * Changed configuration in web.xml from using context-param to using env-entry. Thus, configuration settings can be fetched without having a reference to the ServletContext.
 * Upgraded to use Bouncy Castle 1.49 instead of 1.44
