@@ -408,6 +408,7 @@ public class ConfigurationHandler implements SAMLHandler {
 				OIOSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME,
 				OIOSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME,
 				OIOSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME,
+				OIOSAMLConstants.ATTRIBUTE_PRIVILEGES_INTERMEDIATE
 		};
 		for (String attr : required) {
 			service.getRequestAttributes().add(SAMLUtil.createRequestedAttribute(attr, OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, true));

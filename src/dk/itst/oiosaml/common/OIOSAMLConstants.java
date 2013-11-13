@@ -110,6 +110,8 @@ public interface OIOSAMLConstants {
 
 	public static final String ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME = "dk:gov:saml:attribute:RidNumberIdentifier";
 
+    public static final String ATTRIBUTE_PRIVILEGES_INTERMEDIATE = "dk:gov:saml:attribute:Privileges_intermediate";
+
 	public static final String ATTRIBUTE_RID_NUMBER_IDENTIFIER_FRIENDLY_NAME = "RidNumberIdentifier";
 
 	public static final String ATTRIBUTE_USER_CERTIFICATE_NAME = "urn:oid:1.3.6.1.4.1.1466.115.121.1.8";
