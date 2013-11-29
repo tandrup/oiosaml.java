@@ -24,6 +24,7 @@
 package dk.itst.oiosaml.sp.service.session;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +45,10 @@ public class Request implements Serializable {
 	
 	@SuppressWarnings("unchecked")
 	public static Request fromHttpRequest(HttpServletRequest req) {
-		return new Request(req.getRequestURI(), req.getQueryString(), req.getMethod(), req.getParameterMap());
+        // req.getParameterMap() is a weak reference and is cleared between requests. req.getParameterMap() is only used in combination with POST logins and properly redirection after login was not possible without the parameter map.
+        Map<String, String[]> copy = new HashMap<String, String[]>();
+        copy.putAll(req.getParameterMap());
+        return new Request(req.getRequestURI(), req.getQueryString(), req.getMethod(), copy);
 	}
 	
 
