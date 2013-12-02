@@ -175,8 +175,16 @@ public class SPFilter implements Filter {
 		final HttpSession session = servletRequest.getSession();
 		if (log.isDebugEnabled())
 			log.debug("sessionId....:" + session.getId());
+
+        Boolean forceAuthn = false;
+		if(request.getParameterMap().containsKey(Constants.QUERY_STRING_FORCE_AUTHN))
+        {
+            String forceAuthnAsString = request.getParameter(Constants.QUERY_STRING_FORCE_AUTHN);
+            forceAuthn = forceAuthnAsString.toLowerCase().equals("true");
+        }
+
 		// Is the user logged in?
-		if (sessionHandler.isLoggedIn(session.getId()) && session.getAttribute(Constants.SESSION_USER_ASSERTION) != null) {
+		if (sessionHandler.isLoggedIn(session.getId()) && session.getAttribute(Constants.SESSION_USER_ASSERTION) != null && !forceAuthn) {
 			int actualAssuranceLevel = sessionHandler.getAssertion(session.getId()).getAssuranceLevel();
 			int assuranceLevel = conf.getSystemConfiguration().getInt(Constants.PROP_ASSURANCE_LEVEL);
 			if ((actualAssuranceLevel > 0) && (actualAssuranceLevel < assuranceLevel)) {

@@ -5,6 +5,7 @@
 <%@page import="dk.itst.oiosaml.sp.util.AttributeUtil"%>
 <%@page import="dk.itst.oiosaml.sp.UserAssertion"%>
 <%@page import="dk.itst.oiosaml.sp.UserAttribute"%>
+<%@page import="dk.itst.oiosaml.sp.service.util.Constants"%>
 
 	<% UserAssertion ua = UserAssertionHolder.get(); %>
 
@@ -30,7 +31,7 @@
     Persistent Pseudonym Profile: <%= ua.isPersistentPseudonymProfileCompliant() %><br />
      
     </p>
-    <a href="query.jsp">Perform attribute query</a> &nbsp; <a href="logout.jsp">Local logout</a>
+    <a href="query.jsp">Perform attribute query</a> &nbsp; <a href="logout.jsp">Local logout</a> &nbsp; <a href="<%= request.getRequestURL() %>?<%= Constants.QUERY_STRING_FORCE_AUTHN %>=True">Force login</a><br />
     </div>
 	<div style="float: right"><img src="<%= request.getContextPath() %>/oiosaml.gif" alt="oiosaml.java" /></div>
 	<div style="clear: both">&nbsp;</div>
