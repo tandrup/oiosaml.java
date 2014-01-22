@@ -43,7 +43,7 @@ target (init : 'Initialize build') {
 		ant.mkdir (dir: dir)
 	}
 	
-	execute.shell ( 'svn info', outProcessing: { l -> 
+	execute.shell ( 'git svn info', outProcessing: { l -> 
 		m = l =~ /Last Changed Rev: (.*)/
 		if (m.matches())
 			version = m.group(1) 
@@ -208,6 +208,18 @@ target (zipdist: 'Build distributable zip file') {
 
 target (build_everything: 'Build everything') {
 	depends(clean, compile, javadoc, test, war, zipdist)
+}
+
+target (makepom: 'Make maven pom') {
+	depends(publish)
+	ivy.makepom	(ivyfile: "${distDir}/ivy.xml", pomfile: "${distDir}/pom.xml", conf: "dist") {
+		mapping(conf: "dist", scope: "runtime")
+	}
+}
+
+target (report: "Make dependency report") {
+	depends(resolve_dist)
+	ivy.report(conf: "dist")
 }
 
 setDefaultTarget ( jar )
