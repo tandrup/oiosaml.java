@@ -7,32 +7,47 @@
     </configurations>
     <publications>
     	<artifact />
-        <artifact name="esapi-2.0GA" type="jar" conf="*" />
-    	<artifact name="opensaml-2.5.1" type="jar" conf="*" />
-    	<artifact name="openws-1.4.2" type="jar" conf="*" />
-    	<artifact name="xmltooling-1.3.2" type="jar" conf="*" />
-    	<artifact name="not-yet-commons-ssl-0.3.9" type="jar" conf="*" />
     </publications>
-    <dependencies>
-        <dependency org="commons-io" name="commons-io" rev="1.4" conf="*->*,!sources,!javadoc" />
-        <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="*->*,!sources,!javadoc" />
-        <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="*->master" />
-        <dependency org="commons-lang" name="commons-lang" rev="2.3" conf="*->master" />
-        <dependency org="commons-configuration" name="commons-configuration" rev="1.5" conf="*->master,runtime" />
-        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="*->*,!sources,!javadoc" transitive="false" />
+    <dependencies defaultconf="dist->default">
+        <dependency org="commons-io" name="commons-io" rev="1.4" />
+        <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" />
+        <dependency org="commons-logging" name="commons-logging" rev="1.1.1" />
+        <dependency org="commons-lang" name="commons-lang" rev="2.3" />
+        <dependency org="commons-configuration" name="commons-configuration" rev="1.5">
+            <exclude org="commons-beanutils" />
+        </dependency>
+        <dependency org="commons-collections" name="commons-collections" rev="3.2"/>
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" />
         <dependency org="joda-time" name="joda-time" rev="1.6">
 			<artifact name="joda-time" type="jar"/>
 		</dependency>
         <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="build->default" />
-        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" conf="*->*,!sources,!javadoc" />
-        <dependency org="org.apache.velocity" name="velocity" rev="1.5" transitive="false">
-        	<artifact name="velocity" type="jar" />
+        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" />
+        <dependency org="org.apache.velocity" name="velocity" rev="1.5">
+            <exclude org="oro" />
         </dependency>
-        <dependency org="xalan" name="xalan" rev="2.7.0" conf="*->*,!sources,!javadoc" />
-        <dependency org="xerces" name="xercesImpl" rev="2.9.1" />
-		<dependency org="xalan" name="serializer" rev="2.7.1" />
-        <dependency org="org.bouncycastle" name="bcprov-jdk15" rev="1.44" conf="*->*,!sources,!javadoc"/>
+        <dependency org="xalan" name="xalan" rev="2.7.1">
+            <exclude org="xml-apis" module="xml-apis" />
+        </dependency>
+        <dependency org="xerces" name="xercesImpl" rev="2.9.1" conf="dist->default,optional">
+            <exclude org="xml-apis" module="xml-apis" />
+        </dependency>
+		<dependency org="xalan" name="serializer" rev="2.7.1">
+            <exclude org="xml-apis" module="xml-apis" />
+        </dependency>
+        <dependency org="org.bouncycastle" name="bcprov-jdk15" rev="1.44" />
         
+        <dependency org="org.opensaml" name="opensaml" rev="2.5.1">
+            <exclude org="xml-apis" module="xml-apis" />
+            <exclude org="xerces" />
+            <exclude org="org.owasp.antisamy" />
+            <exclude org="net.jcip" />
+            <exclude org="org.beanshell" />
+            <exclude org="org.slf4j" />
+            <exclude org="velocity" />
+        </dependency>
+
+        <dependency org="ca.juliusdavies" name="not-yet-commons-ssl" rev="0.3.9" />
         
         <dependency org="junit" name="junit" rev="4.4" conf="test->default"> 
         	<exclude org="org.easymock" />
@@ -49,12 +64,6 @@
         </dependency>
         
         <dependency org="org.apache.santuario" name="xmlsec" rev="1.4.3"  />
-        
-        <exclude org="avalon-framework" />
-        <exclude org="commons-beanutils" />
-        <exclude org="javax.jms" />
-        <exclude org="com.sun.jmx" />
-        <exclude org="com.sun.jdmk" />
     </dependencies>
 </ivy-module>
 
