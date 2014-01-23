@@ -50,6 +50,7 @@ import org.opensaml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml2.metadata.SingleLogoutService;
 import org.opensaml.saml2.metadata.SingleSignOnService;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.security.credential.UsageType;
 import org.opensaml.xml.signature.X509Data;
 
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
@@ -266,15 +267,18 @@ public class IdpMetadata {
 		 */
 		private org.opensaml.xml.signature.X509Certificate getCertificateNode() {
 			if (idpSSODescriptor != null && idpSSODescriptor.getKeyDescriptors().size() > 0) {
-				KeyDescriptor keyDescriptor = idpSSODescriptor.getKeyDescriptors().get(0);
-				if (keyDescriptor.getKeyInfo().getX509Datas().size() > 0) {
-					X509Data x509Data = keyDescriptor.getKeyInfo().getX509Datas().get(0);
-					if (x509Data.getX509Certificates().size() > 0) {
-						return x509Data.getX509Certificates().get(0);
+				for (KeyDescriptor keyDescriptor : idpSSODescriptor.getKeyDescriptors()) {
+					if (keyDescriptor.getUse() == UsageType.SIGNING) {
+						if (keyDescriptor.getKeyInfo().getX509Datas().size() > 0) {
+							X509Data x509Data = keyDescriptor.getKeyInfo().getX509Datas().get(0);
+							if (x509Data.getX509Certificates().size() > 0) {
+								return x509Data.getX509Certificates().get(0);
+							}
+						}
 					}
 				}
 			}
-			throw new IllegalStateException("IdP Metadata does not contain a certificate: " + getEntityID());
+			throw new IllegalStateException("IdP Metadata does not contain a certificate with use signing: " + getEntityID());
 		}
 		
 		Collection<X509Certificate> getAllCertificates() {
