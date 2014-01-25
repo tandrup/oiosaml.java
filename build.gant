@@ -43,11 +43,7 @@ target (init : 'Initialize build') {
 		ant.mkdir (dir: dir)
 	}
 	
-	execute.shell ( 'git svn info', outProcessing: { l -> 
-		m = l =~ /Last Changed Rev: (.*)/
-		if (m.matches())
-			version = m.group(1) 
-	})
+	execute.shell ( 'git describe', outProcessing: { l -> version = l })
 	println "Building ${system} version ${version}"
 }
 
