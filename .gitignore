@@ -1,0 +1,11 @@
+
+# /
+/target
+/svninfo.xml
+/bin
+/velocity.*
+
+# /lib/
+/lib/build
+/lib/dist
+/lib/test
