@@ -37,6 +37,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.SAMLObject;
 import org.opensaml.common.binding.BasicSAMLMessageContext;
+import org.opensaml.common.binding.decoding.BasicURLComparator;
 import org.opensaml.saml2.binding.decoding.HTTPPostDecoder;
 import org.opensaml.saml2.binding.decoding.HTTPRedirectDeflateDecoder;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -80,6 +81,7 @@ public class OIOLogoutRequest extends OIORequest {
 		BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = getMessageContextFromRequest(request);
 
 		HTTPRedirectDeflateDecoder decoder = new HTTPRedirectDeflateDecoder();
+		decoder.setURIComparator(new SSLIgnorantComparator());
 
 		try {
 			decoder.decode(messageContext);
@@ -96,6 +98,7 @@ public class OIOLogoutRequest extends OIORequest {
         BasicSAMLMessageContext<LogoutRequest, ?, ?> messageContext = getMessageContextFromRequest(request);
 
         HTTPPostDecoder decoder = new HTTPPostDecoder();
+		decoder.setURIComparator(new SSLIgnorantComparator());
         
         try {
             decoder.decode(messageContext);
@@ -239,4 +242,19 @@ public class OIOLogoutRequest extends OIORequest {
 		request.setReason(reason);
 	}
 
+	private static final class SSLIgnorantComparator extends BasicURLComparator {
+		private String replaceHttpWithHttps(String uri) {
+			if (uri != null && uri.startsWith("http:")) {
+				return "https:" + uri.substring("http:".length());
+			} else {
+				return uri;
+			}
+		}
+
+		public boolean compare(String uri1, String uri2) {
+			return super.compare(
+					replaceHttpWithHttps(uri1), 
+					replaceHttpWithHttps(uri2));
+		}
+	}
 }
