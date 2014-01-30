@@ -122,6 +122,8 @@ public class ConfigurationHandler implements SAMLHandler {
 	}
 
 	public void handleGet(RequestContext context) throws ServletException, IOException {
+		if (Boolean.parseBoolean(servletContext.getInitParameter(Constants.INIT_OIOSAML_DISABLEAUTOCONFIGURE))) return;
+
 		HttpServletRequest request = context.getRequest();
 		HttpServletResponse response = context.getResponse();
 		if (request.getParameter("download") != null) {
@@ -146,6 +148,8 @@ public class ConfigurationHandler implements SAMLHandler {
 
 
 	public void handlePost(RequestContext context) throws ServletException, IOException {
+		if (Boolean.parseBoolean(servletContext.getInitParameter(Constants.INIT_OIOSAML_DISABLEAUTOCONFIGURE))) return;
+
 		HttpServletRequest request = context.getRequest();
 		HttpServletResponse response = context.getResponse();
 		

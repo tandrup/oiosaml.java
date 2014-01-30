@@ -148,6 +148,8 @@ public interface Constants {
 
 	static final String INIT_OIOSAML_FILE = "oiosaml-j.file";
 
+	static final String INIT_OIOSAML_DISABLEAUTOCONFIGURE = "oiosaml-j.disableautoconfigure";
+	
 	/**
 	 * Configuration parameter pointing to the URL for the discovery service.
 	 */
