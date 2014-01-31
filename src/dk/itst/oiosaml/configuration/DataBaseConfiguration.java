@@ -124,7 +124,9 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 		try {
 			PreparedStatement ps = con.prepareStatement("SELECT log4j FROM oiosaml_logger");
 			ResultSet rs = ps.executeQuery();
-			rs.next();
+			if (!rs.next()) {
+				return null;
+			}
 			Clob clob = rs.getClob(1);
 			is=clob.getAsciiStream();
 		} catch (SQLException e) {
