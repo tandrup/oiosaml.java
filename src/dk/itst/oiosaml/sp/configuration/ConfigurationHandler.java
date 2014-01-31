@@ -79,6 +79,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.security.CredentialRepository;
+import dk.itst.oiosaml.sp.configuration.ConfigurationGenerator.KeystoreCredentialsHolder;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.SAMLHandler;
 import dk.itst.oiosaml.sp.service.util.Constants;
@@ -186,46 +187,30 @@ public class ConfigurationHandler implements SAMLHandler {
 			return;
 		}
 		
+		final boolean createkeystore = Boolean.valueOf(extractParameter("createkeystore", parameters));
+		final boolean enableArtifact = Boolean.valueOf(extractParameter("enableArtifact", parameters));
+		final boolean enablePost = Boolean.valueOf(extractParameter("enablePost", parameters));
+		final boolean enableSoap = Boolean.valueOf(extractParameter("enableSoap", parameters));
+		final boolean enablePostSLO = Boolean.valueOf(extractParameter("enablePostSLO", parameters));
+		final boolean supportOCESAttributeProfile = Boolean.valueOf(extractParameter("supportOCESAttributeProfile", parameters));
+		
 		Credential credential = context.getCredential();
 		if (keystore != null && keystore.length > 0) {
-			try {
-				KeyStore ks=KeyStore.getInstance("JKS");
-				ks.load(new ByteArrayInputStream(keystore),password.toCharArray());
-				credential  = CredentialRepository.createCredential(ks, password);
-			}catch (Exception e) {
-                log.error("Unable to use/load keystore", e);
-				throw new RuntimeException("Unable to use/load keystore", e);
-			}
-		} else if (Boolean.valueOf(extractParameter("createkeystore", parameters))) {
-			try {
-				BasicX509Credential cred = new BasicX509Credential();
-				KeyPair kp = dk.itst.oiosaml.security.SecurityHelper.generateKeyPairFromURI("http://www.w3.org/2001/04/xmlenc#rsa-1_5", 1024);
-				cred.setPrivateKey(kp.getPrivate());
-				cred.setPublicKey(kp.getPublic());
-				credential = cred;
-				
-				KeyStore ks = KeyStore.getInstance("JKS");
-				ks.load(null, null);
-				X509Certificate cert = dk.itst.oiosaml.security.SecurityHelper.generateCertificate(credential, getEntityId(request));
-				cred.setEntityCertificate(cert);
-				
-				ks.setKeyEntry("oiosaml", credential.getPrivateKey(), password.toCharArray(), new Certificate[] { cert });
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				ks.store(bos, password.toCharArray());
-				
-				keystore = bos.toByteArray();
-				bos.close();
-			} catch (Exception e) {
-                log.error("Unable to generate credential", e);
-				throw new RuntimeException("Unable to generate credential", e);
-			}
+			credential = ConfigurationGenerator.loadKeystore(keystore, password);
+		} else if (createkeystore) {
+			String generatedEntityId = getEntityId(request);
+			KeystoreCredentialsHolder keystoreAndCredentials = ConfigurationGenerator.generateKeystoreAndCredentials(password, generatedEntityId);
+			keystore = keystoreAndCredentials.getKeystore();
+			credential = keystoreAndCredentials.getCredential();
 		}
 		
-		EntityDescriptor descriptor = generateSPDescriptor(getBaseUrl(request), entityId, credential, orgName, orgUrl, email, 
-				Boolean.valueOf(extractParameter("enableArtifact", parameters)), Boolean.valueOf(extractParameter("enablePost", parameters)), 
-				Boolean.valueOf(extractParameter("enableSoap", parameters)),
-                Boolean.valueOf(extractParameter("enablePostSLO", parameters)),
-				Boolean.valueOf(extractParameter("supportOCESAttributeProfile", parameters)));
+		EntityDescriptor descriptor = ConfigurationGenerator.generateSPDescriptor(getBaseUrl(request), entityId, credential, orgName, orgUrl, email, 
+				enableArtifact, 
+				enablePost, 
+				enableSoap,
+                enablePostSLO,
+				supportOCESAttributeProfile);
+		
 		File zipFile = generateZipFile(request.getContextPath(), password, metadata, keystore, descriptor);
 		
 		byte[] configurationContents = saveConfigurationInSession(request, zipFile);
@@ -276,7 +261,6 @@ public class ConfigurationHandler implements SAMLHandler {
 		zos.putNextEntry(new ZipEntry("oiosaml-sp.properties"));
 		zos.write(renderTemplate("defaultproperties.vm", new HashMap<String, Object>() {{
 			put("homename", Constants.PROP_HOME);
-
 			put("servletPath", contextPath);
 			put("password", password);
 		}}, false).getBytes());
@@ -300,110 +284,6 @@ public class ConfigurationHandler implements SAMLHandler {
 		
 		zos.close();
 		return zipFile;
-	}
-
-	protected EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean enablePostSLO, boolean supportOCESAttributes) {
-		EntityDescriptor descriptor = SAMLUtil.buildXMLObject(EntityDescriptor.class);
-		descriptor.setEntityID(entityId);
-		
-		SPSSODescriptor spDescriptor = SAMLUtil.buildXMLObject(SPSSODescriptor.class);
-		spDescriptor.setAuthnRequestsSigned(true);
-		spDescriptor.setWantAssertionsSigned(true);
-		
-		ContactPerson contact = SAMLUtil.buildXMLObject(ContactPerson.class);
-		contact.getEmailAddresses().add(SAMLUtil.createEmail(email));
-		contact.setCompany(SAMLUtil.createCompany(orgName));
-		contact.setType(ContactPersonTypeEnumeration.TECHNICAL);
-		
-		descriptor.getContactPersons().add(contact);
-		descriptor.setOrganization(SAMLUtil.createOrganization(orgName, orgName, orgUrl));
-		
-		KeyDescriptor signingDescriptor = SAMLUtil.buildXMLObject(KeyDescriptor.class);
-		signingDescriptor.setUse(UsageType.SIGNING);
-		KeyDescriptor encryptionDescriptor = SAMLUtil.buildXMLObject(KeyDescriptor.class);
-		encryptionDescriptor.setUse(UsageType.ENCRYPTION);
-
-		try {
-			KeyInfoGenerator gen = SecurityHelper.getKeyInfoGenerator(credential, org.opensaml.xml.Configuration.getGlobalSecurityConfiguration(), null);
-			signingDescriptor.setKeyInfo(gen.generate(credential));
-			encryptionDescriptor.setKeyInfo(gen.generate(credential));
-		} catch (SecurityException e1) {
-			throw new WrappedException(Layer.BUSINESS, e1);
-		}
-		spDescriptor.getKeyDescriptors().add(signingDescriptor);
-		spDescriptor.getKeyDescriptors().add(encryptionDescriptor);
-		
-		spDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
-		spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/SAMLAssertionConsumer", SAMLConstants.SAML2_POST_BINDING_URI, 0, true));
-		if (enableArtifact) {
-			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/SAMLAssertionConsumer", SAMLConstants.SAML2_ARTIFACT_BINDING_URI, 1, false));
-		}
-		if (enableRedirect) {
-			spDescriptor.getAssertionConsumerServices().add(SAMLUtil.createAssertionConsumerService(baseUrl + "/SAMLAssertionConsumer", SAMLConstants.SAML2_REDIRECT_BINDING_URI, 2, false));
-		}
-		
-		spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPRedirect", baseUrl + "/LogoutServiceHTTPRedirectResponse", SAMLConstants.SAML2_REDIRECT_BINDING_URI));
-		
-		if (enableSoap) {
-			spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceSOAP", null, SAMLConstants.SAML2_SOAP11_BINDING_URI));
-		}
-		
-		if(enablePostSLO) {
-            spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPPost", baseUrl + "/LogoutServiceHTTPRedirectResponse", SAMLConstants.SAML2_POST_BINDING_URI));
-		}
-		
-        NameIDFormat x509SubjectNameIDFormat = SAMLUtil.createNameIDFormat(OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
-        List<NameIDFormat> nameIDFormats = spDescriptor.getNameIDFormats();
-        nameIDFormats.add(x509SubjectNameIDFormat);
-
-        if (enableArtifact) {
-			spDescriptor.getArtifactResolutionServices().add(SAMLUtil.createArtifactResolutionService(baseUrl + "/SAMLAssertionConsumer"));
-		}
-		
-		if (supportOCESAttributes) {
-			addAttributeConsumerService(spDescriptor, entityId);
-		}
-		
-		descriptor.getRoleDescriptors().add(spDescriptor);
-		return descriptor;
-	}
-
-	private void addAttributeConsumerService(SPSSODescriptor spDescriptor, String serviceName) {
-		AttributeConsumingService service = SAMLUtil.createAttributeConsumingService(serviceName);
-
-		String[] required = {
-				OIOSAMLConstants.ATTRIBUTE_SURNAME_NAME,
-				OIOSAMLConstants.ATTRIBUTE_COMMON_NAME_NAME,
-				OIOSAMLConstants.ATTRIBUTE_UID_NAME,
-				OIOSAMLConstants.ATTRIBUTE_MAIL_NAME,
-				OIOSAMLConstants.ATTRIBUTE_ASSURANCE_LEVEL_NAME,
-				OIOSAMLConstants.ATTRIBUTE_SPECVER_NAME,
-				OIOSAMLConstants.ATTRIBUTE_SERIAL_NUMBER_NAME,
-				OIOSAMLConstants.ATTRIBUTE_YOUTH_CERTIFICATE_NAME,
-				OIOSAMLConstants.ATTRIBUTE_CERTIFICATE_ISSUER,
-		};
-		
-		String[] optional = {
-				OIOSAMLConstants.ATTRIBUTE_UNIQUE_ACCOUNT_KEY_NAME,
-				OIOSAMLConstants.ATTRIBUTE_CVR_NUMBER_IDENTIFIER_NAME,
-				OIOSAMLConstants.ATTRIBUTE_ORGANISATION_NAME_NAME,
-				OIOSAMLConstants.ATTRIBUTE_ORGANISATION_UNIT_NAME,
-				OIOSAMLConstants.ATTRIBUTE_TITLE_NAME,
-				OIOSAMLConstants.ATTRIBUTE_POSTAL_ADDRESS_NAME,
-				OIOSAMLConstants.ATTRIBUTE_PSEUDONYM_NAME,
-				OIOSAMLConstants.ATTRIBUTE_USER_CERTIFICATE_NAME,
-				OIOSAMLConstants.ATTRIBUTE_PID_NUMBER_IDENTIFIER_NAME,
-				OIOSAMLConstants.ATTRIBUTE_CPR_NUMBER_NAME,
-				OIOSAMLConstants.ATTRIBUTE_RID_NUMBER_IDENTIFIER_NAME,
-		};
-		for (String attr : required) {
-			service.getRequestAttributes().add(SAMLUtil.createRequestedAttribute(attr, OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, true));
-		}
-		for (String attr : optional) {
-			service.getRequestAttributes().add(SAMLUtil.createRequestedAttribute(attr, OIOSAMLConstants.URI_ATTRIBUTE_NAME_FORMAT, false));
-		}
-		
-		spDescriptor.getAttributeConsumingServices().add(service);
 	}
 
 	private List<?> extractParameterList(final HttpServletRequest request) {
