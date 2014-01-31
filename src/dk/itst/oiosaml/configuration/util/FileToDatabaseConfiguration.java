@@ -80,7 +80,7 @@ public class FileToDatabaseConfiguration {
 
 	private static boolean isTableOk(Connection con) throws SQLException {
 		Statement countStatement = con.createStatement();
-		ResultSet countQuery = countStatement.executeQuery("select count(*) from properties");
+		ResultSet countQuery = countStatement.executeQuery("select count(*) from oiosaml_properties");
 		int no = -1;
 		while (countQuery.next()) {
 			no=countQuery.getInt("count(*)");
@@ -92,7 +92,7 @@ public class FileToDatabaseConfiguration {
 	private static void saveToFile(String fileName, Connection con) throws SQLException, ConfigurationException {
 		Statement selectStatement = con.createStatement();
 		PropertiesConfiguration propertiesConfiguration = new PropertiesConfiguration(new File(fileName));
-		String sql = "select conf_key, conf_value from properties";
+		String sql = "select conf_key, conf_value from oiosaml_properties";
 		ResultSet props = selectStatement.executeQuery(sql);
 		while (props.next()) {
 			String key = props.getString("conf_key");
@@ -108,7 +108,7 @@ public class FileToDatabaseConfiguration {
 		for (@SuppressWarnings("unchecked")	Iterator<String> iterator = propertiesConfiguration.getKeys(); iterator.hasNext();) {
 			String key = iterator.next();
 			String value = propertiesConfiguration.getString(key);
-			String ins = "insert into properties  (conf_key, conf_value) VALUES ('" + key + "','" + value + "')";
+			String ins = "insert into oiosaml_properties  (conf_key, conf_value) VALUES ('" + key + "','" + value + "')";
 			insertStatement.executeUpdate(ins);
 		}
 	}

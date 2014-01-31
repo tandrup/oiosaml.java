@@ -80,7 +80,7 @@ public class JdbcSessionHandler implements SessionHandler {
 
 	public void cleanup(long requestIdsCleanupDelay, long sessionCleanupDelay) {
 		Connection con = getConnection();
-		String[] tables = new String[] { "assertions", "requests", "requestdata" };
+		String[] tables = new String[] { "oiosaml_assertions", "oiosaml_requests", "oiosaml_requestdata" };
 
 		try {
 			for (String table : tables) {
@@ -98,7 +98,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public OIOAssertion getAssertion(String sessionId) {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT assertion FROM assertions WHERE id = ?");
+			PreparedStatement ps = con.prepareStatement("SELECT assertion FROM oiosaml_assertions WHERE id = ?");
 			ps.setString(1, sessionId);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -117,7 +117,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	}
 
 	private void updateTimestamp(String id, Connection con) throws SQLException {
-		PreparedStatement ps = con.prepareStatement("UPDATE assertions SET timestamp = ? WHERE id = ?");
+		PreparedStatement ps = con.prepareStatement("UPDATE oiosaml_assertions SET timestamp = ? WHERE id = ?");
 		ps.setTimestamp(1, new Timestamp(new Date().getTime()));
 		ps.setString(2, id);
 		ps.executeUpdate();
@@ -127,7 +127,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public String getRelatedSessionId(String sessionIndex) {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT id FROM assertions WHERE sessionindex = ?");
+			PreparedStatement ps = con.prepareStatement("SELECT id FROM oiosaml_assertions WHERE sessionindex = ?");
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				return rs.getString("id");
@@ -144,14 +144,14 @@ public class JdbcSessionHandler implements SessionHandler {
 	public Request getRequest(String state) throws IllegalArgumentException {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT data FROM requestdata WHERE id = ?");
+			PreparedStatement ps = con.prepareStatement("SELECT data FROM oiosaml_requestdata WHERE id = ?");
 			ps.setString(1, state);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(Base64.decode(rs.getString("data"))));
 				Request result = (Request) is.readObject();
 
-				ps = con.prepareStatement("DELETE FROM requestdata where id = ?");
+				ps = con.prepareStatement("DELETE FROM oiosaml_requestdata where id = ?");
 				ps.setString(1, state);
 				ps.executeUpdate();
 
@@ -179,7 +179,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public void logOut(String sessionId) {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("DELETE FROM assertions WHERE id = ?");
+			PreparedStatement ps = con.prepareStatement("DELETE FROM oiosaml_assertions WHERE id = ?");
 			ps.setString(1, sessionId);
 			ps.executeUpdate();
 			ps.close();
@@ -193,7 +193,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public void registerRequest(String id, String receiverEntityID) {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("INSERT INTO requests (id, receiver, timestamp) VALUES (?, ?, ?)");
+			PreparedStatement ps = con.prepareStatement("INSERT INTO oiosaml_requests (id, receiver, timestamp) VALUES (?, ?, ?)");
 			ps.setString(1, id);
 			ps.setString(2, receiverEntityID);
 			ps.setTimestamp(3, new Timestamp(new Date().getTime()));
@@ -209,7 +209,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public String removeEntityIdForRequest(String id) {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT receiver FROM requests WHERE id = ?");
+			PreparedStatement ps = con.prepareStatement("SELECT receiver FROM oiosaml_requests WHERE id = ?");
 			ps.setString(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -227,7 +227,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public void resetReplayProtection(int maxNum) {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("DELETE FROM assertions");
+			PreparedStatement ps = con.prepareStatement("DELETE FROM oiosaml_assertions");
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -247,7 +247,7 @@ public class JdbcSessionHandler implements SessionHandler {
 
 			String s = Base64.encodeBytes(bos.toByteArray());
 
-			PreparedStatement ps = con.prepareStatement("INSERT INTO requestdata (id, data, timestamp) VALUES (?, ?, ?)");
+			PreparedStatement ps = con.prepareStatement("INSERT INTO oiosaml_requestdata (id, data, timestamp) VALUES (?, ?, ?)");
 			ps.setString(1, state);
 			ps.setString(2, s);
 			ps.setTimestamp(3, new Timestamp(new Date().getTime()));
@@ -266,7 +266,7 @@ public class JdbcSessionHandler implements SessionHandler {
 	public void setAssertion(String sessionId, OIOAssertion assertion) throws IllegalArgumentException {
 		Connection con = getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM assertions WHERE assertionid = ? OR sessionindex = ?");
+			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM oiosaml_assertions WHERE assertionid = ? OR sessionindex = ?");
 			ps.setString(1, assertion.getID());
 			ps.setString(2, assertion.getSessionIndex());
 			ResultSet rs = ps.executeQuery();
@@ -275,7 +275,7 @@ public class JdbcSessionHandler implements SessionHandler {
 			}
 			ps.close();
 
-			ps = con.prepareStatement("DELETE FROM assertions WHERE id = ? OR sessionindex = ?");
+			ps = con.prepareStatement("DELETE FROM oiosaml_assertions WHERE id = ? OR sessionindex = ?");
 			ps.setString(1, sessionId);
 			ps.setString(2, assertion.getSessionIndex());
 			if (ps.executeUpdate() > 0) {
@@ -283,7 +283,7 @@ public class JdbcSessionHandler implements SessionHandler {
 			}
 			ps.close();
 
-			ps = con.prepareStatement("INSERT INTO assertions (id, assertion, assertionid, sessionindex, timestamp) VALUES (?, ?, ?, ?, ?)");
+			ps = con.prepareStatement("INSERT INTO oiosaml_assertions (id, assertion, assertionid, sessionindex, timestamp) VALUES (?, ?, ?, ?, ?)");
 			ps.setString(1, sessionId);
 			ps.setString(2, assertion.toXML());
 			ps.setString(3, assertion.getID());
@@ -319,7 +319,7 @@ public class JdbcSessionHandler implements SessionHandler {
 					String attemptedSessionIndex = "Passive:" + uniqueId + "x" + counter;
 
 					// check if there already is an active session with this sessionIndex
-					PreparedStatement ps = con.prepareStatement("SELECT 1 FROM assertions WHERE sessionindex = ?");
+					PreparedStatement ps = con.prepareStatement("SELECT 1 FROM oiosaml_assertions WHERE sessionindex = ?");
 					ps.setString(1, attemptedSessionIndex);
 					ResultSet rs = ps.executeQuery();
 

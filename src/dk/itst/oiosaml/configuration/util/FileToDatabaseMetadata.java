@@ -59,7 +59,7 @@ public class FileToDatabaseMetadata {
 		String databaseUrl = args[1];
 		String databaseUser = args[2];
 		String databasePwd = args[3];
-		String target = args[4];
+		String target = "oiosaml_" + args[4];
 		String id = args[5];
 		String doDbToFile = null;
 		if (args.length == 7)
@@ -97,12 +97,12 @@ public class FileToDatabaseMetadata {
 
 	private static boolean isTableOk(Connection con) throws SQLException {
 		Statement countStatement = con.createStatement();
-		ResultSet countQuery = countStatement.executeQuery("select count(*) from identityproviders");
+		ResultSet countQuery = countStatement.executeQuery("select count(*) from oiosaml_identityproviders");
 		int no = -1;
 		while (countQuery.next()) {
 			no = countQuery.getInt("count(*)");
 		}
-		countQuery = countStatement.executeQuery("select count(*) from serviceprovider");
+		countQuery = countStatement.executeQuery("select count(*) from oiosaml_serviceprovider");
 		while (countQuery.next()) {
 			no = countQuery.getInt("count(*)");
 		}

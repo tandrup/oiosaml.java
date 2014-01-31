@@ -104,7 +104,7 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 		KeyStore keystore = KeyStore.getInstance("JKS");
 		Connection con = jdbcConfiguration.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT keystore FROM java_keystore");
+			PreparedStatement ps = con.prepareStatement("SELECT keystore FROM oiosaml_java_keystore");
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			Clob clob = rs.getClob(1);
@@ -122,7 +122,7 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 		Connection con = jdbcConfiguration.getConnection();
 		InputStream is=null;
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT log4j FROM logger");
+			PreparedStatement ps = con.prepareStatement("SELECT log4j FROM oiosaml_logger");
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			Clob clob = rs.getClob(1);
@@ -139,7 +139,7 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 		XMLObject spMetadata = null;
 		Connection con = jdbcConfiguration.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT metadata FROM serviceprovider");
+			PreparedStatement ps = con.prepareStatement("SELECT metadata FROM oiosaml_serviceprovider");
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			spMetadata = SAMLUtil.unmarshallElementFromString(rs.getString("metadata"));
@@ -155,7 +155,7 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 		List<XMLObject> idps = new ArrayList<XMLObject>();
 		Connection con = jdbcConfiguration.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT metadata FROM identityproviders");
+			PreparedStatement ps = con.prepareStatement("SELECT metadata FROM oiosaml_identityproviders");
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				idps.add(SAMLUtil.unmarshallElementFromString(rs.getString("metadata")));

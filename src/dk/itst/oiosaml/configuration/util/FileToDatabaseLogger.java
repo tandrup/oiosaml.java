@@ -95,7 +95,7 @@ public class FileToDatabaseLogger {
 
 	private static void saveToFile(String fileName, Connection con) throws SQLException, ConfigurationException, IOException {
 		Statement selectStatement = con.createStatement();
-		String sql = "select log4j from logger";
+		String sql = "select log4j from oiosaml_logger";
 		ResultSet metadata = selectStatement.executeQuery(sql);
 		metadata.next();
 		Clob clob = metadata.getClob(1);
@@ -112,7 +112,7 @@ public class FileToDatabaseLogger {
 	}
 
 	private static void saveToDb(String fileName,  Connection con) throws SQLException, ConfigurationException, IOException {
-		String ins = "insert into logger (id,log4j) values(?,?)";
+		String ins = "insert into oiosaml_logger (id,log4j) values(?,?)";
 		PreparedStatement insertStatement = con.prepareStatement(ins);
 		FileReader fr = new FileReader(new File(fileName));
 		insertStatement.setString(1, "1");
