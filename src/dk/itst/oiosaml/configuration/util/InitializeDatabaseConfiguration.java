@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -46,6 +45,7 @@ import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.configuration.ConfigurationGenerator;
 import dk.itst.oiosaml.sp.configuration.ConfigurationGenerator.KeystoreCredentialsHolder;
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class InitializeDatabaseConfiguration {
 	public static void main(String[] args) throws org.opensaml.xml.ConfigurationException, ConfigurationException, IOException, ParserConfigurationException, SAXException {
@@ -141,20 +141,28 @@ public class InitializeDatabaseConfiguration {
 	private static void saveConfigurationToDb(String password, String crlPeriod, Connection con) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement("insert into oiosaml_properties (conf_key, conf_value) values(?, ?)");
 
-		stmt.setString(1, "oiosaml-sp.certificate.password");
+		stmt.setString(1, Constants.PROP_CERTIFICATE_PASSWORD);
 		stmt.setString(2, password);
 		stmt.addBatch();
 
-		stmt.setString(1, "oiosaml-sp.assurancelevel");
+		stmt.setString(1, Constants.PROP_ASSURANCE_LEVEL);
 		stmt.setString(2, "2");
 		stmt.addBatch();
 
-		stmt.setString(1, "oiosaml-sp.uri.home");
+		stmt.setString(1, Constants.PROP_HOME);
 		stmt.setString(2, "/singlesignon");
 		stmt.addBatch();
 
-		stmt.setString(1, "oiosaml-sp.crl.period");
+		stmt.setString(1, Constants.PROP_CRL_CHECK_PERIOD);
 		stmt.setString(2, crlPeriod);
+		stmt.addBatch();
+
+		stmt.setString(1, Constants.PROP_SESSION_HANDLER_FACTORY);
+		stmt.setString(2, "dk.itst.oiosaml.sp.service.session.jdbc.JndiFactory");
+		stmt.addBatch();
+
+		stmt.setString(1, "oiosaml-sp.sessionfactory.jndi");
+		stmt.setString(2, "jdbc/oiosaml-ds");
 		stmt.addBatch();
 
 		stmt.executeBatch();
