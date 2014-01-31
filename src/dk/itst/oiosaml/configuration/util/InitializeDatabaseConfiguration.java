@@ -42,6 +42,7 @@ import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.credential.Credential;
 import org.xml.sax.SAXException;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.configuration.ConfigurationGenerator;
 import dk.itst.oiosaml.sp.configuration.ConfigurationGenerator.KeystoreCredentialsHolder;
@@ -80,18 +81,26 @@ public class InitializeDatabaseConfiguration {
 
 		DefaultBootstrap.bootstrap();
 
+		System.out.println("Generate keystore");
 		KeystoreCredentialsHolder keystoreAndCredentials = ConfigurationGenerator.generateKeystoreAndCredentials(password, entityId);
 		final byte[] keystore = keystoreAndCredentials.getKeystore();
 		final Credential credential = keystoreAndCredentials.getCredential();
-		final EntityDescriptor spDescriptor = ConfigurationGenerator.generateSPDescriptor(baseUrl, entityId, credential, orgName, orgUrl, email, false, true, true, true, false);
+
+		System.out.println("Generate SP metadata");
+		final EntityDescriptor spDescriptor = ConfigurationGenerator.generateSPDescriptor(baseUrl, entityId, credential, orgName, orgUrl, email, false, true, true, true, false, OIOSAMLConstants.NAMEIDFORMAT_UNSPECIFIED);
 
 		Connection con = null;
 		try {
 			con = DriverManager.getConnection(databaseUrl, databaseUser, databasePwd);
+			System.out.println("(Re-)Creating database schema");
 			createSchema(con);
+			System.out.println("Store keystore");
 			saveKeystoreToDb(keystore, entityId, con);
+			System.out.println("Store SP metadata");
 			saveSPToDb(spDescriptor, entityId, con);
+			System.out.println("Store IdP metadata");
 			saveIdPToDb(idpFilename, con);
+			System.out.println("Store properties");
 			saveConfigurationToDb(password, crlPeriod, con);
 
 			System.out.println("Done!");
@@ -104,17 +113,6 @@ public class InitializeDatabaseConfiguration {
 				System.err.println("Unable to close database");
 			}
 		}
-	}
-
-	private static boolean isTableOk(Connection con) throws SQLException {
-		Statement countStatement = con.createStatement();
-		ResultSet countQuery = countStatement.executeQuery("select count(*) from oiosaml_properties");
-		int no = -1;
-		while (countQuery.next()) {
-			no=countQuery.getInt(1);
-			System.out.println("Found " + no + " propteries in database");
-		}
-		return (no > -1);
 	}
 
 	private static void saveSPToDb(EntityDescriptor spDescriptor, String id, Connection con) throws SQLException, ConfigurationException, IOException, ParserConfigurationException, SAXException {

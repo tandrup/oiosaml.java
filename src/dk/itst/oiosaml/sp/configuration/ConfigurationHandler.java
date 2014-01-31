@@ -209,7 +209,8 @@ public class ConfigurationHandler implements SAMLHandler {
 				enablePost, 
 				enableSoap,
                 enablePostSLO,
-				supportOCESAttributeProfile);
+				supportOCESAttributeProfile,
+				OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
 		
 		File zipFile = generateZipFile(request.getContextPath(), password, metadata, keystore, descriptor);
 		

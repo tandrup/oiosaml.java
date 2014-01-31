@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 
+import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.sp.service.AbstractServiceTests;
 import dk.itst.oiosaml.sp.service.RequestContext;
 import dk.itst.oiosaml.sp.service.TestHelper;
@@ -141,7 +142,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 
 	@Test
 	public void testGenerateSPDescriptor() {
-		EntityDescriptor d = ConfigurationGenerator.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, true, false);
+		EntityDescriptor d = ConfigurationGenerator.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, true, false, OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
 		assertEquals("entityId", d.getEntityID());
 		assertEquals(1, d.getContactPersons().size());
 		assertNotNull(d.getOrganization());
@@ -151,7 +152,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	
 	@Test
 	public void testGenerateSPDescriptorWithAttributes() {
-		EntityDescriptor d = ConfigurationGenerator.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, true, true);
+		EntityDescriptor d = ConfigurationGenerator.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, true, true, OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
 		assertEquals(1, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().size());
 		assertEquals(20, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().get(0).getRequestAttributes().size());
 	}

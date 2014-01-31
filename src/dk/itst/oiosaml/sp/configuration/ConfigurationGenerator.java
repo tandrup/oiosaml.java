@@ -113,7 +113,7 @@ public class ConfigurationGenerator {
 		}
 	}
 
-	public static EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean enablePostSLO, boolean supportOCESAttributes) {
+	public static EntityDescriptor generateSPDescriptor(String baseUrl, String entityId, Credential credential, String orgName, String orgUrl, String email, boolean enableArtifact, boolean enableRedirect, boolean enableSoap, boolean enablePostSLO, boolean supportOCESAttributes, String nameIDFormat) {
 		EntityDescriptor descriptor = SAMLUtil.buildXMLObject(EntityDescriptor.class);
 		descriptor.setEntityID(entityId);
 
@@ -163,7 +163,7 @@ public class ConfigurationGenerator {
 			spDescriptor.getSingleLogoutServices().add(SAMLUtil.createSingleLogoutService(baseUrl + "/LogoutServiceHTTPPost", baseUrl + "/LogoutServiceHTTPRedirectResponse", SAMLConstants.SAML2_POST_BINDING_URI));
 		}
 
-		NameIDFormat x509SubjectNameIDFormat = SAMLUtil.createNameIDFormat(OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
+		NameIDFormat x509SubjectNameIDFormat = SAMLUtil.createNameIDFormat(nameIDFormat);
 		List<NameIDFormat> nameIDFormats = spDescriptor.getNameIDFormats();
 		nameIDFormats.add(x509SubjectNameIDFormat);
 

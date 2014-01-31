@@ -145,4 +145,6 @@ public interface OIOSAMLConstants {
     public static final String ATTRIBUTE_CERTIFICATE_ISSUER = "urn:oid:2.5.29.29";
 	
     public static final String NAMEIDFORMAT_X509SUBJECTNAME = "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName";
+
+    public static final String NAMEIDFORMAT_UNSPECIFIED = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified";
 }
