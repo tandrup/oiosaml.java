@@ -93,6 +93,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	@Test 
 	public void downloadFailWhenNoConfiguration() throws Exception {
 		context.checking(new Expectations() {{
+			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_DISABLEAUTOCONFIGURE); will(returnValue(""));
 			one(req).getParameter("download"); will(returnValue(""));
 			one(session).getAttribute(ConfigurationHandler.SESSION_CONFIGURATION); will(returnValue(null));
 			one(res).sendError(with(equal(HttpServletResponse.SC_NOT_FOUND)), with(any(String.class)));
@@ -104,6 +105,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	public void testDownloadConfiguration() throws Exception{
 		final ByteArrayOutputStream os = new ByteArrayOutputStream();
 		context.checking(new Expectations() {{
+			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_DISABLEAUTOCONFIGURE); will(returnValue(""));
 			one(req).getParameter("download"); will(returnValue(""));
 			one(session).getAttribute(ConfigurationHandler.SESSION_CONFIGURATION); will(returnValue("testing".getBytes()));
 			one(res).setContentType("application/octet-stream");
@@ -121,6 +123,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 		final StringWriter sw = new StringWriter();
 		final String url = "http://localhost/saml";
 		context.checking(new Expectations() {{
+			one(servletContext).getInitParameter(Constants.INIT_OIOSAML_DISABLEAUTOCONFIGURE); will(returnValue(""));
 			allowing(servletContext).getInitParameter(Constants.INIT_OIOSAML_HOME); will(returnValue(homeDir.getAbsolutePath()));
 			one(req).getParameter(with(any(String.class))); will(returnValue(null));
 			one(res).setContentType("text/html");
@@ -178,7 +181,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	
 	@Test
 	public void testGenerateZipFile() throws Exception {
-		EntityDescriptor descriptor = ConfigurationGenerator.generateSPDescriptor("base", "entity", credential, "orgName", "orgUrl", "email", true, true, true, true, false);
+		EntityDescriptor descriptor = ConfigurationGenerator.generateSPDescriptor("base", "entity", credential, "orgName", "orgUrl", "email", true, true, true, true, false, OIOSAMLConstants.NAMEIDFORMAT_X509SUBJECTNAME);
 		File zipFile = handler.generateZipFile("/saml", "password", "idpMetadata".getBytes(), "keystore".getBytes(), descriptor);
 		assertNotNull(zipFile);
 		
