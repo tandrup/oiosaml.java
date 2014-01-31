@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS oiosaml_assertions; 
 CREATE TABLE oiosaml_assertions
 (
   id character varying(255) NOT NULL,
@@ -10,6 +11,7 @@ CREATE TABLE oiosaml_assertions
   CONSTRAINT oiosaml_assertions_sessionindex_key UNIQUE (sessionindex)
 );
 
+DROP TABLE IF EXISTS oiosaml_identityproviders;
 CREATE TABLE oiosaml_identityproviders
 (
   id character varying(255) NOT NULL,
@@ -25,6 +27,7 @@ CREATE TABLE oiosaml_identityproviders
   CONSTRAINT identityproviders_pkey PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS oiosaml_java_keystore;
 CREATE TABLE oiosaml_java_keystore
 (
   id character varying(255) NOT NULL,
@@ -33,6 +36,7 @@ CREATE TABLE oiosaml_java_keystore
   CONSTRAINT java_keystore_pkey PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS oiosaml_logger;
 CREATE TABLE oiosaml_logger
 (
   id character varying(255) NOT NULL,
@@ -40,6 +44,7 @@ CREATE TABLE oiosaml_logger
   CONSTRAINT logger_pkey PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS oiosaml_properties;
 CREATE TABLE oiosaml_properties
 (
   conf_key character varying(255) NOT NULL,
@@ -47,6 +52,7 @@ CREATE TABLE oiosaml_properties
   CONSTRAINT properties_pkey PRIMARY KEY (conf_key)
 );
 
+DROP TABLE IF EXISTS oiosaml_requestdata;
 CREATE TABLE oiosaml_requestdata
 (
   id character varying(255) NOT NULL,
@@ -55,6 +61,7 @@ CREATE TABLE oiosaml_requestdata
   CONSTRAINT oiosaml_requestdata_pkey PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS oiosaml_requests;
 CREATE TABLE oiosaml_requests
 (
   id character varying(255) NOT NULL,
@@ -63,6 +70,7 @@ CREATE TABLE oiosaml_requests
   CONSTRAINT oiosaml_requests_pkey PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS oiosaml_serviceprovider;
 CREATE TABLE oiosaml_serviceprovider
 (
   id character varying(255) NOT NULL,

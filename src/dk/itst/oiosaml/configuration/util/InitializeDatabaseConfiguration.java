@@ -24,6 +24,7 @@ package dk.itst.oiosaml.configuration.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -35,6 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xml.security.credential.Credential;
@@ -86,12 +88,11 @@ public class InitializeDatabaseConfiguration {
 		Connection con = null;
 		try {
 			con = DriverManager.getConnection(databaseUrl, databaseUser, databasePwd);
-			if (isTableOk(con)) {
-				saveKeystoreToDb(keystore, entityId, con);
-				saveSPToDb(spDescriptor, entityId, con);
-				saveIdPToDb(idpFilename, con);
-				saveConfigurationToDb(password, crlPeriod, con);
-			}
+			createSchema(con);
+			saveKeystoreToDb(keystore, entityId, con);
+			saveSPToDb(spDescriptor, entityId, con);
+			saveIdPToDb(idpFilename, con);
+			saveConfigurationToDb(password, crlPeriod, con);
 
 			System.out.println("Done!");
 		} catch (SQLException e) {
@@ -159,5 +160,13 @@ public class InitializeDatabaseConfiguration {
 		stmt.addBatch();
 
 		stmt.executeBatch();
+	}
+
+	private static void createSchema(Connection con) throws IOException, SQLException {
+		InputStream inputStream = InitializeDatabaseConfiguration.class.getResourceAsStream("/dk/itst/oiosaml/configuration/jdbc/postgresql.sql");
+		String sql = IOUtils.toString(inputStream);
+		Statement statement = con.createStatement();
+		statement.execute(sql);
+		statement.close();
 	}
 }
