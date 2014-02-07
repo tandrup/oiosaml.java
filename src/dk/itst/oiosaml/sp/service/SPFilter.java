@@ -25,6 +25,7 @@
 package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -220,6 +221,16 @@ public class SPFilter implements Filter {
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
+		final Map<String, String> initParameters = new HashMap<String, String>();
+		@SuppressWarnings("unchecked")
+		Enumeration<String> initParameterNames = filterConfig.getServletContext().getInitParameterNames();
+		while (initParameterNames.hasMoreElements()) {
+			String parameterName = initParameterNames.nextElement();
+			initParameters.put(parameterName, filterConfig.getServletContext().getInitParameter(parameterName));
+		}
+		
+		SAMLConfigurationFactory.setInitConfiguration(initParameters);
+
 		conf = SAMLConfigurationFactory.getConfiguration();
 		if (conf instanceof FileConfiguration) {
 			String configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_FILE);
@@ -259,6 +270,7 @@ public class SPFilter implements Filter {
 			log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
 		} else {
 			log.info("The OIO configuration is being configured by "+conf.getClass().getName());
+			conf.setInitConfiguration(initParameters);
 		}
 		if (conf.isConfigured()) {
 			try {

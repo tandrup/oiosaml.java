@@ -54,15 +54,20 @@ import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class DataBaseConfiguration implements SAMLConfiguration {
 	private static final Logger log = Logger.getLogger(DatabaseConfiguration.class);
-	private JdbcConfiguration jdbcConfiguration = new JdbcConfiguration(true);
+	private JdbcConfiguration jdbcConfiguration;
 	private Configuration systemConfiguration;
 
 	public boolean isConfigured() {
-		return (systemConfiguration != null);
+		return (jdbcConfiguration != null);
 	}
 
 	public void setInitConfiguration(Map<String, String> params) {
-		
+		systemConfiguration = null;
+		if (params.containsKey(Constants.INIT_OIOSAML_DATASOURCE_JNDI)) {
+			jdbcConfiguration = new JdbcConfiguration(params.get(Constants.INIT_OIOSAML_DATASOURCE_JNDI));
+		} else {
+			jdbcConfiguration = new JdbcConfiguration();
+		}
 	}
 
 	public Configuration getCommonConfiguration() throws IOException {

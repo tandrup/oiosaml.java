@@ -142,6 +142,8 @@ public interface Constants {
 
 	static final String SHA1_WITH_RSA = "SHA1withRSA";
 	
+	static final String INIT_OIOSAML_CONFIGURATION_CLASS = "oiosaml-j.configuration.class";
+
 	static final String INIT_OIOSAML_HOME = "oiosaml-j.home";
 	
 	static final String INIT_OIOSAML_NAME = "oiosaml-j.name";
@@ -150,6 +152,8 @@ public interface Constants {
 
 	static final String INIT_OIOSAML_DISABLEAUTOCONFIGURE = "oiosaml-j.disableautoconfigure";
 	
+	static final String INIT_OIOSAML_DATASOURCE_JNDI = "oiosaml-j.datasource.jndi";
+
 	/**
 	 * Configuration parameter pointing to the URL for the discovery service.
 	 */

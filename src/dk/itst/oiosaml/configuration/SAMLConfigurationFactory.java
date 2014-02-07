@@ -21,9 +21,12 @@
 package dk.itst.oiosaml.configuration;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 import org.apache.log4j.Logger;
+
+import dk.itst.oiosaml.sp.service.util.Constants;
 
 /**
  * This factory returns the configuration from the META-INF/services/dk.itst.oiosaml.configuration.SAMLConfiguration file. Default is {@link #FileConfiguration}.
@@ -51,5 +54,22 @@ public class SAMLConfigurationFactory {
 			}
 		}
 		return configuration;
+	}
+
+	public static void setInitConfiguration(Map<String, String> initParameters) {
+		String configurationClassName = initParameters.get(Constants.INIT_OIOSAML_CONFIGURATION_CLASS);
+		if (configurationClassName != null) {
+			try {
+				@SuppressWarnings("unchecked")
+				Class<SAMLConfiguration> configurationClass = (Class<SAMLConfiguration>) Class.forName(configurationClassName);
+				configuration = configurationClass.newInstance();
+			} catch (ClassNotFoundException e) {
+				log.error("Unable to lookup configuration class: " + configurationClassName, e);
+			} catch (InstantiationException e) {
+				log.error("Unable to instantiate configuration class: " + configurationClassName, e);
+			} catch (IllegalAccessException e) {
+				log.error("Unable to instantiate configuration class: " + configurationClassName, e);
+			}
+		}
 	}
 }
