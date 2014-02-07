@@ -152,7 +152,7 @@ public class ConfigurationHandlerTest extends AbstractServiceTests {
 	public void testGenerateSPDescriptorWithAttributes() {
 		EntityDescriptor d = handler.generateSPDescriptor("http://localhost", "entityId", credential, "orgName", "orgUrl", "email", true, true, true, true, true);
 		assertEquals(1, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().size());
-		assertEquals(20, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().get(0).getRequestAttributes().size());
+		assertEquals(21, d.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAttributeConsumingServices().get(0).getRequestAttributes().size());
 	}
 	
 	
