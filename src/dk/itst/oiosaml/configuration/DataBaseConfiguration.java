@@ -85,7 +85,7 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 			return systemConfiguration;
 		CompositeConfiguration conf = new CompositeConfiguration();
 		try {
-			org.apache.commons.configuration.DatabaseConfiguration dbConfiguration = new org.apache.commons.configuration.DatabaseConfiguration(jdbcConfiguration.getDataSource(), "properties", "conf_key", "conf_value");
+			org.apache.commons.configuration.DatabaseConfiguration dbConfiguration = new org.apache.commons.configuration.DatabaseConfiguration(jdbcConfiguration.getDataSource(), "oiosaml_properties", "conf_key", "conf_value");
 			log.debug("Loading custom config from " + jdbcConfiguration.getDataSource().getConnection().getMetaData().getURL());
 			conf.addConfiguration(dbConfiguration);
 			conf.addConfiguration(getCommonConfiguration());
