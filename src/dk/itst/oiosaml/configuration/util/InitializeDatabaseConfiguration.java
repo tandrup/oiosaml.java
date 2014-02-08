@@ -75,10 +75,12 @@ public class InitializeDatabaseConfiguration {
 		final String idpFilename = args[5];
 		final String crlPeriod = args[6];
 		final String databaseUrl = args[7];
-		final String databaseUser = args.length > 8 ? args[8] : null;
+		final String databaseUser = args[8];
 		final String databasePwd = args.length > 9 ? args[9] : null;
 		final String password = "datacenter";
 
+		System.out.println("Connecting to " + databaseUrl);
+		
 		DefaultBootstrap.bootstrap();
 
 		System.out.println("Generate keystore");
@@ -106,9 +108,10 @@ public class InitializeDatabaseConfiguration {
 			System.out.println("Done!");
 		} catch (SQLException e) {
 			System.err.println("Unable to select or insert from database! Error: " + e.getMessage());
+			e.printStackTrace();
 		} finally {
 			try {
-				con.close();
+				if (con != null) con.close();
 			} catch (SQLException e) {
 				System.err.println("Unable to close database");
 			}
