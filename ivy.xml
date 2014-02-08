@@ -35,7 +35,8 @@
 		<dependency org="xalan" name="serializer" rev="2.7.1">
             <exclude org="xml-apis" module="xml-apis" />
         </dependency>
-        <dependency org="org.bouncycastle" name="bcprov-jdk15" rev="1.44" />
+        <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.49" />
+        <dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.49" />
         
         <dependency org="org.opensaml" name="opensaml" rev="2.5.1">
             <exclude org="xml-apis" module="xml-apis" />

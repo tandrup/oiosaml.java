@@ -30,7 +30,6 @@ public class DispatcherServletTest extends AbstractServiceTests {
 		handler = context.mock(SAMLHandler.class);
 		servlet = new DispatcherServlet();
 		conf = new HashMap<String, String>() {{
-			put(SAMLUtil.OIOSAML_HOME, "/test");
 			put(Constants.PROP_SESSION_HANDLER_FACTORY, SingleVMSessionHandlerFactory.class.getName());
 		}};
 		configuration = TestHelper.buildConfiguration(conf);

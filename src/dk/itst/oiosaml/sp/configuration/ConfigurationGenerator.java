@@ -62,8 +62,16 @@ public class ConfigurationGenerator {
 			ks.load(new ByteArrayInputStream(keystore), password.toCharArray());
 			return CredentialRepository.createCredential(ks, password);
 		}catch (Exception e) {
-			log.error("Unable to use/load keystore", e);
-			throw new RuntimeException("Unable to use/load keystore", e);
+            log.info("Keystore is not of type JKS. Trying type PKCS12");
+            try {
+                KeyStore ks=KeyStore.getInstance("PKCS12");
+                ks.load(new ByteArrayInputStream(keystore), password.toCharArray());
+                return CredentialRepository.createCredential(ks, password);
+            }
+            catch (Exception e2){
+                log.error("Unable to use/load keystore", e2);
+                throw new RuntimeException("Unable to use/load keystore", e2);
+            }
 		}
 	}
 

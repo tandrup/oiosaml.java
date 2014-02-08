@@ -36,8 +36,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
@@ -55,7 +56,7 @@ import dk.itst.oiosaml.sp.service.util.HTTPUtils;
 import dk.itst.oiosaml.sp.util.AttributeUtil;
 
 public class DevelModeImpl implements DevelMode {
-	private static final Logger log = Logger.getLogger(DevelModeImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(DevelModeImpl.class);
 
 	@SuppressWarnings("unchecked")
 	public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain fc, Configuration conf) throws IOException, ServletException {

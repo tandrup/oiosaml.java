@@ -21,12 +21,10 @@
 package dk.itst.oiosaml.configuration;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.apache.log4j.Logger;
-
-import dk.itst.oiosaml.sp.service.util.Constants;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 
 /**
  * This factory returns the configuration from the META-INF/services/dk.itst.oiosaml.configuration.SAMLConfiguration file. Default is {@link #FileConfiguration}.
@@ -38,38 +36,39 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * 
  */
 public class SAMLConfigurationFactory {
-	private static final Logger log = Logger.getLogger(SAMLConfigurationFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(SAMLConfigurationFactory.class);
 
 	private static SAMLConfiguration configuration;
 
 	public static SAMLConfiguration getConfiguration() {
-		if (configuration==null) {
-			ServiceLoader<SAMLConfiguration> configurationImplementations = ServiceLoader.load(SAMLConfiguration.class);
-			for (Iterator<SAMLConfiguration> iterator = configurationImplementations.iterator(); iterator.hasNext();) {
-				configuration = (SAMLConfiguration) iterator.next();
-				if (iterator.hasNext()) {
-					log.error("Appears to be more than one configuration implementation. Please check META-INF/services for occurencies. Choosing the implementation: "+configuration.getClass().getName());
-					break;
+		if (configuration == null) {
+			String configurationClassName = SystemConfiguration.getConfigurationClass();
+			if (configurationClassName != null) {
+				try {
+					@SuppressWarnings("unchecked")
+					Class<SAMLConfiguration> configurationClass = (Class<SAMLConfiguration>) Class.forName(configurationClassName);
+					configuration = configurationClass.newInstance();
+				} catch (ClassNotFoundException e) {
+					log.error("Unable to lookup configuration class: " + configurationClassName, e);
+				} catch (InstantiationException e) {
+					log.error("Unable to instantiate configuration class: " + configurationClassName, e);
+				} catch (IllegalAccessException e) {
+					log.error("Unable to instantiate configuration class: " + configurationClassName, e);
+				}
+			}
+			
+			if (configuration == null) {
+				// Fall back to ServiceLoader based configuration
+				ServiceLoader<SAMLConfiguration> configurationImplementations = ServiceLoader.load(SAMLConfiguration.class);
+				for (Iterator<SAMLConfiguration> iterator = configurationImplementations.iterator(); iterator.hasNext();) {
+					configuration = (SAMLConfiguration) iterator.next();
+					if (iterator.hasNext()) {
+						log.error("Appears to be more than one configuration implementation. Please check META-INF/services for occurencies. Choosing the implementation: "+configuration.getClass().getName());
+						break;
+					}
 				}
 			}
 		}
 		return configuration;
-	}
-
-	public static void setInitConfiguration(Map<String, String> initParameters) {
-		String configurationClassName = initParameters.get(Constants.INIT_OIOSAML_CONFIGURATION_CLASS);
-		if (configurationClassName != null) {
-			try {
-				@SuppressWarnings("unchecked")
-				Class<SAMLConfiguration> configurationClass = (Class<SAMLConfiguration>) Class.forName(configurationClassName);
-				configuration = configurationClass.newInstance();
-			} catch (ClassNotFoundException e) {
-				log.error("Unable to lookup configuration class: " + configurationClassName, e);
-			} catch (InstantiationException e) {
-				log.error("Unable to instantiate configuration class: " + configurationClassName, e);
-			} catch (IllegalAccessException e) {
-				log.error("Unable to instantiate configuration class: " + configurationClassName, e);
-			}
-		}
 	}
 }

@@ -5,26 +5,17 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" >
 	
 	<display-name>OIOSAML-J</display-name>
-	<!-- 
-	<context-param>
-		<description>
-			Path to configuration files for OIOSAML-J
-		</description>
-		<param-name>oiosaml-j.home</param-name>
-		<param-value>
-			/tmp/env/
-		</param-value>
-	</context-param>
-	 -->
-	<context-param>
-		<description>
-			Name of the configuration dir for oiosaml
-		</description>
-		<param-name>oiosaml-j.name</param-name>
-		<param-value>
-			demo
-		</param-value>
-	</context-param>
+	<env-entry>
+        <env-entry-name>oiosaml-j.home</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>c:\oiosaml-config</env-entry-value>
+    </env-entry>
+
+    <!--<env-entry>
+        <env-entry-name>oiosaml-j.name</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>demo</env-entry-value>
+    </env-entry>-->
 
 	<listener>
 		<listener-class>dk.itst.oiosaml.sp.service.session.SessionDestroyListener</listener-class>

@@ -22,7 +22,8 @@
  */
 package dk.itst.oiosaml.sp.model;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml2.encryption.Decrypter;
@@ -39,7 +40,7 @@ import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.sp.model.validation.ValidationException;
 
 public class OIOEncryptedAssertion {
-	private static final Logger log = Logger.getLogger(OIOEncryptedAssertion.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOEncryptedAssertion.class);
 	
 	private final EncryptedAssertion encrypted;
 

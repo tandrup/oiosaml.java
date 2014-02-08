@@ -43,7 +43,8 @@
 	<classpathentry kind="lib" path="lib/build/org.opensaml-opensaml.jar"/>
 	<classpathentry kind="lib" path="lib/build/xalan-serializer.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.apache.velocity-velocity.jar"/>
-	<classpathentry kind="lib" path="lib/build/org.bouncycastle-bcprov-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.bouncycastle-bcprov-jdk15on.jar"/>
+	<classpathentry kind="lib" path="lib/build/org.bouncycastle-bcpkix-jdk15on.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.opensaml-xmltooling.jar"/>
 	<classpathentry kind="lib" path="lib/build/org.owasp.esapi-esapi.jar"/>
 	<classpathentry kind="output" path="bin"/>

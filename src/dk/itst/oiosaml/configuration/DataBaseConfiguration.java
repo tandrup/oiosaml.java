@@ -57,6 +57,13 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 	private JdbcConfiguration jdbcConfiguration;
 	private Configuration systemConfiguration;
 
+	public DataBaseConfiguration() {
+		String datasourceJNDI = SystemConfiguration.getDatasourceJNDI();
+		if (datasourceJNDI != null) {
+			jdbcConfiguration = new JdbcConfiguration(datasourceJNDI);
+		}
+	}
+	
 	public boolean isConfigured() {
 		return (jdbcConfiguration != null);
 	}

@@ -27,7 +27,8 @@ import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.log4j.Logger;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.StatusCode;
@@ -44,7 +45,7 @@ import dk.itst.oiosaml.sp.service.session.SessionHandler;
  *
  */
 public class OIOResponse extends OIOAbstractResponse {
-	private static final Logger log = Logger.getLogger(OIOResponse.class);
+	private static final Logger log = LoggerFactory.getLogger(OIOResponse.class);
 	
 	private final Response response;
 

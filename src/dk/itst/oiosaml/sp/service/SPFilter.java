@@ -25,9 +25,6 @@
 package dk.itst.oiosaml.sp.service;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.Filter;
@@ -43,17 +40,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.ConfigurationException;
 
-import dk.itst.oiosaml.common.SAMLUtil;
-import dk.itst.oiosaml.configuration.FileConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfiguration;
 import dk.itst.oiosaml.configuration.SAMLConfigurationFactory;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
 import dk.itst.oiosaml.logging.Audit;
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.UserAssertionHolder;
@@ -103,8 +99,7 @@ import dk.itst.oiosaml.sp.service.util.Constants;
  * @author Aage Nielsen <ani@openminds.dk>
  */
 public class SPFilter implements Filter {
-	private static final Logger log = Logger.getLogger(SPFilter.class);
-	private static final String CONF_FILE = "oiosaml-sp.properties";
+	private static final Logger log = LoggerFactory.getLogger(SPFilter.class);
 	private CRLChecker crlChecker = new CRLChecker();
 	private boolean filterInitialized;
 	private SAMLConfiguration conf;
@@ -221,57 +216,7 @@ public class SPFilter implements Filter {
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		final Map<String, String> initParameters = new HashMap<String, String>();
-		@SuppressWarnings("unchecked")
-		Enumeration<String> initParameterNames = filterConfig.getServletContext().getInitParameterNames();
-		while (initParameterNames.hasMoreElements()) {
-			String parameterName = initParameterNames.nextElement();
-			initParameters.put(parameterName, filterConfig.getServletContext().getInitParameter(parameterName));
-		}
-		
-		SAMLConfigurationFactory.setInitConfiguration(initParameters);
-
 		conf = SAMLConfigurationFactory.getConfiguration();
-		if (conf instanceof FileConfiguration) {
-			String configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_FILE);
-			String homeParam = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_HOME);
-			Map<String, String> params = new HashMap<String, String>();
-			if (configurationFileName != null) {
-				log.info(Constants.INIT_OIOSAML_FILE + " set to " + configurationFileName + " in web.xml");
-				params.put(Constants.INIT_OIOSAML_FILE, configurationFileName);
-				conf.setInitConfiguration(params);
-			} else {
-				configurationFileName = filterConfig.getServletContext().getInitParameter(Constants.INIT_OIOSAML_NAME);
-				log.info(Constants.INIT_OIOSAML_HOME + " set to " + homeParam + " in web.xml");
-				log.info(Constants.INIT_OIOSAML_NAME + " set to " + homeParam + " in web.xml");
-				if (homeParam == null) {
-					homeParam = System.getProperty(SAMLUtil.OIOSAML_HOME);
-				}
-				if (homeParam == null) {
-					if (configurationFileName!=null) {
-						log.info("Configuring OIOSAML with application name " + configurationFileName);
-						homeParam = System.getProperty("user.home") + "/.oiosaml-" + configurationFileName;
-					}
-				}
-				if (homeParam == null) {
-					homeParam = getAlternativeLocation();
-				}
-				log.info("Trying to retrieve configuration from folder " + configurationFileName);
-				params.put(Constants.INIT_OIOSAML_NAME, configurationFileName);
-				params.put(Constants.INIT_OIOSAML_HOME, homeParam);
-				conf.setInitConfiguration(params);
-			}
-			if (!conf.isConfigured()) {
-				log.info("Unable to use configuration from context-param. Try to locate configuration...");
-				configurationFileName = getAlternativeConfigurationFileName(configurationFileName);
-				params.put(Constants.INIT_OIOSAML_FILE, configurationFileName);
-				conf.setInitConfiguration(params);
-			}
-			log.info("The parameter " + Constants.INIT_OIOSAML_HOME + " which is set in web.xml to: " + homeParam + " is not set to an (existing) directory, or the directory is empty - OIOSAML-J is not configured.");
-		} else {
-			log.info("The OIO configuration is being configured by "+conf.getClass().getName());
-			conf.setInitConfiguration(initParameters);
-		}
 		if (conf.isConfigured()) {
 			try {
 				Configuration conf = SAMLConfigurationFactory.getConfiguration().getSystemConfiguration();
@@ -291,52 +236,7 @@ public class SPFilter implements Filter {
 		setFilterInitialized(false);
 	}
 
-	/**
-	 * Returns the folder containing the ear file
-	 * 
-	 * @return ear-folder
-	 */
-	private String getAlternativeLocation() {
-		// Home is not be set or wrong try to locate it
-		String filePath = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-		log.info("Found classpath: " + filePath);
-		int indexOfEar = filePath.indexOf(".ear");
-		String onlyPath = ".";
-		if (indexOfEar > 0) {
-			onlyPath = filePath.substring(0, indexOfEar);
-			int indexOfLastSlash = onlyPath.lastIndexOf("/") + 1;
-			int protocolIndex = onlyPath.lastIndexOf(':') + 1;
-			onlyPath = onlyPath.substring(protocolIndex, indexOfLastSlash); // remove
-																			// file:
-																			// from
-																			// string
-			log.info("Using only path part: " + onlyPath);
-		}
-		return onlyPath;
-	}
-
-	/**
-	 * Tries to locate the configuration in the ear file
-	 * 
-	 * @param configurationFileName
-	 * @return configurationFileName
-	 */
-	public String getAlternativeConfigurationFileName(String configurationFileName) {
-		String onlyPath = getAlternativeLocation();
-		String onlyFileName = null;
-		if (configurationFileName != null) {
-			onlyFileName = configurationFileName.substring((configurationFileName.lastIndexOf("/") + 1), configurationFileName.length());
-		}
-		log.info("And only filename part from context: " + onlyFileName);
-		if (onlyFileName == null) {
-			onlyFileName = CONF_FILE;
-		}
-		configurationFileName = onlyPath + onlyFileName;
-		return configurationFileName;
-	}
-
 	private void setRuntimeConfiguration(Configuration conf) {
-		Audit.configureLog4j(SAMLConfigurationFactory.getConfiguration().getLoggerConfiguration());
 		restartCRLChecker(conf);
 		setFilterInitialized(true);
 		setConfiguration(conf);

@@ -24,7 +24,6 @@
 package dk.itst.oiosaml.configuration;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -59,8 +58,6 @@ public interface SAMLConfiguration {
 	XMLObject getSPMetaData();
 
 	Configuration getCommonConfiguration() throws IOException;
-
-	InputStream getLoggerConfiguration() throws WrappedException;
 
 	void setConfiguration(Configuration configuration);
 

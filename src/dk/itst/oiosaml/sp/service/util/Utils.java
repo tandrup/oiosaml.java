@@ -36,8 +36,9 @@ import java.util.UUID;
 
 import javax.servlet.ServletContext;
 
+import dk.itst.oiosaml.logging.Logger;
+import dk.itst.oiosaml.logging.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.xml.util.Base64;
 
@@ -54,7 +55,7 @@ import dk.itst.oiosaml.sp.service.SAMLHandler;
 public final class Utils {
 
 	public static final String VERSION = "$Id: Utils.java 3197 2008-07-25 07:47:33Z jre $";
-	private static final Logger log = Logger.getLogger(Utils.class);
+	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 	private static final String[] SOAP_VERSIONS = new String[] { SOAPConstants.SOAP11_NS, SOAPConstants.SOAP12_NS};
 
 
