@@ -36,8 +36,8 @@ import java.util.UUID;
 
 import javax.servlet.ServletContext;
 
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.configuration.Configuration;
 import org.opensaml.ws.soap.util.SOAPConstants;
 import org.opensaml.xml.util.Base64;

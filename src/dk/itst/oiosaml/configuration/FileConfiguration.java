@@ -54,8 +54,8 @@ import org.opensaml.xml.XMLObject;
 import dk.itst.oiosaml.common.SAMLUtil;
 import dk.itst.oiosaml.error.Layer;
 import dk.itst.oiosaml.error.WrappedException;
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import dk.itst.oiosaml.sp.service.SPFilter;
 import dk.itst.oiosaml.sp.service.util.Constants;
 

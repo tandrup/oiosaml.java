@@ -27,8 +27,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opensaml.common.binding.BindingException;

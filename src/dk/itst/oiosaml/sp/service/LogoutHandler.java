@@ -29,8 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 
 import dk.itst.oiosaml.logging.Audit;
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import dk.itst.oiosaml.logging.Operation;
 import dk.itst.oiosaml.sp.AuthenticationHandler;
 import dk.itst.oiosaml.sp.LogoutAuthenticationHandler;

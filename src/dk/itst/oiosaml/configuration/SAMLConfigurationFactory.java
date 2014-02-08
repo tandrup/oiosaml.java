@@ -23,8 +23,8 @@ package dk.itst.oiosaml.configuration;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This factory returns the configuration from the META-INF/services/dk.itst.oiosaml.configuration.SAMLConfiguration file. Default is {@link #FileConfiguration}.

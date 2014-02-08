@@ -27,8 +27,8 @@ import java.security.PublicKey;
 
 import javax.xml.crypto.dsig.XMLSignature;
 
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.opensaml.Configuration;
 import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.ws.soap.soap11.Body;

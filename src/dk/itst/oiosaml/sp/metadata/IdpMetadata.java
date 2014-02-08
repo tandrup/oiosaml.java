@@ -37,8 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import dk.itst.oiosaml.logging.Logger;
-import dk.itst.oiosaml.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.metadata.ArtifactResolutionService;

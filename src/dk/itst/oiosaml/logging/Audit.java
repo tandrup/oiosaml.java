@@ -28,11 +28,14 @@ import java.text.MessageFormat;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dk.itst.oiosaml.sp.UserAssertion;
 import dk.itst.oiosaml.sp.service.util.Constants;
 
 public class Audit {
-	private static Logger log = (Logger) LoggerFactory.getLogger("OIOSAML_AUDIT_LOGGER");
+	private static Logger log = LoggerFactory.getLogger("OIOSAML_AUDIT_LOGGER");
 	private static final ThreadLocal<MessageFormat> format = new ThreadLocal<MessageFormat>() {
 		protected MessageFormat initialValue() {
 			// format: operation direction
