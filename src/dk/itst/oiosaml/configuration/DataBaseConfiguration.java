@@ -20,6 +20,7 @@
  */
 package dk.itst.oiosaml.configuration;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -107,8 +108,8 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 			PreparedStatement ps = con.prepareStatement("SELECT keystore FROM oiosaml_java_keystore");
 			ResultSet rs = ps.executeQuery();
 			rs.next();
-			Clob clob = rs.getClob(1);
-			keystore.load(clob.getAsciiStream(),getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD).toCharArray());
+			byte[] keystoreBytes = rs.getBytes(1);
+			keystore.load(new ByteArrayInputStream(keystoreBytes), getSystemConfiguration().getString(Constants.PROP_CERTIFICATE_PASSWORD).toCharArray());
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {

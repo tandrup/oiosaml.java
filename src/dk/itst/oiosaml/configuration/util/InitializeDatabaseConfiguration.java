@@ -164,8 +164,8 @@ public class InitializeDatabaseConfiguration {
 		stmt.setString(2, "dk.itst.oiosaml.sp.service.session.jdbc.JndiFactory");
 		stmt.addBatch();
 
-		stmt.setString(1, "oiosaml-sp.sessionfactory.jndi");
-		stmt.setString(2, "jdbc/oiosaml-ds");
+		stmt.setString(1, "oiosaml-sp.sessionhandler.jndi");
+		stmt.setString(2, "java:jdbc/oiosaml-ds");
 		stmt.addBatch();
 
 		stmt.executeBatch();
