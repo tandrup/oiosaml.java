@@ -66,7 +66,7 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 		if (params.containsKey(Constants.INIT_OIOSAML_DATASOURCE_JNDI)) {
 			jdbcConfiguration = new JdbcConfiguration(params.get(Constants.INIT_OIOSAML_DATASOURCE_JNDI));
 		} else {
-			jdbcConfiguration = new JdbcConfiguration();
+			throw new IllegalArgumentException("Missing configuration parameter: " + Constants.INIT_OIOSAML_DATASOURCE_JNDI);
 		}
 	}
 

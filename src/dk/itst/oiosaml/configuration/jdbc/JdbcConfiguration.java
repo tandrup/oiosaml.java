@@ -18,23 +18,14 @@
  */
 package dk.itst.oiosaml.configuration.jdbc;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
-import org.xml.sax.SAXException;
 
 /**
  * @author dk7n83
@@ -52,36 +43,6 @@ public class JdbcConfiguration {
 	 */
 	
 	
-	/**
-	 * This class gets a connection to the database - based on a datasource file.
-	 * META-INF/services/oiosaml-ds.xml is being used to find JNDI for datasource.
-	 */
-	public JdbcConfiguration() {
-		try {
-			InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(OIOSAML_DATASOURCE);
-			DocumentBuilder dom = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document dsDom = dom.parse(resourceAsStream);
-			log.info("Parsing for " + TAG_NAME + " in  ");
-			log.info(getStringFromDoc(dsDom));
-			String jndiName = "java:" + dsDom.getElementsByTagName(TAG_NAME).item(0).getTextContent();
-			InitialContext ctx = new InitialContext();
-			log.info("Looking up JNDI: " + jndiName);
-			dataSource = (DataSource) ctx.lookup(jndiName);
-		} catch (NamingException e) {
-			log.error("Unable to lookup [" + TAG_NAME + "] from " + OIOSAML_DATASOURCE + " [" + e.getMessage() + "]");
-			throw new RuntimeException(e);
-		} catch (ParserConfigurationException e) {
-			log.error("XML parse configuration error when trying " + OIOSAML_DATASOURCE + " [" + e.getMessage() + "]");
-			throw new RuntimeException(e);
-		} catch (SAXException e) {
-			log.error("The xml appears to be incorrect. Looking for content in " + TAG_NAME + " [" + e.getMessage() + "]");
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			log.error("Unable to find or read from file " + OIOSAML_DATASOURCE + " [" + e.getMessage() + "]");
-			throw new RuntimeException(e);
-		}
-	}
-
 	public JdbcConfiguration(String jndiName) {
 		try {
 			InitialContext ctx = new InitialContext();
@@ -91,12 +52,6 @@ public class JdbcConfiguration {
 			log.error("Unable to lookup [" + TAG_NAME + "] from " + OIOSAML_DATASOURCE + " [" + e.getMessage() + "]");
 			throw new RuntimeException(e);
 		}
-	}
-
-	private String getStringFromDoc(org.w3c.dom.Document doc) {
-		DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
-		LSSerializer lsSerializer = domImplementation.createLSSerializer();
-		return lsSerializer.writeToString(doc);
 	}
 
 	/**
