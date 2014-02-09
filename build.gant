@@ -10,8 +10,6 @@ testReports = 'target/reports'
 webDir = 'webapp'
 version = 'unknown'
 
-ant.property(name: 'ivy.checksums', value: '')
-
 includeTargets << gant.targets.Clean
 
 cleanDirectory << ['target', 'lib/build', 'lib/test', 'lib/dist']
