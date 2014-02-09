@@ -32,8 +32,6 @@ import org.apache.log4j.Logger;
  *
  */
 public class JdbcConfiguration {
-	public static final String TAG_NAME = "jndi-name";
-	public static final String OIOSAML_DATASOURCE = "META-INF/services/oiosaml-ds.xml";
 	private static final Logger log = Logger.getLogger(JdbcConfiguration.class);
 	private DataSource dataSource;
 
@@ -49,7 +47,7 @@ public class JdbcConfiguration {
 			log.info("Looking up JNDI: " + jndiName);
 			dataSource = (DataSource) ctx.lookup(jndiName);
 		} catch (NamingException e) {
-			log.error("Unable to lookup [" + TAG_NAME + "] from " + OIOSAML_DATASOURCE + " [" + e.getMessage() + "]");
+			log.error("Unable to lookup " + jndiName, e);
 			throw new RuntimeException(e);
 		}
 	}
