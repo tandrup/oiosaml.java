@@ -36,14 +36,6 @@ CREATE TABLE oiosaml_java_keystore
   CONSTRAINT java_keystore_pkey PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS oiosaml_logger;
-CREATE TABLE oiosaml_logger
-(
-  id character varying(255) NOT NULL,
-  log4j text,
-  CONSTRAINT logger_pkey PRIMARY KEY (id)
-);
-
 DROP TABLE IF EXISTS oiosaml_properties;
 CREATE TABLE oiosaml_properties
 (

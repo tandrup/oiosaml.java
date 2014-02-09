@@ -22,13 +22,11 @@ package dk.itst.oiosaml.configuration;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -128,26 +126,6 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 			jdbcConfiguration.closeConnection(con);
 		}
 		return keystore;
-	}
-
-	public InputStream getLoggerConfiguration() throws WrappedException {
-		
-		Connection con = jdbcConfiguration.getConnection();
-		InputStream is=null;
-		try {
-			PreparedStatement ps = con.prepareStatement("SELECT log4j FROM oiosaml_logger");
-			ResultSet rs = ps.executeQuery();
-			if (!rs.next()) {
-				return null;
-			}
-			Clob clob = rs.getClob(1);
-			is=clob.getAsciiStream();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			jdbcConfiguration.closeConnection(con);
-		}
-		return is;
 	}
 
 	public XMLObject getSPMetaData() throws WrappedException {
