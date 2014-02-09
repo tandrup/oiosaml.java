@@ -214,7 +214,7 @@ target (makepom: 'Make maven pom') {
 
 target (report: "Make dependency report") {
 	depends(resolve_dist)
-	ivy.report(conf: "dist")
+	ivy.report(conf: "dist", todir: "target", graph: false)
 }
 
 setDefaultTarget ( jar )
