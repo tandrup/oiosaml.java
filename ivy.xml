@@ -46,6 +46,7 @@
             <exclude org="org.beanshell" />
             <exclude org="org.slf4j" />
             <exclude org="velocity" />
+            <exclude org="org.bouncycastle" module="bcprov-jdk15" />
         </dependency>
 
         <dependency org="ca.juliusdavies" name="not-yet-commons-ssl" rev="0.3.9" />
