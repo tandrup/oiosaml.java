@@ -63,7 +63,16 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 	}
 	
 	public boolean isConfigured() {
-		return (jdbcConfiguration != null);
+		if (jdbcConfiguration == null) {
+			return false;
+		}
+
+		Connection con = jdbcConfiguration.getConnection();
+		try {
+			return hasTable(con, "oiosaml_properties");
+		} finally {
+			jdbcConfiguration.closeConnection(con);
+		}
 	}
 
 	public void setInitConfiguration(Map<String, String> params) {
@@ -94,6 +103,11 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 	public Configuration getSystemConfiguration() throws IllegalStateException {
 		if (systemConfiguration != null)
 			return systemConfiguration;
+
+		if (!isConfigured()) {
+			throw new IllegalStateException("System not configured");
+		}
+
 		CompositeConfiguration conf = new CompositeConfiguration();
 		try {
 			org.apache.commons.configuration.DatabaseConfiguration dbConfiguration = new org.apache.commons.configuration.DatabaseConfiguration(jdbcConfiguration.getDataSource(), "oiosaml_properties", "conf_key", "conf_value");
@@ -163,5 +177,18 @@ public class DataBaseConfiguration implements SAMLConfiguration {
 
 	public void setConfiguration(Configuration configuration) {
 		systemConfiguration = configuration;
+	}
+	
+	private boolean hasTable(Connection con, String name) {
+		try {
+			ResultSet tables = con.getMetaData().getTables(con.getCatalog(), null, name, null);
+			try {
+				return tables.next();
+			} finally {
+				tables.close();
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
