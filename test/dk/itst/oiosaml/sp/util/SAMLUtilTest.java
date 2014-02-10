@@ -1,15 +1,8 @@
 package dk.itst.oiosaml.sp.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.InvalidParameterException;
 import java.util.List;
 
@@ -44,6 +37,11 @@ import org.opensaml.xml.signature.Signature;
 
 import dk.itst.oiosaml.common.OIOSAMLConstants;
 import dk.itst.oiosaml.common.SAMLUtil;
+import org.opensaml.xml.util.XMLHelper;
+import org.w3c.dom.Element;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 public class SAMLUtilTest {
 
@@ -255,4 +253,27 @@ public class SAMLUtilTest {
 		assertNull(SAMLUtil.getFirstElement(null, Created.class));
 	}
 
+    @Test
+    public void testXXEPrevention() {
+        // Arrange
+        // Get external xml and test it indeed does exist. Hereafter test that is is not present in the loaded xml.
+        InputStream in = null;
+        try {
+            String urlString = "http://www.w3schools.com/xml/note.xml";
+            URL url = new URL(urlString);
+            URLConnection conn = url.openConnection();
+            in = conn.getInputStream();
+        } catch (IOException e) {
+            assertFalse("External resource was not found!", true);
+        }
+        Element externalElement = SAMLUtil.loadElement(in);
+        String externalElementAsString = XMLHelper.prettyPrintXML(externalElement);
+
+        // Act
+        Element orig = SAMLUtil.loadElement(getClass().getResourceAsStream("assertionWithExternalEntity.xml"));
+
+        // Assert
+        assertTrue("External entity did not include the expected text", externalElementAsString.contains("Don't forget me this weekend!"));
+        assertFalse("External entities has not been disabled. XXE attack is therefore possible.", orig.getTextContent().contains("Don't forget me this weekend!"));
+    }
 }
