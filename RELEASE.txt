@@ -1,6 +1,6 @@
 Releases log for OIOSAML.Java
 -----------------------------
-Release note, ?
+Release note, 11442
 The following have been included in this release:
 * Fixed issue regarding making a POST request without being logged in. After having logged in it was not possible to reproduce the POST request because the form values was gone. This fix ensures that the form values does not disappear from the original request that was stored in session.
 * Disabled the resolvement of external entities when parsing XML in order to prevent XML External Entity (XXE) attacks.
