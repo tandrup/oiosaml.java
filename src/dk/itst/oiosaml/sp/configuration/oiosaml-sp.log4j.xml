@@ -50,7 +50,7 @@
         </layout>
     </appender>
 
-    <logger name="OIOSAML_AUDIT_LOGGER">
+    <logger name="dk.itst.oiosaml">
         <level value="info" />
         <appender-ref ref="OIOSAML_CONSOLE"/>
         <appender-ref ref="OIOSAML_FILE"/>
