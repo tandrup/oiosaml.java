@@ -1,4 +1,4 @@
-<!DOCTYPE root [<!ENTITY test_entity SYSTEM "http://www.w3schools.com/xml/notedsf.xml">]>
+<!DOCTYPE root [<!ENTITY test_entity SYSTEM "http://www.w3schools.com/xml/note.xml">]>
 <saml:Assertion Version="2.0" IssueInstant="2008-04-03T11:51:26.375Z" ID="pVQYCtN.5RD5VtkGJx3Fhecjrkd" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
 	<saml:Issuer>&test_entity;</saml:Issuer>
 	<saml:Subject>
