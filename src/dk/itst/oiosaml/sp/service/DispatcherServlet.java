@@ -131,8 +131,6 @@ public class DispatcherServlet extends HttpServlet {
 					return;
 				}
 				setBindingHandler(new DefaultBindingHandlerFactory());
-				setIdPMetadata(IdpMetadata.getInstance());
-				setSPMetadata(SPMetadata.getInstance());
 				setCredential(new CredentialRepository().getCredential(SAMLConfigurationFactory.getConfiguration()
 						.getKeystore(), configuration.getString(Constants.PROP_CERTIFICATE_PASSWORD)));
 
@@ -177,7 +175,7 @@ public class DispatcherServlet extends HttpServlet {
 				SAMLHandler handler = handlers.get(action);
 				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler()
 						: null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential,
+				RequestContext context = new RequestContext(req, res, getIdpMetadata(), getSPMetadata(), credential,
 						configuration, sessionHandler, bindingHandlerFactory);
 				handler.handleGet(context);
 			} catch (Exception e) {
@@ -207,7 +205,7 @@ public class DispatcherServlet extends HttpServlet {
 				SAMLHandler handler = handlers.get(action);
 				SessionHandler sessionHandler = sessionHandlerFactory != null ? sessionHandlerFactory.getHandler()
 						: null;
-				RequestContext context = new RequestContext(req, res, idpMetadata, spMetadata, credential,
+				RequestContext context = new RequestContext(req, res, getIdpMetadata(), getSPMetadata(), credential,
 						configuration, sessionHandler, bindingHandlerFactory);
 				handler.handlePost(context);
 			} catch (Exception e) {
@@ -235,10 +233,26 @@ public class DispatcherServlet extends HttpServlet {
 		this.configuration = systemConfiguration;
 	}
 
+	public SPMetadata getSPMetadata() {
+		if (spMetadata != null) {
+			return spMetadata;			
+		} else {
+			return SPMetadata.getInstance();
+		}
+	}
+	
 	public final void setSPMetadata(SPMetadata metadata) {
 		this.spMetadata = metadata;
 	}
 
+	public IdpMetadata getIdpMetadata() {
+		if (idpMetadata != null) {
+			return idpMetadata;
+		} else {
+			return IdpMetadata.getInstance();
+		}
+	}
+	
 	public final void setIdPMetadata(IdpMetadata metadata) {
 		this.idpMetadata = metadata;
 	}
