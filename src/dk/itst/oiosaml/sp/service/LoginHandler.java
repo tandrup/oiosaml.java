@@ -164,6 +164,13 @@ public class LoginHandler implements SAMLHandler {
 				return true;
 			}
 		}
+
+        // Force authentication can also be specified through the query string.
+        if(servletRequest.getParameterMap().containsKey(Constants.QUERY_STRING_FORCE_AUTHN)){
+            String value = servletRequest.getParameter(Constants.QUERY_STRING_FORCE_AUTHN);
+            return value.toLowerCase().equals("true");
+        }
+
 		return false;
 	}
 	

@@ -118,6 +118,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		final String expectedRedirectLocation = md.getFirstMetadata().getSingleSignonServiceLocation(SAMLConstants.SAML2_ARTIFACT_BINDING_URI);
 		
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			allowing(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(enc));
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
@@ -136,6 +137,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_CERTIFICATE_LOCATION, "http://discovery");
 
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(enc));
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			allowing(bHandler).getBindingURI(); will(returnValue(SAMLConstants.SAML2_ARTIFACT_BINDING_URI));
@@ -154,6 +156,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 
 		final StringValueHolder holder = new StringValueHolder();
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(req).getParameter(Constants.DISCOVERY_ATTRIBUTE); will(returnValue(""));
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			allowing(bHandler).getBindingURI(); will(returnValue(SAMLConstants.SAML2_ARTIFACT_BINDING_URI));
@@ -197,6 +200,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		};
 
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 		}});
@@ -236,6 +240,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 
 		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			allowing(bHandler).getBindingURI(); will(returnValue(SAMLConstants.SAML2_ARTIFACT_BINDING_URI));
 			one(bHandler).handle(with(equal(req)), with(equal(res)), with(equal(credential)), with(new BaseMatcher<OIOAuthnRequest>() {
@@ -261,6 +266,7 @@ public class LoginHandlerTest extends AbstractServiceTests {
 		UserAssertionHolder.set(new UserAssertionImpl(new OIOAssertion(assertion)));		
 		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(handlerFactory).getBindingHandler(SAMLConstants.SAML2_ARTIFACT_BINDING_URI); will(returnValue(bHandler));
 			allowing(bHandler).getBindingURI(); will(returnValue(SAMLConstants.SAML2_ARTIFACT_BINDING_URI));
 			one(bHandler).handle(with(equal(req)), with(equal(res)), with(equal(credential)), with(new BaseMatcher<OIOAuthnRequest>() {

@@ -136,9 +136,9 @@ public class SPFilterTest extends AbstractServiceTests {
 		UserAssertionHolder.set(new UserAssertionImpl(new OIOAssertion(assertion)));		
 		context.assertIsSatisfied();
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);
 			one(req).getRequestDispatcher("/saml/login"); will(returnValue(dispatcher));
-			one(req).getParameterMap(); will(returnValue(new HashMap<String, String[]>()));
 			one(dispatcher).forward(with(any(HttpServletRequest.class)), with(equal(res)));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(null));
             one(session).getCreationTime(); will(returnValue(0l));
@@ -155,6 +155,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		setHandler();
 		final BaseMatcher<ServletRequest> baseMatcher = new BaseMatcherExtension();
 		context.checking(new Expectations() {{
+            allowing(req).getParameterMap();
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
@@ -176,6 +177,7 @@ public class SPFilterTest extends AbstractServiceTests {
 		conf.put(Constants.PROP_ASSURANCE_LEVEL, "4");
 		setHandler();
 		context.checking(new Expectations() {{
+            one(req).getParameterMap();
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).getAttribute(Constants.SESSION_USER_ASSERTION); will(returnValue(new UserAssertionImpl(new OIOAssertion(assertion))));
 			one(session).removeAttribute(Constants.SESSION_USER_ASSERTION);

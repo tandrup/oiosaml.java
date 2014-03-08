@@ -47,9 +47,13 @@ If only one is specified, this user will be selected automatically, otherwise a 
 <p>Attributes can be defined for each user by setting oiosaml-sp.develmode.&lt;username&gt;.&lt;attributename&gt;=attributevalue.</p>
 <p>Remember that if attribute names contain ;, it must be escaped using \.</p>
 
-<p><strong>Warning:</strong> When developer mode is enabled, no checks for valid assertions are made whatsoever!</p> 
+<p><strong>Warning:</strong> When developer mode is enabled, no checks for valid assertions are made whatsoever!</p>
 
-
+<h2>Force Authentication</h2>
+<p>
+    Some times it is desirable to force a user to login again even if the user already had a valid authentication session.
+    This can be accomplished by adding the query string parameter "forceAuthn=True" to the query string when requesting a page.
+</p>
 
 <h2>Attribute Query</h2>
 <p>Attribute Query must be performed programatically. How to use Attribute Query is described in <a href="attributequery.html">in the Attribute Query guide</a>.</p>

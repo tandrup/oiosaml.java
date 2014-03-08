@@ -367,12 +367,11 @@ public class SAMLUtil {
 	 */
 	public static Element loadElement(InputStream input) {
 		try {
-            DocumentBuilderFactory newFactory = DocumentBuilderFactory.newInstance();
-            newFactory.setNamespaceAware(true);
+            DocumentBuilderFactory newFactory = getDocumentBuilderFactory();
             
             DocumentBuilder builder = newFactory.newDocumentBuilder();
 
-			Document doc = builder.parse(input);
+            Document doc = builder.parse(input);
 			Element samlElement = doc.getDocumentElement();
 
 			return samlElement;
@@ -386,7 +385,17 @@ public class SAMLUtil {
 		return null;
 	}
 
-	/**
+    private static DocumentBuilderFactory getDocumentBuilderFactory() throws ParserConfigurationException {
+        DocumentBuilderFactory newFactory = DocumentBuilderFactory.newInstance();
+        newFactory.setNamespaceAware(true);
+
+        // External entities has been disabled in order to prevent XML External Entity (XXE) attacks.
+        String FEATURE = "http://xml.org/sax/features/external-general-entities";
+        newFactory.setFeature(FEATURE, false);
+        return newFactory;
+    }
+
+    /**
 	 * Unmarshall a string containing a SAML2.0 document in XML to an XMLObject.
 	 * 
 	 * @param elementString
@@ -419,7 +428,7 @@ public class SAMLUtil {
 	 */
 	public static Element loadElementFromString(String elementString) {
 		try {
-            DocumentBuilderFactory newFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory newFactory = getDocumentBuilderFactory();
             newFactory.setNamespaceAware(true);
             
             DocumentBuilder builder = newFactory.newDocumentBuilder();

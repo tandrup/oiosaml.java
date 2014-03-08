@@ -41,7 +41,9 @@ public interface Constants {
 	 * attribute should be a {@link UserAssertion}.
 	 */
 	static final String SESSION_USER_ASSERTION = "dk.itst.oiosaml.userassertion";
-	
+
+    // Constants used within query strings
+    static final String QUERY_STRING_FORCE_AUTHN = "forceAuthn"; // Enables force authentication when querying IdP.
 
 	// URI in the reference implementation
 	static final String PROP_HOME = "oiosaml-sp.uri.home";

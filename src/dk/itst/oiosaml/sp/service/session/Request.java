@@ -23,7 +23,10 @@
  */
 package dk.itst.oiosaml.sp.service.session;
 
+import dk.itst.oiosaml.sp.service.util.Constants;
+
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,14 +40,24 @@ public class Request implements Serializable {
 
 	public Request(String requestURI, String queryString, String method, Map<String, String[]> parameters) {
 		this.requestURI = requestURI;
-		this.queryString = queryString;
-		this.method = method;
+
+        // Remove forceAuthn attribute if it was part of request. This is done in order to avoid an infinite loop of force logins.
+        this.queryString = queryString == null ? null : queryString.replaceAll(Constants.QUERY_STRING_FORCE_AUTHN + "=.*?($|[&;])", "");
+
+        this.method = method;
+
+        // Remove forceAuthn attribute if it was part of POST request. This is done in order to avoid an infinite loop of force logins.
+        if(parameters != null)
+            parameters.remove(Constants.QUERY_STRING_FORCE_AUTHN);
 		this.parameters = parameters;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static Request fromHttpRequest(HttpServletRequest req) {
-		return new Request(req.getRequestURI(), req.getQueryString(), req.getMethod(), req.getParameterMap());
+        // req.getParameterMap() is a weak reference and is cleared between requests. req.getParameterMap() is only used in combination with POST logins and properly redirection after login was not possible without the parameter map.
+        Map<String, String[]> copy = new HashMap<String, String[]>();
+        copy.putAll(req.getParameterMap());
+        return new Request(req.getRequestURI(), req.getQueryString(), req.getMethod(), copy);
 	}
 	
 
