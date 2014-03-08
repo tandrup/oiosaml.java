@@ -74,6 +74,7 @@ public class IdpMetadata {
 	public static final String VERSION = "$Id: IdpMetadata.java 2964 2008-06-02 11:34:06Z jre $";
 	public static final String METADATA_DIRECTORY = "common.saml2.metadata.idp.directory";
 	private static IdpMetadata instance;
+	private static long instanceCreated;
 
 	private static final Logger log = LoggerFactory.getLogger(IdpMetadata.class);
 
@@ -90,11 +91,12 @@ public class IdpMetadata {
 	}
 
 	public static IdpMetadata getInstance() {
-		if (instance == null) {
+		if (instance == null || System.currentTimeMillis() - instanceCreated > Constants.METADATA_CACHE_TIME) {
 			SAMLConfiguration configuration = SAMLConfigurationFactory.getConfiguration();
 			String protocol = configuration.getSystemConfiguration().getString(Constants.PROP_PROTOCOL);
 			List<XMLObject> descriptors = configuration.getListOfIdpMetadata();
 			instance = new IdpMetadata(protocol, descriptors.toArray(new EntityDescriptor[descriptors.size()]));
+			instanceCreated = System.currentTimeMillis();
 		}
 		return instance ;
 	}

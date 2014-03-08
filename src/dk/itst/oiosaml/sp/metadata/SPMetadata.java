@@ -62,6 +62,7 @@ public class SPMetadata {
 	private EntityDescriptor entityDescriptor;
 	private SPSSODescriptor spSSODescriptor;
 	private static SPMetadata instance;
+	private static long instanceCreated;
 
 	public SPMetadata(EntityDescriptor entityDescriptor, String protocol) {
 		this.entityDescriptor = entityDescriptor;
@@ -69,9 +70,10 @@ public class SPMetadata {
 	}
 
 	public static SPMetadata getInstance() {
-		if (instance == null) {
+		if (instance == null || System.currentTimeMillis() - instanceCreated > Constants.METADATA_CACHE_TIME) {
 			SAMLConfiguration configuration = SAMLConfigurationFactory.getConfiguration();
 			instance = new SPMetadata((EntityDescriptor) configuration.getSPMetaData(), configuration.getSystemConfiguration().getString(Constants.PROP_PROTOCOL));
+			instanceCreated = System.currentTimeMillis();
 		}
 		return instance;
 	}

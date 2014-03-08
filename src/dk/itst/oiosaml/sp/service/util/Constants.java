@@ -214,5 +214,5 @@ public interface Constants {
 	static final String IDP_METADATA_FILE = "common.saml2.metadata.idp.filename";
 	static final String IDP_METADATA_DIRECTORY = "common.saml2.metadata.idp.directory";
 
-	
+	static final long METADATA_CACHE_TIME = 5 * 60 * 1000; // 5 min
 }
